@@ -1,109 +1,62 @@
 ## Web site for this course
 
-[http://jvanheld.github.io/cisreg_course/](http://jvanheld.github.io/cisreg_course/)
+[https://dputhier.github.io/ASG/](https://dputhier.github.io/ASG/)
 
 ## Teachers
 
 | Abbrev | Name  |
 |----------|--------------------------------------------------|
-| JCM | Jaime Castro Mondragon |
 | DP |  Denis Puthier |
 | JvH | [Jacques van Helden](http://jacques.van-helden.perso.luminy.univ-amu.fr/) |
 | | |
 
+## Year
+
+2016-2017
+
+## Audience
+
+- 2ème année du Master en Bioinformatique, biochimie structurale et génomique (BBSG).
+- Ecole doctorale
+
 ## Resources
 
-| Resource | Link |
+| Tool | About |
 |---------------------------------------|---------------------------------------------------------------|
-| Glossary | [concept definitions](../html/concepts.html) |
-| Regulatory Sequence Analysis Tools (RSAT) | [http://rsat.eu/](http://rsat.eu/) |
-| RSAT teaching material | [http://rsa-tools.github.io/teaching/](http://rsa-tools.github.io/teaching/) |
-| RSAT course (slides) | [http://rsa-tools.github.io/course/](http://rsa-tools.github.io/course/) |
-| footprintDB | [http://floresta.eead.csic.es/footprintdb/](http://floresta.eead.csic.es/footprintdb/) |
-| MEME suite| [http://meme-suite.org/](http://meme-suite.org/) |
-| | | 
+|[R](http://www.r-project.org/) |	A free software environment for statistical computing and graphics |
+|[R markdown](http://rmarkdown.rstudio.com/) |	Documentation for R markdown language (used for the practicals) |
+|[Bioconductor](http://www.bioconductor.org) |	A set of R libraries dedicated to statistical analysis of genomics data.|
+| [MeV: MultiExperiment Viewer](http://www.tm4.org/mev.html) |	A Java application designed to allow the analysis of expression data |
+|[Cluster 3.0](http://bonsai.hgc.jp/~mdehoon/software/cluster/software.htm) | Implements the most commonly used clustering methods for gene expression |
+| [java Treeview](http://jtreeview.sourceforge.net) |	Java-based tool to visualize trees prodced by hierarchical clustering togeter with a heatmap with expression proviles.|
 
-## Content table
+## Schedule
 
 | Date | From  | To    | Subject | Teacher | Practicals  |
 |------------|-------|--------------------------------|---------|-------------|----------|
-| Mon 17/10 | 09:00 | 10:30 | Characterizing and representing TF-DNA interactions <br>(from sites to motifs) | JvH | [[01.2_regulatory_sequences_intro](http://rsa-tools.github.io/course/pdf_files/01.2_regulatory_sequences_intro.pdf)]<br>[[RSAT](http://rsat.eu/)]<br>[[tutorial *from sites to motifs*](../from_sites_to_matrices/from_sites_to_matrices.html)] |
-| Mon 17/10 | 11:00 | 12:30 | Introduction to motif database | JvH  | [[footprintDB](http://floresta.eead.csic.es/footprintdb/)]<br>[[JASPAR](http://jaspar.genereg.net/)]<br>[[HOCOMOCO](http://hocomoco.autosome.ru/)]<br>[[RegulonDB](http://regulondb.ccg.unam.mx/)]|
-| Mon 17/10 | 14:00 | 15:30 | ChIP-seq analysis | DP | [[slides](../chip-seq/slides/chipseq__roscoff2015.pdf)]<br>[[tutorial *mapping*](../chip-seq/practical/chip-seq.html)] |
-| Wed 21/10 | 16:00 | 17:30 | ChIP-seq analysis | DP |  [[tutorial *peak annotation*](../chip-seq/practical/annotation.html)]<br>[[tutorial *peak-motifs*](http://dputhier.github.io/EBA_2015_ChIP-Seq/tutorial/04_motif/motif_tutorial.html)]|
-| Tue 18/10 | 09:00 | 10:30 | Scanning sequences to predict binding sites <br>(from motifs to sites) | JvH  | [[01.4.PSSM_theory](http://rsa-tools.github.io/course/pdf_files/01.4.PSSM_theory.pdf)]<br>[[02.3.pattern_matching_matrices](http://rsa-tools.github.io/course/pdf_files/02.3.pattern_matching_matrices.pdf)]<br>[[01.3.sequence_models](http://rsa-tools.github.io/course/pdf_files/01.3.sequence_models.pdf)]<br>[[RSAT](http://rsat.eu/)] *dna-pattern*, *matrix-scan*, *permute-matrix*, *random-seq*<br>[[tutorial *E.coli promoter scanning*](../sequence_scanning/promoter_scanning_ecoli.html)] |
-| Tue 18/10 | 15:10 | 16:55 | ENCODE | JvH  | [[tutorial: ENCODE ChIP-seq peaks](../encode_ChIP-seq_analysis/encode_ChIP-seq_analysis.html)] <!--[travail personnel](../encode_ChIP-seq_analysis/TP1_chipseq_2014.html)-->|
-| Wed 19/10 | 14:00 | 15:30 | Discovering motifs in regulatory sequences <br>(from sequences to motifs) | JvH  | [[03.2.1.pattern_discovery_strings](http://rsa-tools.github.io/course/pdf_files/03.2.1.pattern_discovery_strings.pdf)]<br>[[03.3.pattern_discovery_matrices](http://rsa-tools.github.io/course/pdf_files/03.3.pattern_discovery_matrices.pdf)]<br>[[RSAT](http://rsat.eu/)] *oligo-analysis*, *dyad-analysis*, *position-analysis*, *random-genes* <br>[[MEME](http://meme-suite.org/)] |
-| Wed 19/10 | 16:00 | 17:30 | Motif comparison and clustering | JvH + JCM | [[RSAT](http://rsat.eu/)] *matrix-clustering*<br>[[slides](../cluster_motifs/CisReg_motif_clustering.pdf)]<br>[[tutorial *matrix-clustering*](../cluster_motifs/cluster_ChIP_seq_peaks.html)] |
-| | | | | |
+| Fri 04/11 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
+| Mon 07/11 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
+| Tue 08/11 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
+| Tue 15/11 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
+| Mon 12/12 | 09:00 | 13:00 |  | DP/JvH | [[]]()<br>[[]]() |
+| Mon 12/12 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
+| Wed 14/12 | 09:00 | 13:00 |  | DP/JvH | [[]]()<br>[[]]() |
+| Wed 14/12 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
+
+
+## Site content
+
+| Concept | Description |
+|----------------|--------------------|
+|Introduction to R | - [First steps with R and Siméon Denis Poisson  (practical)](http://jvanheld.github.io/EBA15_stats_RStudio/practicals/01_first_steps_with_R/01_first_steps_with_R.html)<br> - [R language: A quick tutorial (practical)](practicals/r_intro_td/index.html)<br> - [R language: A quick tutorial (practical)](practicals/r_intro_en/RQuickTutorial.pdf)|
+|Occurrence statistics| - [The Poisson distribution in the context of Peak-calling (practical)](http://jvanheld.github.io/EBA15_stats_RStudio/practicals/02_peak-calling/peak-calling_stats_practical.html)<br>- [The Poisson distribution in the context of k-mers occurence statistics (practical)](http://dputhier.github.io/STAT1_R/practical/R_intro.html)<br> - [Read mapping statistics and the binomial distribution (practical)](practicals/chip-seq_read_mapping/read_mapping_solutions.html)<br> - [Hypergeometric distribution and enrichment statistics.An example application: DAVID (practical)](practicals/go_statistics_td/go_statistics_td_2015.html) <br> - [Application example: K-mer occurrences in ChIP-seq peaks (practical)](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/practicals/kmer_occurrences/kmer_occurrences_chip-seq_peaks.html)|
+|Microarray analysis | - [Introduction to multivariate analysis (slides)](pdf_files/07.00.multiv_intro.pdf)<br> - [Transcriptome microarrays: study cases (slides)](pdf_files/07.01.multiv_study_cases.pdf)<br> - [Differential_expression (slides)](pdf_files/07.04.differential_expression.pdf) <br> - [Microarray data: selecting differentially expressed genes with R or TmeV (practical)](practicals/affy_selection_td/affy_selection_td.html) <br> - [Sampling distributions (practical)](practicals/sampling_distrib.html)|
+|The multiple ways to correct multiple testing| - [Multiple testing corrections  (slides)](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/pdf_files/06.04.multitesting_corrections.pdf) <br> - [Multiple testing corrections (practical)](practicals/multiple_testing_td/multiple_testing_corrections.html)|
+|Clustering (unsupervised classification)| - [Correlation analysis (slides)](pdf_files/07.03.correlation_analysis.pdf) <br> - [Clustering (slides)](pdf_files/09.clustering.pdf) <br> - [Clustering (slides DP)](practicals/unsup_classif_slides/unsup_classification.pdf)<br> - [Handling clustering methods: artificial datasets (practical)](unsup_classification_sim_td/index.html) <br> - [Clustering of microarray data](practicals/unsup_classification_td/index.html)|
+|RNA-seq data analysis| - [RNA-Seq method (slides)](pdf_files/Rnaseq_2016.pdf) <br> - [RNA-seq read mapping (practical)](practicals/rnaseq_td/rnaseq_td.html)<br> - [The negative binomial and DESeq bioC package](practicals/rnaseq_diff/DESeqTuto.html) <br> - [The negative binomial and DESeq bioC package](practicals/rnaseq_diff/rnaseq_diff.html)|
+|Supervised classification| - [Introduction to multivariate analysis](pdf_files/07.00.multiv_intro.pdf) <br> - [Discriminant analysis (slides)](pdf_files/11.discriminant_analysis.pdf)|
+|Visualization| - [Dimension reduction and PCA](pdf_files/10.visualization.pdf)|
 
 ## Travaux personnels
 
 [Description des travaux personnels](cisreg_personal_work_2016.html)
-
-## White/green board pictures
-
-![2016-10-19_01a_demarche_travaux-personnels.jpg](../white_board_pictures_2016/2016-10-19_01a_demarche_travaux-personnels.jpg)
-![2016-10-19_01b_demarche_travaux-personnels.jpg](../white_board_pictures_2016/2016-10-19_01b_demarche_travaux-personnels.jpg)
-![2016-10-19_01c_demarche_travaux-personnels.jpg](../white_board_pictures_2016/2016-10-19_01c_demarche_travaux-personnels.jpg)
-![2016-10-19_01d_structure_rapport.jpg](../white_board_pictures_2016/2016-10-19_01d_structure_rapport.jpg)
-![2016-10-19_01e_structure_rapport.jpg](../white_board_pictures_2016/2016-10-19_01e_structure_rapport.jpg)
-![2016-10-19_02_structure_gene.jpg](../white_board_pictures_2016/2016-10-19_02_structure_gene.jpg)
-![2016-10-19_03_organisation_operons.jpg](../white_board_pictures_2016/2016-10-19_03_organisation_operons.jpg)
-![2016-10-21_01_encode_workflow.JPG](../white_board_pictures_2016/2016-10-21_01_encode_workflow.JPG)
-
-
-
-<!--
-| Mon 19/10 | 14:00 | 16:00 | Estimating the reliability of binding site predictions<br>(score distributions) | JvH  | [[RSAT](http://rsat.eu/)] *convert-background-model*, *matrix-distrib*, *matrix-quality* |
-| Tue 20/10 | 09:00 | 13:00 | Structure/sequence relationships <br>(from structures to motifs) | BCM |[[footprintDB](http://floresta.eead.csic.es/footprintdb/)]<br>[[tutorial *structures/motifs*](../structure/struct-regulation.html)] |
-| Fri 23/10 | 11:00 | 12:30 | Phylogenetic footprints | Jacques  | [[RSAT](http://rsat.eu/)] *footprint-disco*<br>[[tutorial *footprint-disco*](../phylogenetic_footprints/discovering_conserved_cisreg_elements.html)]|
-| Fri 23/10 | 14:00 | 16:00 | Définition des travaux personnels |  JvH + DP | [Description des TP](http://jvanheld.github.io/cisreg_course/html/cisreg_personal_work_2015.html)  |
-| Fri 23/10 | 14:00 | 16:00 | Réponses aux questions des étudiants, clarifications, recherche de cas d'étude pour le travail personnel  | JvH + DP | |
-| Tur 05/11 | 14:00 | 18:00 | Presentation des travaux personnels | DP + JvH | |-->
-
-* * * 
-
-<!--
-## Concepts
-
-Basic concepts for the analysis of cis-regulatory elements.
-Teachers: Bruno Contreras Moreira & Jacques van Helden.
-
-
-### Topics
-
-1. JvH Introduction to the course
-2. Bruno: Transcription factor binding: structure and sequence. **Practical:** opening a connection to structure databases and play with some TF. 
-
-3. JvH: Experimental methods to characterize TFBS (EMSA, footprints, SELEX, ChIP-chip, ChIP-seq, PBA).
-4. JvH: Representations of TF binding specificity: from binding sites to mofifs (consensus, IUPAC, PSSM, sequence logos). Practical: **RSAT convert-matrix**
-
-
-5. Bruno: TF databases: 
-
-      - JASPAR, 
-      - TRANSFAC (mainly vertebrate, commercial), 
-      - **3D footprints**
-      - AthaMap (A. thaliana)
-      - RegulonDB (E.coli)
-      - HOCOMOCO (Human)
-      - footprintDB (compendium)
-      - ...
-
-### Practicals
-
-- how to build a matrix from binding sites
-- deriving frequencies and logos from count matrices
-- deriving frequencies and logos from structures of protein/DNA complexes
-
-
-## 
-
-## Motif comparison and clustering 
-
-Jaime & Jacques
-2h theory + 2h practicals
-
--->
-
