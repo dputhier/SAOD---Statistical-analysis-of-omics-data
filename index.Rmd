@@ -21,5 +21,5 @@ output:
 
 ### Course 2016
 
-[Web site](course_contents_asg_2016.Rmd)
+[Web site](course_contents_asg_2016.html)
 
