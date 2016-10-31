@@ -1,0 +1,52 @@
+; oligo-analysis  -v 1 -l 2 -return occ,freq -noov -2str -i data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat05.fasta -o data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat05_2nt-noov-2str.tab
+; Citation: van Helden et al. (1998). J Mol Biol 281(5), 827-42. 
+; Program version              	1.169
+; Slow counting mode           
+; Oligomer length              	2
+; Input file                   	data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat05.fasta
+; Input format                 	fasta
+; Output file                  	data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat05_2nt-noov-2str.tab
+; Discard overlapping matches
+; Counted on both strands
+; 	grouped by pairs of reverse complements
+; Background model             	Bernoulli
+; Background estimation method 	
+; Sequence type                	DNA
+; Nb of sequences              	689
+; Sum of sequence lengths      	192449
+; discarded residues           	5061	 (other letters than ACGT)
+; discarded occurrences        	5043	 (contain discarded residues)
+; nb possible positions        	186717
+; total oligo occurrences      	186717
+; total overlapping occurrences	12940
+; total non overlapping occ    	173777
+; alphabet size                	4
+; nb possible oligomers        	10
+; oligomers tested for significance	0
+;
+; column headers
+;	1	seq            	oligomer sequence
+;	2	id             	oligomer identifier
+;	3	obs_freq       	observed relative frequency
+;	4	occ            	observed occurrences
+;	5	ovl_occ        	number of overlapping occurrences (discarded from the count)
+;	6	forbocc        	forbidden positions (to avoid self-overlap)
+#seq	id	obs_freq	occ	ovl_occ	forbocc
+aa	aa|tt	0.1326445904765	24767	8900	24652
+ac	ac|gt	0.1067283643161	19928	0	19855
+ag	ag|ct	0.1463016222411	27317	0	27223
+at	at|at	0.0747976884804	13966	0	27812
+ca	ca|tg	0.1502005709175	28045	0	27948
+cc	cc|gg	0.0826973441090	15441	4040	15361
+cg	cg|cg	0.0080763936867	1508	0	3004
+ga	ga|tc	0.1235184798385	23063	0	22980
+gc	gc|gc	0.0413352828077	7718	0	15376
+ta	ta|ta	0.0643969215444	12024	0	23982
+; Host name	caminante.local
+; Job started	2015-11-03.141329
+; Job done	2015-11-03.141330
+; Seconds	1.41
+;	user	1.41
+;	system	0.01
+;	cuser	0
+;	csystem	0

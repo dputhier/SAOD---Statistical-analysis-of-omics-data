@@ -1,0 +1,699 @@
+<html>
+  <head>
+<style type="text/css">
+.knitr.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+},
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0em 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.rimage.left {
+  text-align: left;
+}
+.rimage.right {
+  text-align: right;
+}
+.rimage.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+    <title></title>
+    <script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushR.js"></script>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    <script type="text/javascript">
+      SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+      SyntaxHighlighter.all();
+    </script>
+    <script type='text/javascript' src='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </head>
+
+  <body>
+    <script language="JavaScript" type="text/javascript">
+      <!--
+	  function sizeTbl2(h,i) {
+	  var tbl = document.getElementById(i);
+	  tbl.style.display = h;
+	  }
+	  // -->
+    </script>
+
+    <h1>Selecting differentially expressed genes with R or TmeV</h1>
+
+    <a name='contents'></a>
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#boer">Retrieving the den Boer normalized dataset</a></li>
+      <li><a href="#R">Loading data into R</a></li>
+      <li><a href="#welch">Basics about Welch's <i>t</i> test</li>
+      <li><a href="#apply">Applying Welch's t-test to the den Boer dataset</li>
+      <!--<li><a href="#lr">Log ratio</li>
+	  <li><a href="#volcano">Volcano plot</li>
+	  -->
+      <li><a href="#sam">Significance Analysis of Microarrays (SAM)</li>
+    </ol>
+
+
+    <hr><a name="boer"></a>
+    <h2>Retrieving the den Boer normalized dataset</h2>
+
+    <p>In this practical, we will use the data from DenBoer et al. (2009), who used microarrays to measure transcriptomic profiles in 190 samples of children blood suffering from actute lymphoblastic leukemia (<span class="concept">ALL</span), characterized by the abnormal clonal proliferation, within the bone marrow, of lymphoid progenitors blocked at a precise stage  of their differentiation. The authors used the transcriptomic profiles to establish a molecular signature,  that could serve to classify different subtypes of ALL, originating from various genetic mutations.</p>
+
+    <p>We downloaded the data series <a target="_blank" href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE13425"> GSE13425</a> from the <a target="_blank" href="http://www.ncbi.nlm.nih.gov/geo">Gene Expression Omnibus</a> (GEO) public database.</p>
+
+
+    <p>These datasets were produced using the Affymetrix geneChips microarrays (Affymetrix Human
+      Genome U133A Array, HGU133A). Informations related to this platform
+      are available on GEO website under
+      identifier
+      <a target="_blank" href="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=GPL96">GPL96</a>.
+    </p>
+
+    <!--
+	<p>Download the full <b>normalized</b> dataset.</p>
+<pre
+wget ftp://tagc.univ-mrs.fr/public/Tagc/Denis/GSE13425_Norm_Whole.txt.tar.gz
+tar xvfz GSE13425_Norm_Whole.txt.tar.gz
+wget ftp://tagc.univ-mrs.fr/public/Tagc/Denis/GSE13425_AMP_Whole.txt.tar.gz
+tar xvfz GSE13425_AMP_Whole.txt.tar.gz
+wget ftp://tagc.univ-mrs.fr/public/Tagc/Denis/GSE13425_phenoData.txt
+</pre>
+	-->
+
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+    <a name="R"></a>
+    <h2>Loading data into R</h2>
+
+    <div class="protocol">
+      <ul>
+   <li>Start <span class="program"><a target="_blank" href="http://www.r-project.org/">R</a></span>.</li>
+	<li>Before starting the analysis, have a look at the description of the R function <span class="command">read.table()</span>.
+
+<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">help</span><span class="hl std">(read.table)</span>
+</pre></div>
+</div></div>
+    </li>
+
+	<li>We will now load three data tables into <span class="program">R</span> using the command <span class="program">read.table()</span>. Quite conveniently, this function allows us to directly	read tables from a remote Web server without having to download them on our local computer. We will successively load 3 files that provide complementary information.
+    <ul>
+	    <li>the expression matrix (<i>GSE13425_Norm_Whole.txt</i>), </li>
+	    <li>the A/P/M matrix (<i>GSE13425_AMP_Whole.txt</i>)</li>
+	    <li>phenotypic data (<i>GSE13425_phenoData.txt</i>)</li>
+	  </ul>
+
+<div class="chunk" id="unnamed-chunk-2"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com">## Define the URL from whcih the datasets will be donwloaded</span>
+<span class="hl std">url.server</span> <span class="hl kwb">&lt;-</span> <span class="hl str">&quot;http://pedagogix-tagc.univ-mrs.fr/courses/statistics_bioinformatics&quot;</span>
+<span class="hl std">url.base</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">file.path</span><span class="hl std">(url.server,</span> <span class="hl str">&quot;data&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;gene_expression&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;denboer_2009&quot;</span><span class="hl std">)</span>
+
+<span class="hl com">## Load expression values</span>
+<span class="hl std">expr.matrix</span> <span class="hl kwb">&lt;-</span>  <span class="hl kwd">read.table</span><span class="hl std">(</span><span class="hl kwd">file.path</span><span class="hl std">(url.base,</span> <span class="hl str">&quot;GSE13425_Norm_Whole.txt&quot;</span><span class="hl std">),</span>
+                           <span class="hl kwc">sep</span><span class="hl std">=</span><span class="hl str">&quot;\t&quot;</span><span class="hl std">,</span> <span class="hl kwc">head</span><span class="hl std">=T,</span> <span class="hl kwc">row</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">)</span>
+
+<span class="hl com">## Load phenotypic data</span>
+<span class="hl std">pheno</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">read.table</span><span class="hl std">(</span><span class="hl kwd">file.path</span><span class="hl std">(url.base,</span> <span class="hl str">'phenoData_GSE13425.tab'</span><span class="hl std">),</span>
+                    <span class="hl kwc">sep</span><span class="hl std">=</span><span class="hl str">'\t'</span><span class="hl std">,</span> <span class="hl kwc">head</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">,</span> <span class="hl kwc">row</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">)</span>
+
+<span class="hl com">## Load Absent/Marginal/Present (AMP) calls</span>
+<span class="hl std">amp</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">read.table</span><span class="hl std">(</span><span class="hl kwd">file.path</span><span class="hl std">(url.base,</span> <span class="hl str">&quot;GSE13425_AMP_Whole.txt&quot;</span><span class="hl std">),</span>
+                  <span class="hl kwc">sep</span><span class="hl std">=</span><span class="hl str">&quot;\t&quot;</span><span class="hl std">,</span> <span class="hl kwc">head</span><span class="hl std">=T,</span> <span class="hl kwc">row</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">)</span>
+</pre></div>
+</div></div>
+
+	  <ol>
+      <li>The file <span class="file">GSE13425_Norm_Whole.txt</span> contains genes as rows and samples as columns. Data were previously normalized using <span class="command">RMA</span> algorithm (they are thus transformed in base 2 logarithms).</li>
+      <li>The file <span class="file">GSE13425_phenoData.txt</span> contains phenotypic data            about samples.</li>
+      <li>The file <span class="file">GSE13425_AMP_Whole.txt</span>  contains information about Absent/Present/Marginal (<span class="concept">A/P/M</span>) calls (genes as rows and samples as columns).</li>
+    </ol>
+
+	</li>
+
+	<li>We will now define a directory to store the results. In
+	  principle this directory has been created in the previosu
+	  tutorial (normalization of Affymetrix data), but it is worth
+	  checking that it still exists.</li>
+
+<div class="chunk" id="unnamed-chunk-3"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">dir.output</span> <span class="hl kwb">&lt;-</span> <span class="hl str">&quot;~/GSE13425&quot;</span> <span class="hl com">## Define the output directory. You can adapt this to your local configuration.</span>
+<span class="hl kwd">dir.create</span><span class="hl std">(dir.output,</span> <span class="hl kwc">showWarnings</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span> <span class="hl kwc">recurs</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span> <span class="hl com">## Create the directory if it does not exist yet</span>
+<span class="hl kwd">setwd</span><span class="hl std">(dir.output)</span>
+</pre></div>
+</div></div>
+    </ul>
+  </div>
+
+    <!--
+	<br>
+	<a href="javascript:sizeTbl2('block','sol_1')">View solution</a>|
+	<a href="javascript:sizeTbl2('none','sol_1')">Hide solution</a>
+	<div id="sol_1"  style="overflow:hidden;display:none">
+	</div>
+	-->
+
+    <div class="exo">
+      <ul>
+	<li>How many rows and columns does the <i>data</i> object contains ?</li>
+	<li>Does it correspond to the dimensions of the A/P/M matrix ?</li>
+	<li>What informations are available about samples ?</li>
+	<li>How many samples from each tumor subtype are present in the DenBoer dataset ?</li>
+      </ul>
+    </div>
+
+
+    <br>
+    <a href="javascript:sizeTbl2('block','2')">View solution</a>|
+    <a href="javascript:sizeTbl2('none','2')">Hide solution</a>
+    <div id="2"  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+
+<div class="chunk" id="unnamed-chunk-4"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com">## Check the dimension of the different tables</span>
+<span class="hl kwd">dim</span><span class="hl std">(expr.matrix)</span>
+<span class="hl kwd">dim</span><span class="hl std">(amp)</span>
+<span class="hl kwd">dim</span><span class="hl std">(pheno)</span>
+<span class="hl kwd">colnames</span><span class="hl std">(pheno)</span>
+</pre></div>
+</div></div>
+
+
+The sample title indicates the subtype of the ALL tumours. We can use the R function table() to count the number of samples assigned to each cancer class.
+
+<div class="chunk" id="unnamed-chunk-5"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">table</span><span class="hl std">(pheno</span><span class="hl opt">$</span><span class="hl std">Sample.title)</span>
+</pre></div>
+</div></div>
+    </div>
+
+<h4>Interpretation</h4>
+
+<p>The dataset from DenBoer contains 190 samples belonging to various tumour classes. We can already notice that there is an important imbalance between the sizes of the tumour classes: T-ALL, pre-B ALL, TEL-AML1 and hyperdiploid are each represented by more than 40 samples, whereas other classes (e.g. BCR-ABL, E2A-rearranged) are represented by a handful of samples.</p>
+
+<p>The number of samples per group is a very important factor for selecting differentially expressed genes: in general, the power of the tests (i.e. the capacity to detect effectively differentially expressed genes) increases with group sizes.</p>
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="welch"></a>
+<h2>Basics about Welch's <i>t</i> test</h2>
+
+<p>Welch's test is a variant of the classical Student test, whose goal is to test the equality between two means.
+
+$$H_0: m_{g,1} = m_{g,2}$$
+
+<!--<ul><i>H<sub>0</sub>: m<sub>g,1</sub> = m<sub>g,2</sub></i></ul>-->
+
+where <i>m<sub>g,1</sub></i> and <i>m<sub>g,2</sub></i> represent the respective mean expression values for a given gene (<i>g</i>) in two populations (for example, all existing patients suffering from T-ALL versus all patients suffering from pre-B ALL).</p>
+
+<h3>The sampling problem</h3>
+
+<p>Obviously, we will never be able to measure the expression levels for all the patients suffering from these two types of ALL in the world (the population). We only dispose of two sets of samples, covering 36 (T-ALL) and 44 (pre-B ALL) patients, respectively. On the basis of these samples, we will have to estimate how <i>likely</i> it is that gene $g$ would indeed be expressed at similar levels in the populations from which the samples were drawn.</p>
+
+<p>The essential difference between Student and Welch is that the
+proper Student test relies on the assumption that the two sampled
+populations have the same variance, whereas Welch's test is designed
+to treat populations with unequal variances.</p>
+
+<h3>Welch or student ?</h3>
+
+<p>When detecting differentially expressed genes, we cannot assume equal variance. Indeed, a typical case would be that a gene of interest is expressed at very low level in the first group, and high level in the second group. The inter-individual fluctuations in
+expression values are expected to be larger when the gene is expressed at a high level than when it is poorly expressed. It is thus generally recommended to use Welch rather than Student test
+when analyzing microarray expression profiles.</p>
+
+    <p>Welch's t-test defines the <i>t</i> statistic by the following
+      formula:</p>
+
+    $$t = \frac{\bar{x_1} - \bar{x_2}}{\sqrt{\frac{s_1^2}{n1} + \frac{s_2^2}{n_2}}}$$
+
+    <p>Where
+      <ul>
+        <li>\( \bar{x}_{i} \) is the sample mean,</li>
+        <li>\( s^2_{i} \) the sample variance,</li>
+        <li>\( n_{i} \) the sample size.</li>
+      </ul>
+    </p>
+
+ <!--
+ <img src="https://upload.wikimedia.org/math/0/1/1/0112c5d989874858e3fa4b97f428a391.png" alt="" >
+
+    <br>
+    <p>where</p>
+    <ul>
+      <li>\(\ \bar{X}_{i} \) is the sample mean,</li>
+      <li>\(\ s^2_{i} \) the sample variance,</li>
+      <li> \(\ N_{i} \) the sample size.</li>
+    </ul>
+-->
+
+
+<p>The <span class="command">t.test()</span> function can be used to calculate this score (and additional informations such as p-values). This function returns an S3 object whose slots can be listed using the <span class="command">names()</span> function and accessed using the $ operator (such as with lists in R).</p>
+
+<p>In order to get an intuition of the <i>t</i> statistics, let us create artificial datasets and run a Welch test on it. In the following example, $x$ and $y$ can be viewed as the values for gene $g$ in two groups of samples, named "x"" and "y", respectively.</p>
+
+<p>We will generate 4 random numbers sampled according to a normal distribution, to simulate the samples 1 and 2. We deliberately set the means to the same values (in order to fall under the null hypothesis), but use different standard deviations.</p>
+
+<div class="chunk" id="unnamed-chunk-6"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl kwc">n</span><span class="hl std">=</span><span class="hl num">4</span><span class="hl std">,</span> <span class="hl kwc">mean</span><span class="hl std">=</span><span class="hl num">6</span><span class="hl std">,</span> <span class="hl kwc">s</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">)</span>
+<span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl kwc">n</span><span class="hl std">=</span><span class="hl num">4</span><span class="hl std">,</span> <span class="hl kwc">mean</span><span class="hl std">=</span><span class="hl num">6</span><span class="hl std">,</span> <span class="hl kwc">s</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span>
+
+<span class="hl com">## Run the Welch test (this is specified by indicating that we don't expect equal variances)</span>
+<span class="hl std">denboer.welch</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">t.test</span><span class="hl std">(x,y,</span> <span class="hl kwc">var.equal</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span>
+<span class="hl kwd">print</span><span class="hl std">(denboer.welch)</span>
+<span class="hl com">## note: each student should have a different result, since values were generated at random</span>
+
+<span class="hl com">## Retrieve the t statistics</span>
+<span class="hl kwd">names</span><span class="hl std">(denboer.welch)</span>
+<span class="hl std">denboer.welch</span><span class="hl opt">$</span><span class="hl std">statistic</span>
+</pre></div>
+</div></div>
+
+
+<p>What would be the expected distribution of $t$, when comparing the expression levels between classes $x$ and $y$ for 10,000 genes whose values would be randomly drawn from normal distributions with mean 0 and standard deviations of 1 and 2, resp ? </p>
+
+<div class="chunk" id="unnamed-chunk-7"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com">## Run iteratively 10000 Welch tests with random values</span>
+<span class="hl std">t.values</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">replicate</span><span class="hl std">(</span><span class="hl num">10000</span><span class="hl std">,</span><span class="hl kwd">t.test</span><span class="hl std">(</span><span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl num">4</span><span class="hl std">,</span> <span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">),</span><span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl num">4</span><span class="hl std">,</span> <span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">2</span><span class="hl std">))</span><span class="hl opt">$</span><span class="hl std">statistic)</span>
+<span class="hl std">dens</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">density</span><span class="hl std">(t.values)</span>
+<span class="hl kwd">plot</span><span class="hl std">(dens,</span><span class="hl kwc">xlim</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl num">5</span><span class="hl std">,</span><span class="hl num">5</span><span class="hl std">))</span>
+</pre></div>
+</div></div>
+
+<p>We can now compute the empirical frequency of $t$ statistics with absolute value above or equal to 3.</p>
+
+<div class="chunk" id="unnamed-chunk-8"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">length</span><span class="hl std">(t.values[</span><span class="hl kwd">abs</span><span class="hl std">(t.values)</span> <span class="hl opt">&gt;=</span> <span class="hl num">3</span><span class="hl std">])</span><span class="hl opt">/</span><span class="hl num">10000</span>
+</pre></div>
+</div></div>
+
+    <p>We can visualize this by coloring the tails of the density
+      function on a plot.</p>
+
+<div class="chunk" id="unnamed-chunk-9"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">plot</span><span class="hl std">(dens,</span><span class="hl kwc">xlim</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl num">5</span><span class="hl std">,</span><span class="hl num">5</span><span class="hl std">))</span>
+<span class="hl std">lower.bound</span> <span class="hl kwb">&lt;-</span> <span class="hl num">1</span>
+<span class="hl std">upper.bound</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">tail</span><span class="hl std">(</span><span class="hl kwd">which</span><span class="hl std">(dens</span><span class="hl opt">$</span><span class="hl std">x</span> <span class="hl opt">&lt;= -</span><span class="hl num">3</span><span class="hl std">),</span><span class="hl num">1</span><span class="hl std">)</span>
+<span class="hl kwd">plot</span><span class="hl std">(dens)</span>
+<span class="hl kwd">polygon</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(dens</span><span class="hl opt">$</span><span class="hl std">x[lower.bound</span><span class="hl opt">:</span><span class="hl std">upper.bound],dens</span><span class="hl opt">$</span><span class="hl std">x[upper.bound]),</span><span class="hl kwd">c</span><span class="hl std">(dens</span><span class="hl opt">$</span><span class="hl std">y[lower.bound</span><span class="hl opt">:</span><span class="hl std">upper.bound],</span><span class="hl num">0</span><span class="hl std">),</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;tan&quot;</span><span class="hl std">)</span>
+<span class="hl std">lower.bound</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">head</span><span class="hl std">(</span><span class="hl kwd">which</span><span class="hl std">(dens</span><span class="hl opt">$</span><span class="hl std">x</span> <span class="hl opt">&gt;=</span> <span class="hl num">3</span><span class="hl std">),</span><span class="hl num">1</span><span class="hl std">)</span>
+<span class="hl std">upper.bound</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">length</span><span class="hl std">(dens</span><span class="hl opt">$</span><span class="hl std">x)</span>
+<span class="hl kwd">polygon</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(dens</span><span class="hl opt">$</span><span class="hl std">x[lower.bound],dens</span><span class="hl opt">$</span><span class="hl std">x[lower.bound</span><span class="hl opt">:</span><span class="hl std">upper.bound]),</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,dens</span><span class="hl opt">$</span><span class="hl std">y[lower.bound</span><span class="hl opt">:</span><span class="hl std">upper.bound]),</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;tan&quot;</span><span class="hl std">)</span>
+</pre></div>
+</div></div>
+
+<p>Now we can check if the empirical distribution we have drawn
+fits the theorical <i>t</i> distribution.</p>
+
+<p>Student's t-distribution has the probability density function
+given by:</p>
+
+<img src="student_density.png">
+
+<p>where
+<ul>
+	<li>$\nu$ is the number of degrees of freedom.</li>
+	<li>$\Gamma$ is the Gamma function.</li>
+</ul>
+</p>
+
+<p>The degree of freedom, which is related to the number of
+samples and variance in class 1 and 2, is the parameter that will
+control the shape of the probability density function. </p>
+
+<p>The degree of freedom can be computed using the following
+formula.</p>
+
+<img src="welch_df.png">
+
+<p>Here we will consider that variance is equal to 1 (as x and y
+were drawn from a normal distribution with mean 0 and standard
+deviation 1)</p>
+
+<p>So we can compute the degree of freedom using R and draw the
+theorical density of the t-distribution. </p>
+
+<div class="chunk" id="unnamed-chunk-10"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com">## Compute the degrees of freedom for Welch test</span>
+<span class="hl std">N1</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">length</span><span class="hl std">(x)</span>
+<span class="hl std">N2</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">length</span><span class="hl std">(y)</span>
+<span class="hl std">var1</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">var</span><span class="hl std">(x)</span> <span class="hl com">## Since we ignore the variance of the population, we estimate it from the sample</span>
+<span class="hl std">var2</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">var</span><span class="hl std">(y)</span>
+<span class="hl std">df</span> <span class="hl kwb">&lt;-</span> <span class="hl std">(var1</span><span class="hl opt">/</span><span class="hl std">N1</span><span class="hl opt">+</span><span class="hl std">var2</span><span class="hl opt">/</span><span class="hl std">N2)</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">/</span><span class="hl std">(var1</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">/</span><span class="hl std">(N1</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">*</span><span class="hl std">(N1</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">))</span><span class="hl opt">+</span><span class="hl std">var2</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">/</span><span class="hl std">(N2</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">*</span><span class="hl std">(N1</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)))</span>
+
+<span class="hl com">## Compare the degrees of freedom computed by ourselves with the df</span>
+<span class="hl com">## reported by the t.test() function.</span>
+<span class="hl kwd">names</span><span class="hl std">(denboer.welch)</span>
+<span class="hl kwd">print</span><span class="hl std">(denboer.welch</span><span class="hl opt">$</span><span class="hl std">parameter)</span>
+</pre></div>
+</div></div>
+
+<div class="chunk" id="unnamed-chunk-11"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com">## Compute the degrees of freedom for Welch test</span>
+<span class="hl std">N1</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">length</span><span class="hl std">(x)</span>
+<span class="hl std">N2</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">length</span><span class="hl std">(y)</span>
+<span class="hl std">var1</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">var</span><span class="hl std">(x)</span> <span class="hl com">## Since we ignore the variance of the population, we estimate it from the sample</span>
+<span class="hl std">var2</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">var</span><span class="hl std">(y)</span>
+<span class="hl std">df</span> <span class="hl kwb">&lt;-</span> <span class="hl std">(var1</span><span class="hl opt">/</span><span class="hl std">N1</span><span class="hl opt">+</span><span class="hl std">var2</span><span class="hl opt">/</span><span class="hl std">N2)</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">/</span><span class="hl std">(var1</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">/</span><span class="hl std">(N1</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">*</span><span class="hl std">(N1</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">))</span><span class="hl opt">+</span><span class="hl std">var2</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">/</span><span class="hl std">(N2</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">*</span><span class="hl std">(N1</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)))</span>
+
+<span class="hl com">## Compare the degrees of freedom computed by ourselves with the df</span>
+<span class="hl com">## reported by the t.test() function.</span>
+<span class="hl kwd">names</span><span class="hl std">(denboer.welch)</span>
+<span class="hl kwd">print</span><span class="hl std">(denboer.welch</span><span class="hl opt">$</span><span class="hl std">parameter)</span>
+</pre></div>
+</div></div>
+
+
+<!--
+<p>We will now extend the experiment by computing the degrees of
+	  freedom on 10,000 random simulations.</p>
+
+<pre>
+t.df <- replicate(10000,t.test(rnorm(4, 0, 1),rnorm(4, 0, 2))$parameter)
+df.est <- mean(t.df)
+
+## Plot the theoretical distribution of t together with the
+## distribution of t values observed in our simulation
+seq <- seq(-5,5,length=100)
+plot(seq, dt(seq,df=df),typ="l", xlab="t values", main="Theorical and empirical density of t-distribution")
+lines(dens,col="red")
+</pre>
+
+<p>We can conclude that the theorical distribution fits very well
+with the empirical distribution.</p>
+-->
+
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="apply"></a>
+<h2>Applying Welch's t-test to the den Boer dataset</h2>
+<br>
+
+<p>We would like to define genes that discriminate between
+"TEL-AML1" tumors and "hyperdiploid" tumors.</p>
+
+<p>One possibility would be to iterate over all probesets, and to successively run the R method t.test() on each one.  This would however be quite inefficient, and the results would not be very easy to handle, since it would be a list of objects of the class t.test.</p>
+
+<p>Instead, we will use a custom function that runs Student or Welch test in parallel on all the elements of a data table.</p>
+
+
+<h3>Running t-tests on each row of a data matrix</h3>
+
+<div class="chunk" id="unnamed-chunk-12"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com">## Load the library for multiple t tests</span>
+      <span class="hl kwd">source</span><span class="hl std">(</span><span class="hl str">'http://www.bigre.ulb.ac.be/courses/statistics_bioinformatics/R-files/config.R'</span><span class="hl std">)</span>
+      <span class="hl kwd">source</span><span class="hl std">(</span><span class="hl kwd">file.path</span><span class="hl std">(dir.util,</span> <span class="hl str">&quot;util_student_test_multi.R&quot;</span><span class="hl std">))</span>
+</pre></div>
+</div></div>
+
+<p>For the sake of curiosity, you can also have a look at the <a href='../../../R-files/util/util_student_test_multi.R'>R	code</a>.</p>
+
+<p>We will now run the Welch test on all the genes of the Den Boer dataset. We will apply the test to select genes differentially expressed between the subtypes "hyperdiploid" and "TEL-AML1".</p>
+
+<div class="chunk" id="unnamed-chunk-13"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com">## Define a Boolean vector indicating which samples belong to the two selected subtypes.</span>
+<span class="hl std">samples.to.keep</span> <span class="hl kwb">&lt;-</span> <span class="hl std">pheno</span><span class="hl opt">$</span><span class="hl std">Sample.title</span> <span class="hl opt">==</span> <span class="hl str">&quot;hyperdiploid&quot;</span> <span class="hl opt">|</span>  <span class="hl std">pheno</span><span class="hl opt">$</span><span class="hl std">Sample.title</span> <span class="hl opt">==</span> <span class="hl str">&quot;TEL-AML1&quot;</span>
+
+<span class="hl com">## Define a vector with the sample types for the two selected cancer subtype</span>
+<span class="hl std">cancer.type</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">as.vector</span><span class="hl std">(pheno[samples.to.keep,</span> <span class="hl str">&quot;Sample.title&quot;</span><span class="hl std">])</span>
+<span class="hl kwd">print</span><span class="hl std">(cancer.type)</span>
+<span class="hl kwd">table</span><span class="hl std">(cancer.type)</span>
+
+<span class="hl com">## Run the Welch test on each probesets of the DenBoer expression matrix</span>
+<span class="hl std">denboer.welch</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">t.test.multi</span><span class="hl std">(expr.matrix[samples.to.keep], cancer.type,</span> <span class="hl kwc">volcano.plot</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span>
+
+<span class="hl com">## Inspect the result table</span>
+<span class="hl kwd">dim</span><span class="hl std">(denboer.welch)</span>
+<span class="hl kwd">names</span><span class="hl std">(denboer.welch)</span>
+
+<span class="hl com">## Select genes with a stringent threshold on E-value</span>
+<span class="hl std">threshold</span> <span class="hl kwb">&lt;-</span> <span class="hl num">0.05</span>
+<span class="hl std">significant.probesets</span> <span class="hl kwb">&lt;-</span> <span class="hl std">denboer.welch</span><span class="hl opt">$</span><span class="hl std">E.value</span> <span class="hl opt">&lt;=</span> <span class="hl std">threshold</span>
+<span class="hl kwd">table</span><span class="hl std">(significant.probesets)</span> <span class="hl com">## Count the number of significant probesets</span>
+</pre></div>
+</div></div>
+
+<h3>Comparing sample means</h3>
+
+
+<p>We will compare the mean expression value between the two subtypes,
+and highlight the significant genes.</p>
+
+<div class="chunk" id="unnamed-chunk-14"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com">## Plot the gene-wise means</span>
+<span class="hl kwd">plot</span><span class="hl std">(denboer.welch[,</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">&quot;mean.TEL-AML1&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;mean.hyperdiploid&quot;</span><span class="hl std">)],</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;darkgray&quot;</span><span class="hl std">)</span>
+      <span class="hl kwd">grid</span><span class="hl std">()</span>
+      <span class="hl kwd">abline</span><span class="hl std">(</span><span class="hl kwc">a</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl std">,</span><span class="hl kwc">b</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;black&quot;</span><span class="hl std">)</span>
+      <span class="hl kwd">lines</span><span class="hl std">(denboer.welch[significant.probesets,</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">&quot;mean.TEL-AML1&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;mean.hyperdiploid&quot;</span><span class="hl std">)],</span> <span class="hl kwc">type</span><span class="hl std">=</span><span class="hl str">'p'</span><span class="hl std">,</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;red&quot;</span><span class="hl std">)</span> <span class="hl com">## Highlight significant genes</span>
+</pre></div>
+</div></div>
+
+<div class='exo'>
+
+<p>How do you explain that the regions covered by gray (non-significant) and red (significant) probesets overlap on the mean-mean plot ?</p>
+</div>
+
+<a href="javascript:sizeTbl2('block','mean_vs_signif')">View solution</a>|
+<a href="javascript:sizeTbl2('none','mean_vs_signif')">Hide solution</a>
+<div   id="mean_vs_signif"  style="overflow:hidden;display:none">
+<h4>Solution</h4>
+
+<p>The significance of a Welch (or a Student) test does not only depend on the differences between the means, but on the estimation of the standard deviation of this difference. In other terms, a same difference (or a same ratio) between two means could be either significant or not, depending on whether the two groups to be compared have a high or low variance.</p>
+
+</div>
+
+
+<h3>Optional exercise</h3>
+
+<!-- BEGIN OF COMMENTED EXERCISE. This exercise was commented. Why ? TO BE CHECKED-->
+<div class="exo">
+
+<ul>
+<li>Select a subset of the dataset (<i>expr.matrix.sub</i>) that will
+contain only "TEL-AML1" tumors and "hyperdiploid" tumors.</li>
+
+<li>Create a vector <i>cl</i> that will contain informations regarding
+the classes of samples stored in expr.matrix.sub ("hyperdiploid" or
+"TEL-AML1"). </li>
+
+<li>Select genes giving a significant signal ("present" call) in at
+least 30% of the selected samples. </li>
+
+<li>Write the table onto disk ("GSE13425_Norm_TEL-AML1vsHyperdip.txt",
+it will be used later with MeV software)</li>
+	  </ul>
+	</div>
+	<br>
+	<a href="javascript:sizeTbl2('block','3')">View solution</a>|
+	<a href="javascript:sizeTbl2('none','3')">Hide solution</a>
+
+	<div id="3"  style="overflow:hidden;display:none">
+	  <h4>Solution</h4>
+
+<div class="chunk" id="unnamed-chunk-15"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">samples.to.keep</span> <span class="hl kwb">&lt;-</span> <span class="hl std">pheno</span><span class="hl opt">$</span><span class="hl std">Sample.title</span> <span class="hl opt">==</span> <span class="hl str">&quot;hyperdiploid&quot;</span> <span class="hl opt">|</span>  <span class="hl std">pheno</span><span class="hl opt">$</span><span class="hl std">Sample.title</span> <span class="hl opt">==</span> <span class="hl str">&quot;TEL-AML1&quot;</span>
+<span class="hl com">## Check samples to keep</span>
+<span class="hl kwd">print</span><span class="hl std">(samples.to.keep)</span>
+<span class="hl kwd">sum</span><span class="hl std">(samples.to.keep)</span>
+<span class="hl std">pheno[samples.to.keep,</span> <span class="hl str">&quot;Sample.title&quot;</span><span class="hl std">]</span>
+
+<span class="hl com">## Extact a subset of expression matrix with only the two selected sets</span>
+<span class="hl std">expr.matrix.sub</span> <span class="hl kwb">&lt;-</span> <span class="hl std">expr.matrix[,samples.to.keep]</span>
+
+<span class="hl com">## Define a vector indicating sample groups</span>
+<span class="hl std">cl</span> <span class="hl kwb">&lt;-</span> <span class="hl std">pheno[samples.to.keep,]</span><span class="hl opt">$</span><span class="hl std">Sample.title</span>
+
+<span class="hl com">## Select a subset of the A/M/P matrix</span>
+<span class="hl std">amp.sub</span> <span class="hl kwb">&lt;-</span> <span class="hl std">amp[,samples.to.keep]</span>
+<span class="hl kwd">dim</span><span class="hl std">(amp)</span>
+<span class="hl kwd">dim</span><span class="hl std">(amp.sub)</span>
+
+<span class="hl com">## Count the number of &quot;Present&quot; calls per probeset</span>
+<span class="hl std">isPresent</span> <span class="hl kwb">&lt;-</span> <span class="hl std">amp.sub</span> <span class="hl opt">==</span> <span class="hl str">&quot;P&quot;</span>
+<span class="hl std">present.per.probeset</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">rowSums</span><span class="hl std">(isPresent)</span>
+<span class="hl kwd">hist</span><span class="hl std">(present.per.probeset,</span> <span class="hl kwc">breaks</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl kwd">ncol</span><span class="hl std">(amp.sub))</span>
+
+<span class="hl com">## &quot;Present filter&quot;:  Select probeset declared present in at least 25% of the samples</span>
+<span class="hl std">retained</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">rowSums</span><span class="hl std">(isPresent)</span> <span class="hl opt">&gt;=</span>  <span class="hl num">0.25</span><span class="hl opt">*</span><span class="hl kwd">ncol</span><span class="hl std">(expr.matrix.sub)</span>
+<span class="hl kwd">table</span><span class="hl std">(retained)</span> <span class="hl com">## Count number of retained and rejected probesets</span>
+
+<span class="hl com">## Select a subset of the matrix with the retained probesets only</span>
+<span class="hl std">expr.matrix.sub</span> <span class="hl kwb">&lt;-</span> <span class="hl std">expr.matrix.sub[retained, ]</span>
+<span class="hl kwd">setwd</span><span class="hl std">(dir.output)</span>
+
+<span class="hl kwd">write.table</span><span class="hl std">(expr.matrix.sub,</span> <span class="hl str">&quot;GSE13425_Norm_TEL-AML1vsHyperdip.txt&quot;</span><span class="hl std">,</span> <span class="hl kwc">col.names</span><span class="hl std">=</span><span class="hl num">NA</span><span class="hl std">,</span><span class="hl kwc">quote</span><span class="hl std">=F,</span><span class="hl kwc">sep</span><span class="hl std">=</span><span class="hl str">&quot;\t&quot;</span><span class="hl std">)</span>
+</pre></div>
+</div></div>
+	</div>
+	<br>
+
+
+	<div class="exo">
+	  <p>Use the <span class="command">return.t</span> function implemented below to compute the
+	    p-value of the Welch's <i>t</i> test for all genes.</p>
+<div class="chunk" id="unnamed-chunk-16"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">return.t</span> <span class="hl kwb">&lt;-</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">,</span><span class="hl kwc">y</span><span class="hl std">){</span><span class="hl kwd">t.test</span><span class="hl std">(x[y</span><span class="hl opt">==</span><span class="hl str">&quot;TEL-AML1&quot;</span><span class="hl std">], x[y</span><span class="hl opt">==</span><span class="hl str">&quot;hyperdiploid&quot;</span><span class="hl std">])</span><span class="hl opt">$</span><span class="hl std">p.value}</span>
+</pre></div>
+</div></div>
+</div>
+
+
+	<br>
+	<a href="javascript:sizeTbl2('block','4')">View solution</a>|
+	<a href="javascript:sizeTbl2('none','4')">Hide solution</a>
+
+	<div id="4"  style="overflow:hidden;display:none">
+	  <h4>Solution</h4>
+
+<div class="chunk" id="unnamed-chunk-17"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">t.res</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">apply</span><span class="hl std">(expr.matrix.sub,</span><span class="hl num">1</span><span class="hl std">,return.t,cl)</span>
+</pre></div>
+</div></div>
+	</div>
+
+
+<p><b>BEWARE:</b>The dataset does not follow the normal distribution, which is a basic assumption for the applicability of the t-test ! However, t-test is robust to non-normality <b><i>if</i></b> there is a sufficient number of samples per group.</p>
+
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="lr"></a><br><h2>Log ratio</h2>
+
+<div class="protocol">
+  <ul>
+	<li> Calculate for each gene its average expression level in "TEL-AML1"  and "hyperdiploid" class.</li>
+	<li> Calculate the difference of the mean for each gene (log ratio).</li>
+      </ul>
+    </div>
+
+<br>
+<a href="javascript:sizeTbl2('block','5')">View solution</a>|
+<a href="javascript:sizeTbl2('none','5')">Hide solution</a>
+
+<div id="5"  style="overflow:hidden;display:none">
+<h4>Solution</h4>
+
+<div class="chunk" id="unnamed-chunk-18"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">diff</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">rowMeans</span><span class="hl std">(expr.matrix.sub[,cl</span><span class="hl opt">==</span> <span class="hl str">&quot;TEL-AML1&quot;</span><span class="hl std">])</span> <span class="hl opt">-</span> <span class="hl kwd">rowMeans</span><span class="hl std">(expr.matrix.sub[,cl</span> <span class="hl opt">==</span> <span class="hl str">&quot;hyperdiploid&quot;</span><span class="hl std">])</span>
+</pre></div>
+</div></div>
+    </div>
+    <br>
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="volcano"></a><hr>
+<h2>Volcano plot</h2>
+
+<p>The volcano plot is a classical representation of microarray results. In this diagram, the x axis represent the log ratio and the y axis the result of a statistic expressed as -log10(p-value).</p>
+
+
+<div class="exo">
+<ul>
+<li>Draw a volcano plot.</li>
+<li>Use the identify function to the names of some interesting genes.</li>
+</ul>
+</div>
+
+<br>
+<a href="javascript:sizeTbl2('block','6')">View solution</a>|
+<a href="javascript:sizeTbl2('none','6')">Hide solution</a>
+
+<div id="6"  style="overflow:hidden;display:none">
+<h4>Solution</h4>
+
+<div class="chunk" id="unnamed-chunk-19"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">ltc</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">log10</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl opt">/</span><span class="hl std">t.res)</span>
+<span class="hl kwd">plot</span><span class="hl std">(diff,ltc,</span><span class="hl kwc">pch</span><span class="hl std">=</span><span class="hl num">16</span><span class="hl std">,</span><span class="hl kwc">cex</span><span class="hl std">=</span><span class="hl num">0.7</span><span class="hl std">,</span><span class="hl kwc">xlab</span><span class="hl std">=</span><span class="hl str">&quot;Delta&quot;</span><span class="hl std">,</span><span class="hl kwc">ylab</span><span class="hl std">=</span><span class="hl str">&quot;log10(1/p-value)&quot;</span><span class="hl std">)</span>
+<span class="hl std">retained</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">abs</span><span class="hl std">(diff)</span><span class="hl opt">&gt;</span><span class="hl num">1</span> <span class="hl opt">&amp;</span> <span class="hl std">t.res</span> <span class="hl opt">&lt;</span><span class="hl num">0.001</span>
+<span class="hl kwd">points</span><span class="hl std">(diff[retained],ltc[retained],</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;red&quot;</span><span class="hl std">,</span><span class="hl kwc">cex</span><span class="hl std">=</span><span class="hl num">0.7</span><span class="hl std">,</span><span class="hl kwc">pch</span><span class="hl std">=</span><span class="hl num">16</span><span class="hl std">)</span>
+<span class="hl std">gn</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">strsplit</span><span class="hl std">(</span><span class="hl kwd">row.names</span><span class="hl std">(expr.matrix.sub),</span><span class="hl str">&quot;|&quot;</span><span class="hl std">)</span>
+<span class="hl std">gn</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">unlist</span><span class="hl std">(</span><span class="hl kwd">lapply</span><span class="hl std">(gn,</span><span class="hl str">&quot;[&quot;</span><span class="hl std">,</span><span class="hl num">1</span><span class="hl std">))</span>
+<span class="hl kwd">identify</span><span class="hl std">(diff,ltc,</span> <span class="hl kwc">lab</span><span class="hl std">=gn,</span><span class="hl kwc">cex</span><span class="hl std">=</span><span class="hl num">0.4</span><span class="hl std">,</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;blue&quot;</span><span class="hl std">)</span>
+<span class="hl kwd">grid</span><span class="hl std">()</span>
+</pre></div>
+</div></div>
+</div>
+<br>
+<!-- END OF THE COMMENTED EXERCISED-->
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="sam"></a><hr>
+<h2>Significance Analysis of Microarrays (SAM)</h2>
+
+<p>The most popular method for differential expression analysis of microarray data is "Significance Analysis of Microarrays" (SAM). SAM is implemented in several software including R (library siggenes). Here we will use the <a href="http://www.tm4.org/mev/">MultiExperiment Viewer</a> (MeV).</p>
+
+<h3>Installing Mev</h3>
+<p>Type the command below in a terminal (this are shell/bash commands)</p>
+
+<div class="chunk" id="unnamed-chunk-20"><div class="rcode"><div class="source"><pre class="knitr r">mkdir -p ~/bin
+cd ~/bin
+wget <span class="hl str">&quot;http://freefr.dl.sourceforge.net/project/mev-tm4/mev-tm4/MeV%204.8.1/MeV_4_8_1_r2727_linux.tar.gz&quot;</span>
+tar xvfz MeV_4_8_1_r2727_linux.tar.gz
+cd -
+echo -e <span class="hl str">&quot;\nalias tmev=\&quot;</span>cd ~/bin/MeV_4_8_1/; sh -c <span class="hl str">'nohup ./tmev.sh &amp;'</span>; cd -\<span class="hl str">&quot;&quot;</span> &gt;&gt; ~/.bashrc
+source ~/.bashrc
+tmev
+</pre></div>
+</div></div>
+
+<h3>Running MeV</h3>
+
+<div class="protocol">
+	<ul>
+	  <li>Load the file using File &gt; Load data &gt; Select file loader &gt; Tab delimited.</li>
+	  <li>Browse to file "GSE13425_Norm_TEL-AML1vsHyperdip.txt", click on the upper-leftmost expression value and click on the "load" button.</li>
+	  <li>Select Adjust data &gt; Gene/Rows adjustment &gt; median center Genes/Rows</li>
+	  <li>Select Analysis &gt; Statistics &gt; SAM</li>
+	  <li>Set all samples from GSM338746.CEL.gz to GSM338789.CEL.gz to class B.</li>
+	  <li>Set the number of permutations to 500, select "Construct hierachical clustering" and click "OK"</li>
+	  <li>Accept default parameters for hierarchical clustering</li>
+	  <li>Set the delta value to 2 and click OK.</li>
+	  <li>Select Analysis results &gt; SAM &gt; Hierarchical trees &gt; All Significant genes</li>
+	  <li>Select Display &gt; Set color scale limits and set lower limit to -4, midpoint value to 0 and upper limit to 4.</li>
+	  <li>Select Display &gt; Set Element Size &gt; 5x2</li>
+	  <li>To store the resulting file right click to select the whole gene tree and select "Save cluster"</li>
+</ul>
+</div>
+
+<h2>References</h2>
+
+<ol>
+<li>Boer, Den, M.L., van Slegtenhorst, M., De Menezes, R.X.,
+	Cheok, M.H., Buijs-Gladdines, J.G.C.A.M., Peters, S.T.C.J.M.,
+	Van Zutven, L.J.C.M., Beverloo, H.B., Van der Spek, P.J.,
+	Escherich, G., et al. (2009) A subtype of childhood acute
+	lymphoblastic leukaemia with poor treatment outcome: a
+	genome-wide classification study. Lancet Oncol, 10, 125–134.
+	[PMID <a target="_blank"
+	href="http://www.ncbi.nlm.nih.gov/pubmed/19138562">19138562</a>]
+</li>
+</ol>
+      <hr>
+  </body>
+</HTML>

@@ -1,0 +1,370 @@
+---
+title: "About some distances used in clustering"
+author: "Denis Puthier"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    theme: cerulean
+    toc: no
+    toc_depth: 3
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: no
+    toc_depth: 3
+  word_document: default
+---
+
+
+<script type="">
+    $(function() {
+        $(".hideshow").click(function() {
+                $(this).parent().find(".exo").toggle();
+        });
+            
+    })
+</script>
+
+<style>
+.exo {
+  display:none;
+}
+
+pre:not(.sourceCode) > code {
+  background-color: white !important;
+  color: grey !important;
+} 
+
+hr {
+  color: grey !important;
+}
+</style>
+
+
+### Introduction
+
+Unsupervised classification methods aim at classifying objects without any prior knowledge of the class they belong to. This is a very common task that can be used to discover new structures or classes inside a given set of objects. Indeed, arranging objects based on a given criteria (that one needs to define) may lead to partitions that highlights the presence of objects of various classes. These unsupervized methods are widely used in genomics where objects (expression profiles, biological samples with various descriptor, sequences, motifs, genomic features,...)  need to be classified in order to mine large dataset in search for similar objects related to known or novel classes and displaying jointly particular properties. These approaches have been  applied in several reference papers in the context of biological sample classification leading to the discovery of novel tumor classes. 
+
+The expected results of the classification is a partition. A partition can be define as the division of a collection of objects into subsets or clusters. In clustering approaches, each cluster is expected to contain very similar object (low within-group variance) while object from different clusters are expected to differ (high inter-group variance).  These clusters can correspond to a simple division of the object collection but also to a  set of hierarchically nested subsets. In the most popular approaches the clusters produced are non overlapping, meaning that each object is assign to only one cluster. These approaches are called *hard* (or *crisp*) *clustering* methods in contrast to *fuzzy clustering* (or soft clustering) in which one object can fall into several clusters. Although rather complexe approaches have been proposed, the most popular methods for unsupervised clustering are based on rather simple algorithms that rely on simple mathematical basis. 
+Whatever the method used, one important aspect is to choose a reasonable metric to assess the resemblance between object. Although other parameters may strongly influence the partitioning result, the choice of the metric will have a major influence on clustering. They are lots of existing metrics that can be applied to a set of objects. In the next section, we will focus on some of them that are frequently encountered in the context of genomic data analysis. 
+
+### Choosing a metric
+
+#### The euclidean distance.
+
+One of the most classical metric is the well-known *euclidean distance*. Let's imagine two genes in a two dimensional space that could represent two biological samples. Thus these two genes could be represented as two points $a$ and $b$. The euclidean distance between these two genes can be represented in the sample space and corresponds to the physical distance between two points computed using pythagora's formula with $i=1,..,p$ corresponding to the samples:
+
+$$d(a,b)=\sqrt{\sum_{i=1}^p (a_{i} - b_{i})^2}$$
+
+We could also propose an alterntive representation in which the points would be the samples and the dimensions would correspond to genes. We could also propose an alternative representation in which the $x$ axis would represent the samples and the $y$ axis would represent the intensities. In this case we would represent the profiles of the two genes across the two samples $s1$ and $s2$. This three representations are depicted below.
+In this particular case, the two points, $a$ and $b$ for which the distance is to be computed are in a two-dimensional space. However, this distance can be generalized to any space with p dimensions. Let's take an example with two points (genes) in a eight dimensional space. We will chose the third representation with samples names displayed on $x$ axis and intensities displayed on $y$ axis.The value for $a_{i}^2 - b_{i}^2$ are displayed with dashed lines
+
+```{r, dpi=300}
+# Preparation x window
+col.vec <- c("black","red")
+op <- par(no.readonly = TRUE)
+par(mfrow=c(2,2), cex.main=0.7, mgp=c(2,1,0), mai=c(0.3,0.3,0.3,0.3))
+
+# Genes as points and samples as dimensions
+a <- c(1, 4)
+b <- c(2, 3)
+m <- rbind(a, b)
+print(m)
+colnames(m) <- c("s1", "s2")
+plot(m , pch=16, xlim=c(0,3), 
+     ylim=c(0,5), main="Genes as points and samples as dimensions",
+     col=col.vec,
+     panel.first=grid(lty=1))
+suppressWarnings(arrows(a[1], a[2], b[1], b[2], angle=0))
+suppressWarnings(arrows(a[1], a[2], b[1], a[2], angle=0, lty=3))
+suppressWarnings(arrows(b[1], a[2], b[1], b[2], angle=0, lty=3))
+text(m, lab=rownames(m), pos = 2, offset = 1)
+text(7, 4,label="dist(a,b)")
+
+
+# Sample as points and genes as dimensions
+plot(t(m) , pch=16, 
+     ylim=c(0,5), xlim=c(0,5), 
+     main="Sample as points and genes as dimensions",
+     panel.first=grid(lty=1))
+text(t(m), lab=colnames(m), pos = 2, offset = 1)
+
+
+# x axis correspond to samples and the y axis represent the intensities
+
+matplot(t(m) , 
+       ylim=c(0,5), xlim=c(0,3), 
+       main="x axis for samples (n=2) and y axis for intensities", 
+       ylab=c("Intensities"),
+       xlab="samples",
+       xaxt = "n",
+       type="n")
+grid(lty=1)
+
+axis(1, 0:4, c("", "s1", "s2", "", ""))
+suppressWarnings(arrows(1, a[1], 2, a[2], angle=0))
+suppressWarnings(arrows(1, b[1], 2, b[2], angle=0))
+
+matpoints(t(m) , pch=16, 
+       col=col.vec)
+
+
+# 8 dimensions: x axis correspond to samples and the y axis represent the intensities
+a <- c(7, 7, 7, 7, 6, 6, 10, 10)
+b <- c(8, 2, 5,  6, 1, 6, 1, 4)
+m <- rbind(a, b)
+matplot(t(m),
+        xlim=c(0,10), ylim=c(0,12),
+       main="x axis for samples (n=8) and y axis for intensities",
+        pch=16,
+        col="black",
+        lty=1,
+        type="n")
+grid(lty=1)
+
+for(i in 1:length(a)){
+  suppressWarnings(arrows(i, a[i] , i, b[i], angle=0, lty=3))
+}
+
+matpoints(t(m),
+        pch=16,
+        type="b",
+        lty=1)
+
+points(a, type="p", col=col.vec[1],  pch=16)
+points(b, type="p", col=col.vec[2],  pch=16)
+```
+
+**Exercice:** 
+
+> - Compute the euclidean distance between a and b. 
+> - Check that the same result is obtained with the **dist()** function used with default arguments.
+> - Now assign the values of a to b.
+>   - What is the computed distance.
+> - Add successively 10, 20, 30, 40 to each element/dimension of $b$. 
+>   - Compute the distance.
+>   - What do you observe ?
+> - Set $b$ values to $-a + mean(a)$ then a to $a - mean(a)$. 
+>   - What is the distance obtained.
+> - Now create a variable c with values $a + 3$
+>   - What is the distance obtained with a.
+>   - Plot the profile of a, b and c.
+>   - Is the euclidean distance a good choice for comparing these profiles ? Discuss it. In which context could it be useful ?
+
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo">
+```{r}
+par(op)
+
+## The distance between a and b
+(dist.euc  <- sqrt(sum((a-b)^2)))
+
+# This can be also computed using the dist() function (requires) a matrix.
+(dist.obj <- dist(rbind(a,b), method = "euclidean"))
+
+# dist() return a dist object which can be converted to a matrix
+(dist.mat <- as.matrix(dist.obj))
+
+# Both lead to the same result
+all.equal(dist.euc, dist.mat[1,2])
+
+# Now assign the values of a to b.
+b <- a
+dist(rbind(a,b), method = "euclidean") # the distance is 0
+
+# Add successively 10, 20, 30, 40 to each element/dimension of $b$.
+range <- c(0, 10, 20, 30, 40)
+b <- matrix(b, nc=8, nrow=5, byrow = TRUE)
+b <- b + range
+b <- rbind(b,a)
+rownames(b) <- c("b+0","b+10", "b+20", "b+30", "b+40", "a")
+plot(NA, xlim=c(1,8), 
+     ylim=c(0,max(b)), type="n", 
+     panel.first = grid(),
+     ylab="Intensities",
+     xlab="Samples")
+matpoints(t(b), type="b", pch=16, lty=1, lwd=2)
+
+# What we can observed is that although a and b have exactly the same profile 
+# their distance increase as the absolute level of b is increasing.
+# The euclidean distance has no upper limit and can thus increase indefinitely.
+dist.a.b <- as.matrix(dist(b))[1:5,"a"]
+text(2, range+2, labels=paste("d(a,", names(dist.a.b), ")=", round(dist.a.b,2), sep=""), cex=0.7, pos=3, offset=2)
+
+# set $b$ values to -a + mean(a) then a to a - mean(a).
+b <- -a + mean(a)
+a <-  a - mean(a)
+dist(rbind(a,b))
+
+# Create vector c with values a + 6
+
+c <- a + 3
+dist(rbind(a,c))
+
+matplot(t(rbind(a,b,c)), type="b", pch=1, lty=1, lwd=2, col=c("blue", "orange","red"))
+grid()
+legend(x="topleft", 
+       legend = c("a","b","c"), 
+       col=c("blue", "orange","red"), 
+       lwd=2)
+
+# As you can see the euclidean distance is unable to distinguish between profile displaying coordinate variations and profiles displaying clear anti-correlation.
+```
+</div>
+
+#### Pearson's correlation coefficient
+
+The Pearson's correlation coefficient is a widely used statistical score to measure the co-variance of two variables. It is particularly used in the case of hierarchical clustering applied to microarray or RNA-Seq data. The Pearson's correlation coefficient can be computed by dividing the covariance of the two variables by the product of their standard deviations. 
+
+
+$$r_{x,y}= \frac{1}{n}\sum\limits_{i=1}^n   \frac{(x_i - \bar{x})(y_i - \bar{y})}{s_xs_y} = \frac{cov(x,y)}{s_xs_y}$$
+
+
+Let's go back to the example we provided above. We had three objects ($a$, $b$ and $c$) having values associated with a set of variables. These object could be viewed as a small set of genes having given expression values in a set of biological samples. We will construct a new diagram in which we will display for each gene (a, b, and c) through each sample (8 dimensions) the difference to the corresponding mean value ($x_i - \bar{x}$). The covariance is the sum of the products of the differences through the eight dimensions. If for in dimension the intensities of two gene goes jointly above their corresponding mean, this product will be positive. In the same way, if their intensities goes jointly above their corresponding mean, this product will be positive. It will be negative or zero in the other cases. The fact that the covariance is divided by the product of the standard deviation will ensure that the Pearson's $r$ coefficient is bound between -1 (the more negative corresponding to anti-correlation) and 1 (complete correlation). 
+
+```{r}
+col.vec <- c(col.vec, "green")
+# The dataset
+a <- c(7, 7, 7, 7, 6, 6, 10, 10)
+a <- a - mean(a)
+b <- -a + mean(a)
+c <- a + 3
+m <- rbind(a,b,c)
+
+# The mean intensities
+a.mean <- mean(a)
+b.mean <- mean(b)
+c.mean <- mean(c)
+
+# The diagram with the three genes: a, b, c
+matplot(t(m),
+       main="x axis for samples (n=8) and y axis for intensities",
+        pch=16,
+        col="black",
+        lty=1,
+        type="n")
+grid(lty=1)
+
+mean.all <- c(a.mean, b.mean, c.mean)
+abline(h=mean.all, lty=1, col="darkgrey")
+
+gene.list <- list(a,b,c)
+
+# The differences to the means
+for(g in 1:length(gene.list)){
+  for(i in 1:length(a)){
+    arrows(i, mean.all[g] , i, gene.list[[g]][i], angle=0, lty=2)
+  }
+}
+
+matpoints(t(m),
+        pch=16,
+        type="b",
+        lty=1)
+
+```
+
+**Exercice:** 
+
+> - Compute the Pearson's correlation coefficient between $a$ and $c$ using the formula.
+>   - Is that results expected.
+>   - Compute it using the cor() function. Is the same result obtained ?
+> - What is the result obtained when comparing $a$ and $b$ ?
+> - Is this metric a good choice for comparing two gene expression profile ?
+
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo">
+
+```{r}
+n <- 8
+# Compute sample standard deviation
+sd.a <- sqrt(1/n * sum((a-a.mean)^2))
+sd.c <- sqrt(1/n * sum((c-c.mean)^2))
+
+# Compute Co-variance
+cov.a.c <- 1/n*sum((a-a.mean) * (c-c.mean))
+cor.a.c <- cov.a.c/(sd.a*sd.c)
+cor.a.c 
+all.equal(cor.a.c, cor(a,c))
+
+# Correlation between a and b. 
+# a and b are anti-correlated
+cor(a,b)
+```
+</div>
+
+This correlation coefficient can be simply transformed into a distance using the following formula:
+
+$$d(x,y) = 1/2(1-r_{x,y})$$
+
+For any gene pair with a Pearson's correlation coefficient of 1 the corresponding distance will be 0 while those displaying value of -1 will have an associated distance of 1. It should be noted that in contrast to euclidean distance, this distance does not follow the rule of  triangle inequality that states that for any triangle the sum of the length of two given sides  must be greater than the length of the third side. This type of distance can thus not be used to represent gene distances in a euclidean space. 
+
+#### Spearman's correlation coefficient $\rho$
+
+Spearman's correlation coefficient can be also particularly useful to assess the similarity of two given expression profile. While this rank-based measure is more robust to outliers than Pearson's correlation coefficient, it is also less sensitive. While Pearson's correlation coefficient is constructed based on raw values, Spearman's correlation coefficient will assess the concordance between the ranks of these values. The formula of the Speaman 's correlation coefficient is provided below. In this formula $d$ is the difference between ranks.
+
+$$\rho = {1- \frac {6 \sum d_i^2}{n(n^2 - 1)}}$$
+
+As for the Pearson's correlation coefficient, $\rho$ can be transformed to a distance using:
+
+$$d(x,y) = 1/2(1-\rho_{x,y})$$
+
+#### Comparing Spearman and Pearson correlation coefficient results
+
+Also lot of other metric exist, Spearman and Pearson correlation coefficient (or their associated distance) are frequently a good choice when working with expression data. However, depending on the contex, it is advisable to use the appropriate coefficient since their results may greatly differ. One can keep in mind that Pearson will capture linear relationships while Spearman will capture monotonic relationships. Let's take some example and compute the results of both coefficient.
+
+```{r}
+op <- par(no.readonly = TRUE)
+par(mfrow = c(2, 2), mar = c(3, 4, 0, 0.2)) #it goes c(bottom, left, top, right) 
+## An example where the result of both approaches are consistant
+set.seed(1)
+a <- rnorm(20)
+b <- a + rnorm(20,sd=0.1)
+plot(a,b, pch=16, las=1, panel.first=grid(lty=1))
+cor.a.b.pear <- paste("r=", round(cor(a,b), 3))
+cor.a.b.spear <- round(cor(a,b, method="spearman"), 3)
+cor.a.b.spear <- paste("\u03C1=", cor.a.b.spear, sep="")
+legend("topleft", leg=c(cor.a.b.spear, 
+                           cor.a.b.pear ))
+
+## Another example where the result of both approaches are consistant
+set.seed(1)
+a <- rnorm(20)
+b <- -a + rnorm(20,sd=0.1)
+plot(a,b, pch=16, las=1, panel.first=grid(lty=1))
+cor.a.b.pear <- paste("r=", round(cor(a,b), 3))
+cor.a.b.spear <- round(cor(a,b, method="spearman"), 3)
+cor.a.b.spear <- paste("\u03C1=", cor.a.b.spear, sep="")
+legend("topright", leg=c(cor.a.b.spear, 
+                           cor.a.b.pear ))
+
+## An example with non linear relatioship
+a <- 1:50
+b <- exp(a)
+plot(a,b, pch=16, las=1, panel.first=grid(lty=1))
+cor.a.b.pear <- paste("r=", round(cor(a,b), 3))
+cor.a.b.spear <- round(cor(a,b, method="spearman"), 3)
+cor.a.b.spear <- paste("\u03C1=", cor.a.b.spear, sep="")
+legend("topleft", leg=c(cor.a.b.spear, 
+                           cor.a.b.pear ))
+
+## An example with an outlier.
+## Rank concordance is observed only in one dimension
+set.seed(1)
+a <- rnorm(10)
+b <- rnorm(10)
+rank(a) - rank(b)
+a[5] <- a[5] + 10
+b[5] <- b[5] + 10
+plot(a,b, pch=16, las=1, panel.first=grid(lty=1))
+cor.a.b.pear <- paste("r=", round(cor(a,b), 3))
+cor.a.b.spear <- round(cor(a,b, method="spearman"), 3)
+cor.a.b.spear <- paste("\u03C1=", cor.a.b.spear, sep="")
+legend("topleft", leg=c(cor.a.b.spear, 
+                           cor.a.b.pear ))
+
+```
+
+

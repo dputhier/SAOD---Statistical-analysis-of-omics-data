@@ -1,0 +1,44 @@
+; oligo-analysis  -v 1 -l 1 -return occ,freq -noov -2str -i data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat07.fasta -o data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat07_1nt-noov-2str.tab
+; Citation: van Helden et al. (1998). J Mol Biol 281(5), 827-42. 
+; Program version              	1.169
+; Slow counting mode           
+; Oligomer length              	1
+; Input file                   	data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat07.fasta
+; Input format                 	fasta
+; Output file                  	data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat07_1nt-noov-2str.tab
+; Discard overlapping matches
+; Counted on both strands
+; 	grouped by pairs of reverse complements
+; Background model             	Bernoulli
+; Background estimation method 	
+; Sequence type                	DNA
+; Nb of sequences              	689
+; Sum of sequence lengths      	192449
+; discarded residues           	5868	 (other letters than ACGT)
+; discarded occurrences        	5868	 (contain discarded residues)
+; nb possible positions        	186581
+; total oligo occurrences      	186581
+; total overlapping occurrences	0
+; total non overlapping occ    	186581
+; alphabet size                	4
+; nb possible oligomers        	2
+; oligomers tested for significance	0
+;
+; column headers
+;	1	seq            	oligomer sequence
+;	2	id             	oligomer identifier
+;	3	obs_freq       	observed relative frequency
+;	4	occ            	observed occurrences
+;	5	ovl_occ        	number of overlapping occurrences (discarded from the count)
+;	6	forbocc        	forbidden positions (to avoid self-overlap)
+#seq	id	obs_freq	occ	ovl_occ	forbocc
+a	a|t	0.5857456011062	109289	0	0
+c	c|g	0.4142543988938	77292	0	0
+; Host name	caminante.local
+; Job started	2015-11-03.141401
+; Job done	2015-11-03.141403
+; Seconds	1.44
+;	user	1.44
+;	system	0.01
+;	cuser	0
+;	csystem	0

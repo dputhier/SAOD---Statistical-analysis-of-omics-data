@@ -1,0 +1,436 @@
+<html>
+  <head>
+         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+    <title>  R language: A quick tutorial</title>
+    <script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+        <script type="text/javascript" src="../syntaxhighlight/shBrushR.js"></script>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    <script type="text/javascript">
+      SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+      SyntaxHighlighter.all();
+        </script>
+
+  </head>
+
+  <body>
+
+<script language="JavaScript" type="text/javascript">
+  <!--                                                                                                                         function sizeTbl2(h,i) {                                                                                                 var tbl = document.getElementById(i);                                                                                    tbl.style.display = h;                                                                                                       }                                                                                                               // -->
+</script>
+
+                   
+ 
+<h1 align="center">R language </h1>
+<h2>R language: A quick tutorial</h2>
+<p>Denis Puthier and Jacques van Helden</p>
+<p>
+This tutorial is just a brief tour of the language capabilities and  is intented to give some clues to begin with the R programming language. For a more detailled overview see <a href="http://cran.r-project.org/doc/contrib/Paradis-rdebuts_en.pdf"> R for beginners</a> (E. Paradis) </p
+
+<p></p>
+<h2>Content</h2>
+<ul>
+<li><a href="#basic">Basic aspects of the language.</a></li>
+<li><a href="#functions">Syntax for calling Functions.</a></li>
+<li><a href="#modes">Functions for creating vectors.</a></li>
+<li><a href="#vectormanip">Vector manipulation.</a></li>
+<li><a href="#otherobject">Objects of class: factor, Matrix, data.frame and list.</a></li>
+<li><a href="#apply">The apply family functions</a></li>
+<li><a href="#graphics">Graphics with R</a></li>
+<li><a href="#bioc">Bioconductor and S4 objects</a></li>
+</ul>
+<hr>
+
+
+<a name="basic"></a>
+<h2>Basic aspects of the language.</h2>
+
+
+<p>R is an object-oriented programming language. You can easily create basic objects of class <tt>vector</tt>, <tt>matrix</tt>,
+<tt>data.frame</tt>, <tt>list</tt>, <tt>factor</tt>,...</p>
+
+<p>Below, we create a vector <i>x</i> that contains one value. You can see the content of <i>x</i> by simply calling it.</p>
+
+<pre class="brush:r;">
+x<-15
+x
+</pre> 
+
+<p>Alternatively, you can assign a value to x by using the "=" operator. However "<-" is most generally prefered.</p>
+   
+<pre class="brush:r;">
+x=22
+x
+</pre> 
+
+<p>In R, anything on a line after a hash mark (#) is a comment and is ignored by the interpreter. </p>
+
+<pre class="brush:r;">
+#x<-57
+x
+</pre> 
+
+<p>Instructions can be separated by semi-colons (;) or new-line.</p>
+   
+<pre class="brush:r;">
+x<-12; y<-13
+x; y
+</pre> 
+
+<p>Once values are assigned to an object, R will store this object into the memory. Previously created objects can be <b>l</b>i<b>s</b>ted using the <tt>ls</tt> function. </p>
+  
+<pre class="brush:r;">
+ls()
+</pre> 
+
+<p>Object can be deleted using the <tt>rm</tt> (<b>r</b>e<b>m</b>ove) function.</p>
+
+
+<pre class="brush:r;">
+rm(x)
+rm(y)
+ls()
+</pre> 
+
+<hr>
+
+<a name="functions"></a>
+<h2></a>Syntax for calling Functions.</h2>
+
+<p>In the above section we have created vectors containing  numeric data. We have also used functions (<tt>ls</tt> and <tt>rm</tt>). We can use numerous functions to perform specific tasks. When calling a function, we will use this generic syntax:</p>
+
+<p></p>
+
+<center>  
+<pre class="brush:r;">
+-NameOfTheFunction(arg1=a, arg2=b, ...)
+</pre> 
+</center>
+
+<p></p>
+<ul>
+<li>arg1 et arg2 (...) : arguments of the function.</li>
+<li>a and b : The objects that will be passed to the function.</li>
+</ul>
+
+<p>To access the documentation of a given function, use the <tt>help</tt> function (or the question mark). The documentation gives you an overview of the function:<p>
+<ul>
+<li>usage</li>
+<li>argument name and class</li>
+<li>returned values</li>
+<li>examples</li>
+</ul> 
+<p>For instance to get information about the <tt>substr</tt> function (used to extract part of a character string) use one of the following instructions:</p>
+
+
+  
+<pre class="brush:r;">
+help(substr)#or?substr
+</pre> 
+
+<p></p>
+<p>When calling a function, the name of the arguments can be omitted if they are placed as expected. For instance if one wants to extract character 2 to 4 in the string "microarray":</p>
+
+<p></p>
+<pre class="brush:r;">
+substr("microarray",2,4)
+</pre> 
+
+
+<p></p>
+<p>If the  arguments are not in the expected order their names are mandatory (note that, for convenience, they can be abbreviated but the abbreviation used should be unambiguous):</p>
+
+
+  
+   
+<pre class="brush:r;">
+substr(start=2,stop=4,x="microarray") #works
+</pre> 
+
+  
+<pre class="brush:r;">
+substr(st=2,st=4,x="microarray") #ambiguous. R throw an error message.
+</pre> 
+
+<hr>
+
+<a name="modes"></a>
+ <h2>Functions for creating vectors.</h2>
+
+
+
+
+<h3>The <tt>c</tt> function</h3>
+<p>The function <tt>c</tt> is used to <b>c</b>ombine values into a vector. A vector can contain several values of the same mode. Most frequently, the mode will be one of: "numeric", "character" or "logical". </p>
+
+
+<pre class="brush:r;">
+mic<-c("Agilent","Affy") #a character vector
+mic
+class(mic) # or is(mic)
+
+num<-c(1,2,3)  # a numeric vector
+num
+class(num)
+
+bool<-c(T,F,T) # a logical vector
+class(bool)
+</pre> 
+  
+
+
+
+<h3>The ":" operator</h3>
+This operator generates a sequence of integers from 'from' to 'to' with steps of '1' . 
+
+
+<pre class="brush:r;">
+3:10
+10:3
+</pre> 
+
+
+
+
+<h3>Functions <tt>rep</tt>, <tt>seq</tt></h3>
+<p>The <tt>rep</tt> function <b>rep</b>eats a value as many times as requested.</p>
+<p>The <tt>seq</tt> (<b>seq</b>uence) function is used to generate a regular sequences of numerics </p>
+
+  <p></p>
+<pre class="brush:r;">
+rep(3,5)
+seq(0,10,by=2)
+seq(0,10,length.out=7)
+</pre> 
+
+
+
+<h3>Functions to generate random number</h3>
+
+<p></p>
+<p>the <tt>rnorm</tt> (<b>r</b>andom <b>norm</b>al)function is used to generate normally distributed values with mean equal to 'mean' (default 0) and standard deviation equal to 'sd' (default 1).</p>
+<p>additional distributions are available, for instance, <tt>runif</tt> (<b>r</b>andom <b>uniform</b>), <tt>rpois</tt> (<b>r</b>andom <b>pois</b>son) </p>
+
+<p></p>
+<pre class="brush:r;">
+x<-rnorm(1000,mean=2,sd=2)
+hist(x)
+</pre> 
+
+
+<hr>
+<a name="vectormanip"></a>
+<h2>Vector manipulation.</h2>
+
+<h3>Indexing</h3>
+
+</a>Indexing vectors</h3>
+Extraction or replacement of parts of a vector can be performed using the <tt>"["</tt> operator (which is equivalent to the <tt>subset</tt> function). Numeric vectors, logical vectors or names are used to indicate which positions in the vector are to be extracted or replaced.
+
+<pre class="brush:r;">
+set.seed(1)
+x<-round(rnorm(10),2)
+x
+x[2]
+x[1:3]
+x[c(2,6)]
+which(x > 0) # returns the positions containing positive values
+x[which(x > 0)] # returns the requested positive values(using a vector of integers)
+x> 0 # returns TRUE/FALSE for each position.
+x[x > 0] # same results as x[which(x0)]
+nm<-paste("pos",1:10,sep="_")
+nm
+names(x)<-nm
+x
+x["pos_10"] # indexing with the names of the elements
+</pre> 
+
+
+<h3>Replacing parts of a vector</h3>
+<p>Simply use the <tt><-</tt> operators. Note that in R, missing values are defined as <tt>NA</tt> (Not Attributed).</p>
+
+   
+<pre class="brush:r;">
+x[1:2]<-c(10,11)
+x
+x[4:6]<-NA
+x
+is.na(x) # returns TRUE if the position is NA
+x<-na.omit(x) # To delete NA values (or x[!is.na(x)])
+x
+</pre> 
+
+
+<h3>Vectorization</h3>
+<p>R is intented to handle large data sets and to retrieve information using a concise syntax. Thanks to the internal feature of R, called <i>vectorization</i>, numerous operation can be written without a loop: </p>
+
+
+   
+<pre class="brush:r;">
+x<-0:10
+y<-20:30
+x+y
+x^2
+</pre> 
+
+<hr>
+<a name="otherobject"></a>
+<h2></a>Objects of class: factor, Matrix, data.frame and list</h2>
+
+
+<h3>factors</h3>
+<p>This object looks like a vector. It is used to store categorical variables. A vector can be converted to a factor using the <tt>as.factor</tt> function. The <tt>levels</tt> function can be used to extract the names of the categories and to rename them. </p>
+
+
+   
+<pre class="brush:r;">
+x<-rep(c("good","bad"),5)
+x
+x<-as.factor(x) 
+x   # note that levels are displayed now
+levels(x)
+levels(x)<-0:1
+x
+table(x)
+</pre> 
+  
+<h3>Matrix</h3>
+<p>Matrix objects are intended to store 2-dimensional datasets. Each value will be of the same mode. As with vectors, one can use names, numeric vectors or a logical vector for indexing this object. One can index rows or columns or both.</p>
+
+
+   
+<pre class="brush:r;">
+x<-matrix(1:10,ncol=2)
+colnames(x)<-c("ctrl","trmt")
+row.names(x)<-paste("gene",1:5,sep="_")
+x
+x[,1] # first column
+x[1,] # first row
+x[1,2] # row 1 and column 2
+x[c(T,F,T,T,T),]
+</pre> 
+
+
+<p>Note that the syntax below that use a logical matrix is also frequently used to extract or replace part of a matrix.</p>
+
+
+   
+<pre class="brush:r;">
+x > 2 & x < 8
+x[x > 2 & x < 8]<-NA
+</pre> 
+
+
+<h3>data.frame</h3>
+<p>This object is very similar to the matrix except that each column can contain a given mode (a column with characters, a column with logicals, a column with numerics,...).</p>
+<p>Columns from a data.frame can also be extracted using the <tt>$</tt> operator</p>
+
+<pre class="brush:r;">
+x <- as.data.frame(x)
+x
+x$ctrl
+</pre>
+
+<h3>List</h3>
+<p>Object of class list can store any type of object. They should be indexed with the "[[" or $ operators.</p>
+
+
+   
+<pre class="brush:r;">
+l1<-list(A=x,B=rnorm(10))
+l1
+l1[[1]]
+l1[[2]]
+l1$A
+</pre> 
+
+<hr>
+<a name="apply" ></a>
+
+<h3>The apply family of functions</h3>
+
+
+<p>They are used to loop through row and columns of a matrix (or dataframe) or through elements of a list.</p>
+
+
+   
+<pre class="brush:r;">
+x<-matrix(rnorm(20),ncol=4)
+apply(x,MARGIN=1,min) # extract min value for each row (MARGIN=1)
+apply(x,MARGIN=2,min) # extract min value for each column (MARGIN=2)
+</pre> 
+  
+<p>The <tt><b>l</b>apply</tt> is used for <b>l</b>ist (or data.frame).</p>
+
+<pre class="brush:r;">
+lapply(l1,is)
+</pre> 
+ 
+<h3> The tapply function</h3>
+<p>This function tipically takes a vector and a factor as arguments. Let say we have value (x) )related to three caterogies ("good", "bad", "medium"). We can compute different statistics related to the category:</p>
+
+
+   
+<pre class="brush:r;">
+cat<-rep(c("good","bad","medium"),5)
+cat<-as.factor(cat)
+x<-rnorm(length(cat))
+x[cat=="good"]<-x[cat=="good"]+2
+x[cat=="medium"]<-x[cat=="medium"]+1
+boxplot(x~cat)
+tapply(x,cat,sd)
+tapply(x,cat,mean)
+tapply(x,cat,length)
+</pre> 
+
+
+
+<hr>
+<a name="graphics"></a>
+
+<h2>Graphics with R</h2>
+<p></p>
+<p>R offers a large variety of high-level graphics functions (<tt>plot</tt>, <tt>boxplot</tt>, <tt>barplot</tt>, <tt>hist</tt>, <tt>pairs</tt>, <tt>image</tt>, ...). The generated graphics can be modified using low-level functions (<tt>points</tt>, <tt>text</tt>, <tt>line</tt>, <tt>abline</tt>, <tt>rect</tt>, <tt>legend</tt>, ...).</p>
+
+<p></p>
+<h3>A simple example (MA plot) using two colour microarray data processed with basic R functions.</h3>
+<p></p>
+
+  
+<pre class="brush:r;">
+path
+path<-system.file("swirldata",package="marray")
+getwd() # the current working directory
+setwd(path)  # set working directory to "path"
+getwd()      # The working directory has changed
+dir()        # list files and directories in the current working directory
+#file.show("swirl.1.spot") # this file contains a Header
+d<-read.table("swirl.1.spot",header=T,sep="\t",row.names=1)
+is(d)
+colnames(d)
+G<-d$Gmedian
+R<-d$Rmedian
+plot(R,G,pch=16,cex=0.5,col="red") 
+R<-log2(R)
+G<-log2(G)
+M<-R-G
+A<-R+G
+plot(A,M,pch=16,cex=0.5)
+low<-lowess(M~A)
+lines(low,col="blue",lwd=2)#lwd:linewidth
+abline(h=0,col="red")#h:horizontal
+abline(h=-1,col="green")
+abline(h=1,col="green")
+# We will only add gene names (here a numeric) for a subset of strongly induced/repressed genes
+subset<-abs(M) > 1
+points(A[subset],M[subset],col="red")
+gn<-1:nrow(d)
+text(A[subset],M[subset],lab=gn[subset],cex=0.4,pos=2)
+</pre> 
+
+
+
+</body>
+</html>

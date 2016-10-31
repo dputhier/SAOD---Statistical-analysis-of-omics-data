@@ -1,0 +1,1314 @@
+---
+title: "Practical - Supervised classification of microarray data"
+author: "Jacques van Helden"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    highlight: tango
+    theme: united
+    toc: yes
+    toc_depth: 3
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+css: ../../html/course.css
+bibliography: ../../bibliography/ASG1_references.bib
+---
+
+
+## Abbreviations
+
+Abbrev   Meaning
+------   ----------------------------
+   ALL   acute lymphoblastic leukemia 
+   AML   acute myeloblastic leukemia 
+   DEG   differentiall expressed genes 
+   GEO   Gene Expression Omnibus database 
+   KNN   K-nearest neighbours 
+   LDA   linear discriminant analysis 
+   QDA   quadratic discriminant analysis 
+   PCA   principal component anlaysis 
+   LOO   leave-one-out
+   CV    cross-validation
+
+
+* * * * * * * *
+
+```{r knitr setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=FALSE, message=FALSE, warning=FALSE, comment="")
+
+```
+
+
+
+
+```{r}
+
+## Check the requirement for some packages
+packages <- c("knitr")
+for (pkg in packages) {
+  if (!suppressPackageStartupMessages(require(pkg, quietly=TRUE, character.only = TRUE))) {
+    install.packages(pkg)
+  }
+}
+
+library(knitr)
+
+## Install some bioconductor packages
+pkg <- "qvalue"
+if (!suppressPackageStartupMessages(require(pkg, quietly=TRUE, character.only = TRUE))) {
+  source("http://bioconductor.org/biocLite.R")
+  biocLite();
+  biocLite(pkg)
+}
+
+## Load the curstom function t.test.multi() - see protocol on differential expression
+## Load a custom the library for multiple t tests
+url.stats4bioinfo <- "http://pedagogix-tagc.univ-mrs.fr/courses/statistics_bioinformatics"
+source(file.path(url.stats4bioinfo, 'R-files/config.R'))
+
+source(file.path(url.stats4bioinfo, 'R-files/util/util_student_test_multi.R'))
+
+# ## Install some specific packages for this course
+# library(devtools)
+# dev_mode(on=T)
+# install_github("jvanheld/statistics_for_bioinformatics/R-packages/denboer2009")
+# install_github("jvanheld/statistics_for_bioinformatics/R-packages/stats4bioinfo")
+# # when finished do:
+# dev_mode(on=F)  #
+# 
+# library(denboer2009)
+# library(stats4bioinfo)
+
+
+
+```
+
+
+
+
+## Goal of this tutorial
+
+In this tutorial, we will put in practice some fundamental concepts of supervised classification.
+
+1. Distinction between unsupervised (clustering) and supervised classification.
+2. Steps of an analysis: training, testing and prediction.
+3. Evaluation of the classification: cross-validation (<span class="concept">CV</span>), leave-one-out (<span class="concept">LOO</span>).
+4. The problem of over-dimensionality and the risk of overfitting
+5. Feature selection methods
+
+  
+## Study case
+
+For the practical, we will use a cohort comprized of 190 samples from patients suffering from Acute Lymphoblastic Leukemia (**ALL**) from DenBoer (2009). The raw data has previously been retrieved from the Gene Expression Omnibus (**GEO**) database ([http://www.ncbi.nlm.nih.gov/geo/](http://www.ncbi.nlm.nih.gov/geo/)).
+
+
+* * * * * * * * 
+
+## R configuration
+
+<div class="protocol">
+* Open a terminal
+* Start R
+</div>
+
+We first need to define the URL of the course (<tt>dir.base</tt>), from which we will download some pieces of <span class="program">R</span> code and the data sets to analyze.
+
+``` {r label="Defining base URLs"}
+## Specify the URL of the base for the course
+dir.base <- 'http://pedagogix-tagc.univ-mrs.fr/courses/statistics_bioinformatics'
+dir.base.ASG1 <- 'http://pedagogix-tagc.univ-mrs.fr/courses/ASG1'
+
+```
+
+The following command loads a general configuration file, specifying
+the input directories (data, <span class="program">R</span> utilities) and creating output
+directories on your computer (<tt>dir.results</tt>,
+<tt>dir.figures</tt>)..
+
+``` {r label="Loading configuration file"}
+## Load the general configuration file
+source(file.path(dir.base, 'R-files', 'config.R'))
+
+setwd(dir.results)
+print(paste("Result directory", dir.results))
+```
+
+
+
+
+* * * * * * *
+
+
+## Data loading
+
+We can now load the profile table and check its dimensions. Beware: this expression matrix weights 20Mb. The download can thus take time, depending on your internet connection.
+
+``` {r}
+# ## Define the location of data directory and file containing expression profiles
+# denboer.url <- file.path(dir.base, 'data', 'gene_expression','denboer_2009')
+denboer.url <- file.path(dir.base.ASG1, "data", "marrays")
+file.expr.table <- file.path(denboer.url, 'GSE13425_Norm_Whole.tab')
+
+## Load the dataset from denboer2009
+denboer2009.expr <- read.table(file.expr.table, sep = "\t", head = T, row = 1)
+print(dim(denboer2009.expr))
+
+## Should give this: 22283   190
+
+
+## Load the pheno table, which provides information about all the samples
+## Load phenotypic data
+pheno.file <- file.path(denboer.url, 'phenoData_GSE13425.tab')
+message("Loading pheno data from ", pheno.file)
+denboer2009.pheno <- read.table(pheno.file, sep='\t', head=TRUE, row=1, comment.char="")
+
+## Load a file with group descriptions (short label, color)
+group.descr.file <- file.path(denboer.url, 'GSE13425_group_descriptions.tab')
+message("Loading group descriptions from ", group.descr.file)
+group.descriptions <- read.table(group.descr.file, sep='\t', head=TRUE, row=1)
+
+```
+
+ 
+```{r eval=FALSE, echo=FALSE}
+## Load Den Boer dataset from the R package denboer2009
+## TEMPORARILY INACTIVATED: I still need to see how to make the packages accessible
+# library(denboer2009)
+# data(denboer2009.expr)
+# data(denboer2009.pheno)
+# data(denboer2009.amp)
+# 
+# dim(denboer2009.expr)
+
+```
+
+Once the whole data set has been loaded, the data frame "denboer2009.expr"
+should contain 22,283 rows (genes) and 190 columns (samples).
+
+
+We can now inspect the "phenotypic" data. 
+
+<font size=-1>Remark: the table named "denboer2009.pheno"  contains the information defined as "phenotypic" for general analysis of microarrays. However, in the case of DenBoer data set, the different classes of ALL are characterized by genotypic characteristics (the mutation that caused the leukemia) rather than by phenotypic traits.</font>
+
+
+```{r}
+## Get the list of column names in the pheno table.
+names(denboer2009.pheno)
+
+```
+
+The column *Sample.title* indicates the cancer subtype corresponding to each sample.  We can count the number of samples per subtype, and display them by decreasing group size.
+ 
+``` {r}
+
+## Print the subtypes associated to each sample
+print(sample(denboer2009.pheno$Sample.title, size = 10))
+
+## Print the number of samples per cancer type
+kable(data.frame("n"=sort(table(denboer2009.pheno$Sample.title),decreasing=T)))
+
+```
+
+For the sake of visualization, we also defined short *sample labels* corresponding to each ALL subtype.
+
+``` {r}
+
+## Print the subtypes associated to each sample
+sample.labels <- as.vector(denboer2009.pheno$sample.labels)
+sample.colors <- as.vector(denboer2009.pheno$sample.colors)
+
+print(sample(sample.labels, size = 10))
+
+
+## Print the number of samples per cancer type
+kable(data.frame("n"=sort(table(sample.labels),decreasing=T)))
+
+```
+
+The correspondence between sample titles (subtypes) and sample labels (abbreviated subtypes) is stored in  *group.labels*. We also defined group-specific colors (*group.colors*) to highlight the different subtypes of ALL on the plots.
+
+
+``` {r}
+
+## Print the correspondences in a more readable way
+kable(group.descriptions)
+
+group.labels <- group.descriptions$group.labels
+names(group.labels) <- row.names(group.descriptions)
+group.colors <- group.descriptions$group.colors
+names(group.colors) <- row.names(group.descriptions)
+group.legend <- paste(sep=" = ",group.labels, row.names(group.descriptions))
+
+```
+
+
+## Reducing the dimensionality of the data - feature selection
+
+An recurrent problem with microarray data is the large dimensionality of the data space. The dataset we are analyzing contains 190 samples (the <span class="concept">subjects</span>), each characterized by 22,283 gene expression values (the <span class="concept">variables</span>).
+
+The number of variables (also called <span class="concept">features</span>, the genes in our case) thus exceeds by far the number of objects (samples in this case). This sitation is qualified of <span class="concept">over-dimensionality</span>, and poses serious problems for classification. 
+
+In unsupervised classification (clustering), the relationships between objects will be affected, since a vast majority of the features are likely to be uninformative, but will however contribute to the computed (dis)similarity metrics (whichever metrics is used). Overdimensionality will somewhat mask the signal (biologically relevant relationships between gene groups) with noise. In supervised classification, the effect may be even worse: a program will be trained to recognize classes on the basis of supriousn differences found in any combination of the input variables. 
+
+It is thus essential, for both unsupervised and unsupervised classification, to perform some <span class="concept">feature selection</span> before applying the actual classification. 
+
+### An arbitrary pair of genes
+    
+To get some feeling about the data, we will compare the expression levels of two genes selected in an arbitrary way (resp. $236^{th}$ and $1213^{th}$ rows of the profile table).
+
+``` {r fig.width=8, fig.height=8}
+## Plot the expression profiles of two arbitrarily selected genes
+g1 <- 236
+g2 <- 1213
+x <- as.vector(as.matrix(denboer2009.expr[g1,]))
+y <- as.vector(as.matrix(denboer2009.expr[g2,]))
+plot(x,y,
+       col=sample.colors,
+       type="n",
+       panel.first=grid(col="black"),     
+       main="Den Boer (2009), two arbitrary genes", 
+      xlab=paste("gene", g1), ylab=paste("gene", g2))
+text(x, y,labels=sample.labels,col=sample.colors,pch=0.5)
+legend("topright",col=group.colors, 
+         legend=group.legend,pch=1,cex=0.6,bg="white",bty="o")
+silence <- dev.copy2pdf(file="two_arbitrary_genes_plot.pdf", width=8, height=8)
+```
+
+Each dot corresponds to one sample. Since the genes were initially selected at random, we don't expect them to be particularly good at discriminating the different subtypes of ALL. However, we can already see some emerging patterns: the T-ALL (labelled "T") show a trends to strongly express the $236^{th}$ gene, and, to a lesser extent, several hyperdiploid B-cells (label "Bh") show a high expression of the $1213^{th}$ gene. Nevertheless, it would be impossible to draw a boundary that would perfectly separate two subtypes in this plot.
+
+### Variance filter
+    
+In order to reduce the dimensionality of the data set, we will sort the genes according to their variance, and retain a defined number of the top-ranking genes. Note that this ranking is a very rudimentary way to select a subset of genes. Indeed, nothing guarantees us that the genes showing the largest inter-individual fluctuations of expression have anything related to cancer type. In further sections, we will present alternative methods of variable ordering, which will explicitly take into account the inter-group variance.
+
+The <span class="program">R</span> function <tt>apply()</tt> can be used to apply any function to each row (or alternatively each column) of a data table. We set the second argument (margin) to 1, thereby indicating that the function (third argument) must be applied to each row of the input table (first argument).
+
+#### Variance per gene
+
+``` {r fig.width=10, fig.height=5}
+## Compute gene-wise variance
+var.per.gene <- apply(denboer2009.expr, 1, var)
+sd.per.gene <- apply(denboer2009.expr, 1, sd)
+
+## Inspect the distribution of gene-wise variance and standard deviation (more readable)
+par(mfrow=c(1,2))
+hist(var.per.gene, breaks=100, col="#BBFFDD")
+hist(sd.per.gene, breaks=100, col="#BBFFDD")
+silence <- dev.copy2pdf(file=file.path(dir.figures, "denboer2009_variance_per_gene.pdf"), width=10,height=5)
+par(mfrow=c(1,1))
+
+```
+
+We notice that gene-wise variances have a wide dispersion. the histogram shows a right-skewed distribution, with a long tail due to the presence of a few genes with high variance. If we sort genes by decreasing variance, we can see that there is a strong difference between the top and the bottom of the list.
+
+``` {r}
+## Sort genes per decreasing variance
+genes.by.decr.var <- sort(var.per.gene,decreasing=TRUE)
+
+## Print the 5 genes with highest and lowest variance
+head(genes.by.decr.var)
+tail(genes.by.decr.var)
+```
+
+We can then select an arbitrary number of top-ranking genes in the list.
+
+``` {r}
+## Select the 30 top-ranking genes in the list sorted by variance.
+## This list of genes will be used below as training variables for
+## supervised classification.
+top.nb <- 20 ## This number can be changed for testing
+genes.selected.by.var <- names(genes.by.decr.var[1:top.nb])
+
+## Check the names of the first selected genes
+head(genes.selected.by.var, n=top.nb) 
+
+```
+
+## Assigning ranks to genes according to some sorting criterion
+
+In the next sections, we will compare methods for selecting genes on the basis of different criteria (variance, T-test, ANOVA test, step-forward procedure in Linear Discriminant Analysis). For this purpose, we will create a table indicating the values and the rank of each gene (rows of the table) according to each selection criterion (columns).
+
+### Ranking genes by inter-sample variance
+
+We first instantiate this table with two columns indicating the name and variance of each gene. We will then add columns indicating the rank of each gene according to its variance, and to other criteria. 
+
+``` {r}
+## Create a data frame to store gene values and ranks 
+## for different selection criteria.
+gene.ranks <- data.frame(var=var.per.gene)
+head(gene.ranks)
+```
+
+
+The R function *rank()* assigns a rank to each element of a list of values, by increasing order. We will use a trick to assign ranks by decreasing order: compute the rank of *minus variance*. The option *ties* defines the way to treat equal values. 
+
+``` {r}
+## Beware, we rank according to minus variance, because 
+## we want to associate the lowest ranks to the highest variances
+gene.ranks$var.rank <- rank(-gene.ranks$var, ties.method='random')
+head(gene.ranks, n=10)
+```
+
+In this table, genes are presented in their original order (i.e. their order in the microarray dataset). We can reorder them in order to print them by decreasing variance, and check five top and bottom lines of the sorted table.
+
+``` {r}
+## Check the rank of the 5 genes with highest and lowest variance, resp.
+kable(gene.ranks[names(genes.by.decr.var[1:5]),], caption = "Five genes with the  highest variance.")
+
+## Print the bottom 5 genes of the variance-sorted table
+kable(gene.ranks[names(tail(genes.by.decr.var)),], caption = "Five genes with the  lowest variance.")
+
+```
+
+We have no specific reason to think that genes having a high variance will be specially good at discriminating ALL subtypes. Indeed, a high variance might *a priori* either reflect cell-type specificities, or unrelated differences between samples resulting from various effects (individual patient genomes, transcriptome, condition, ...). For the sake of curiosity, let us plot samples on a XY plot where the abcsissa represents the top-raking, and the ordinate the second top-ranking gene in the variance-ordered list.
+
+``` {r fig.width=8, fig.height=8}
+## Select the gene with the highest variance
+maxvar.g1 <- names(genes.by.decr.var[1])
+print(maxvar.g1)
+
+## Select the second gene withthe highest variance
+maxvar.g2 <- names(genes.by.decr.var[2])
+print(maxvar.g2)
+
+## Plot the expression profiles of the two genes with highest variance
+x <- as.vector(as.matrix(denboer2009.expr[maxvar.g1,]))
+y <- as.vector(as.matrix(denboer2009.expr[maxvar.g2,]))
+plot(x,y,
+      col=sample.colors,
+      type='n',
+      panel.first=grid(col='black'), 
+      main="2 genes with the highest variance", 
+      xlab=paste('gene', maxvar.g1), 
+      ylab=paste('gene', maxvar.g2))
+text(x, y,labels=sample.labels,col=sample.colors,pch=0.5)
+legend('topright',col=group.colors, 
+         legend=group.legend,pch=1,cex=0.6,bg='white',bty='o')
+silence <- dev.copy2pdf(file="denboer2009_2_maxvar_genes.pdf", width=8, height=8)
+
+```
+
+
+We can draw boxplots per subtype of ALL to highlight the inter-group differences between expression measurements.
+
+```{r}
+par(mfrow=c(1,2))
+boxplot(x ~ sample.labels, las=1,
+#       col=group.colors,
+        horizontal=TRUE,
+        main=maxvar.g1, col="#BBBBBB")
+
+
+boxplot(y ~ sample.labels, las=1,
+        horizontal=TRUE,
+        main=maxvar.g2, col="#BBBBBB")
+par(mfrow=c(1,1))
+
+```
+
+
+Somewhat surprizingly, the plot shows that, despite the roughness of our ranking criterion (variance across all cancer types), the two top-ranking gnes already discriminate several sample types.
+
+  * The expression level of CD9 (abcsissa of the plot) gives a
+	  pretty good separation between some cancer types with low
+	  expression levels (T and Bt), and some other types
+	  characterized by a high expression level (Bh, BEs,
+	  BEp). Cancer type Bo is however dispersed over the whole
+	  range of CD9 expression.
+  
+  * IL23A clearly separates the subtype "T" (high levels) from
+	  all other cancer subtypes (low levels).
+
+### Variable ordering by Welch t-test (2-groups test)
+
+The <span class="concept">t-test</span> tests the hypothesis of equality between the means of two populations. We can use the Welch version of the t-test (which assumes that groups can have different variances) in order to select genes differentially expressed between two goups of samples.
+
+$$m_1 = m_2$$
+
+We thus need to define two groups of samples (multi-group comparisons will be treated by ANOVA). For the dataset on ALL, we have several subtypes of cancer. we will perform pairwise comparisons of mean for a selection of subtypes. In each case, a given subtype (e.g. T-cells) will be compared to all other subtypes pooled together.
+
+We will successvely run Welch's t-test for the main subtypes ("Bo", "Bh", "Bt", "T").
+
+$$H_0:; m_{Bo} = m_{others}$$
+
+$$H_0:; m_{Bh} = m_{others}$$
+
+$$H_0:; m_{Bt} = m_{others}$$
+
+$$H_0:; m_{T} = m_{others}$$
+
+In each case, apply the test in to each gene, using the function <tt>t.test.multi()</tt> defined in the <span class="program">R</span> utilities of this course.
+
+``` {r}
+## Load a utility to apply Welch test on each row of a table
+source(file.path(dir.util, "util_student_test_multi.R"))
+
+## Define a vector indicating whether each sample 
+## belongs to the subtype of interest (e.g. "Bo") or not.
+group.of.interest <- "Bo"
+one.vs.others<- sample.labels
+one.vs.others[sample.labels != group.of.interest] <- "o"
+print(table(one.vs.others))
+```
+
+
+To apply Welch test to each gene of the table, we will use our custom function *t.test.multi()* (see the previous practical on selection of differentialy expressed genes, <span class="concept">DEG</span>).
+
+``` {r}
+## Test the mean equality between Bo subtype 
+## and all other subtypes 
+welch.one.vs.others <- t.test.multi(denboer2009.expr, 
+                                    one.vs.others,
+                                    volcano.plot = FALSE)
+```
+
+This method returns a table with various statistics about DEG. 
+
+``` {r}
+kable(head(welch.one.vs.others), caption = "Head of the Welch result table. Each row corrresponds to one probeset (gene), each column to one statistics used for the Welch test.")
+
+```
+
+
+We will compute a new rank, based on the (decreasing) significance of the Welch test. We will then successively perform the same analysis by selecting as group of interest the 4 subtypes of leukemia represented by at least 30 patients in Den Boer 2009. 
+
+``` {r}
+## Update the gene rank table
+test.name <- paste(group.of.interest, '.vs.others.sig', sep='')
+
+## Add a column with significances
+gene.ranks[,test.name] <- welch.one.vs.others$sig 
+
+## Add a column with significance ranks
+gene.ranks[,paste(test.name, ".rank", sep="")] <- 
+  rank(-welch.one.vs.others$sig, ties.method='random') 
+
+## Apply the Welch test for the 3 other majority groups
+for (group.of.interest in c("Bh", "Bt", "T", "Bo")) {
+    print(paste("Selecting differentially expressed genes for", group.of.interest, "versus others"))
+    one.vs.others <- sample.labels
+    one.vs.others[sample.labels != group.of.interest] <- "o"
+    
+    ## Test the mean equality between Bo subtype 
+    ## and all other subtypes 
+    welch.one.vs.others <- t.test.multi(denboer2009.expr, 
+                                              one.vs.others,
+                                              volcano.plot = FALSE)
+
+    ## Store the volcano plot
+    silence <- dev.copy2pdf(file=file.path(dir.figures, 
+                                paste(sep="", "denboer2009_welch_", 
+                                     group.of.interest,"_vs_others_volcano.pdf")))
+
+    ## Update the gene rank table
+    test.name <- paste(group.of.interest, '.vs.others.sig', sep='')
+    gene.ranks[,test.name] <- welch.one.vs.others$sig
+    gene.ranks[,paste(test.name, ".rank", sep="")] <- 
+      rank(-welch.one.vs.others$sig, , ties.method='random')
+}
+
+## Check the resulting gene table
+head(gene.ranks)
+head(gene.ranks[order(gene.ranks$T.vs.others.sig.rank),])
+tail(gene.ranks[order(gene.ranks$T.vs.others.sig.rank),])
+
+## Store the gene rank table in a text file (tab-separated columns)
+write.table(gene.ranks, file=file.path(dir.results, 'DenBoer_gene_ranks.tab'), 
+            sep='\t', quote=F, col.names=NA)
+```
+
+``` {r fig.width=12, fig.height=12}
+## Plot variance against significance of the Welch test 
+## for the Bh versus other groups
+plot(gene.ranks[,c("var", "Bh.vs.others.sig")], col="grey",
+     xlab="Rank by global variance", ylab="Rank by t-test Bh versus others",
+     main="Global versus specific variable ordering")
+silence <- dev.copy2pdf(file="denboer2009_var_vs_welch_Bh_plot.pdf", width=12, height=12)
+
+
+## Plot ranks of variance against significance of the Welch test 
+## for the 4 different groups
+plot(gene.ranks[,c("var.rank", "Bh.vs.others.sig.rank")], col="grey")
+silence <- dev.copy2pdf(file="denboer2009_var_vs_welch_Bh_rank_plot.pdf", width=12, height=12)
+```
+
+An obvious observation: the gene-wise variance and the 4 results of Welch tests (one cancer type against all other types) return very different values, and assign gene ranks in completely different ways. This is not surprizing, the variance and the 4 significances indicate different properties of the genes. 
+
+* the variance is a global property of the genes, and has not specifically to be related to a given subtype of cancer;
+  * the other ranking criteria should  rank genes in different orders by construction, since each one was based on a different group-specific DEG test.
+
+Gene selection will thus have to be adapted to the specific purpose of the classification.
+
+In summary, so far we defined 5 different gene sorting criteria that could be used to select subsets of features (genes) in order to train a classifier: one general criterion (variance), and 4 group-specific criteria (Welch test results). A priori, we would expect to achieve better results with group-specific feature selection.
+
+### ANOVA-based variable ordering (multiple subtypes)
+
+The <span class="concept">ANOVA</span> test allows to select genes whose inter-group variation is significantly higher than te intra-group variation. ANOVA can be thought of as generalization of the Welch test. Welch test (and Student test) are used to test equality between two groups (for example one subtype of interest and all the other subtypes), whereas ANOVA simultaneously tests the equality between multiple groups. We could thus use ANOVA to establish a general ranking criterion that would select the genes showing higest differences between ALL subtypes, without specifying a priori which particular subtypes have to be different. 
+
+In a first time, we will apply the ANOVA test to one arbitrarily selected gene. We will then see how to run this test on each row of the expression matrix.
+
+
+Some remarks about the implementation.
+
+1. In contrast with the Welch test, which was a 2-groups test, ANOVA can be used to compare multiple groups in a single analysis. For ANOVA, we will use the original sample labels (with all the ALL subtypes explicitly named), rather than the *one.vs.other* vector that we created for 2-groups analysis.
+
+2. We will runa  single-factor anova, with gene expression as values, and sample labels as grouping.
+
+3. The R methods *aov()* and *anova()* take as input a data frame with the values (gene expression values) in the first column, and the groupings (sample labels) in the second one.
+
+4. *R* proposes two methods for the ANOVA test. The *aov()* function automatically fits the linear model and runs the anova test. However it is conceived for balanced groups, which is not our case (some of the ALL subtypes have very few samples) gives a warning "Estimated effects must be unbalanced". Hereafter we will run both approaches to illustrate their implementation, but the second one (*anova()*) is the most appropriate for our data.
+
+```{r}
+## Build a data frame with gene expression values in the first column, 
+## and sample labels in the second column.
+
+g <- 1234 ## Select an arbitrary gene
+g.expr <- unlist(denboer2009.expr[g,]) ## Select the expression profile for this gene
+g.for.anova <- data.frame("expr"=g.expr, "group"=sample.labels)
+
+## Run the aov() method to check the warnings
+g.aov.result <- aov(formula = expr ~ group, data = g.for.anova)
+print(g.aov.result)
+
+
+## We thus try the indirect approach: fit a linear model and run anova on it.
+g.anova.result <- anova(lm(formula = expr ~ group, data = g.for.anova))
+print(g.anova.result)
+
+## Extract the p-value from the ANOVA result
+attributes(g.anova.result)
+pval <- as.numeric(unlist(g.anova.result)["Pr(>F)1"])
+print(pval)
+
+## Compute the e-value from this p-value
+eval <- pval * nrow(denboer2009.expr)
+print(eval)
+
+## Summarise the result in a vector
+g.anova.summary <- c("g"=g, 
+                     "name"=row.names(denboer2009.expr[g,]),
+                     "pval"=pval,
+                     "eval"=eval,
+                     "sig"=-log(eval, base=10))
+print(as.data.frame(g.anova.summary))
+```
+
+#### How to interpret the ANOVA result ?
+
+
+
+#### Running ANOVA on each gene of the expression table
+
+<span class="exo">We currently leave this as an exercise.</span>
+
+
+## Principal Component Analysis
+
+Before starting the proper process of supervised classification, we can apply a method called Principal Component Analysis (<span class="concept">PCA</span>) to evaluate the repartition of the information between the mutiple variables, and to inspect the "intrinsic" structure of the data, i.e. the structure inherent to the numbers in the data table, irrespective of the labels (cancer subtypes) attached to the various samples.
+
+### Purpose of PCA
+
+We can do the exercise of extending this 2-dimensional plot to a 3-dimensional plot, where the third dimension represents the expression level of a third gene. With an effort of imagination, we can mentally extend this 3D plot to a 4-dimensional plot, where each dimension would represent a different gene. It is likely that the groups of genes will progressively become more separated as the number of dimension increases. However, for the sake of graphical representation, it is difficult to work with more than 2 (or at most 3) dimensions.
+
+The purpose of <span class="concept">Principal Component Analysis</span> (<span class="concept">PCA</span>) is to capture the largest part of the variance of a data set with a minimal number of dimensions.
+
+
+### Applying PCA transformation with stats::prcomp()
+    
+The <span class="program">R</span> method <tt>stats::prcomp()</tt> performs a PCA transformation of an input table. We can feed it with the expression table, but we need to transpose it first (using the <span class="program">R</span> function <tt>t()</tt>), in order to provide our objects of interest (the samples) as rows, and the variables (genes) as columns.
+
+``` {r}
+## load the stats library to use the princomp() and prcomp() function
+library(stats) 
+
+## Perform the PCA transformation
+expr.prcomp <- prcomp(t(denboer2009.expr),cor=TRUE)
+
+## Analyze the content of the prcomp result: 
+## the result of the method prcomp() is an object 
+## belonging to the class "prcomp"
+class(expr.prcomp) 
+```
+
+``` {r}
+## Get the field names of the prcomp objects
+names(expr.prcomp) 
+
+## Get the attributes of the prcomp objects
+attributes(expr.prcomp) 
+```
+
+
+### Repartition of the standard deviation along the components
+
+A first information is the repartition of the variance (or its squared root, the standard deviation) between the components, which can be displayed on a plot.
+
+``` {r fig.width=7, fig.height=5}
+plot(expr.prcomp, main='Den Boer (2009), 
+     Variance  per component', xlab='Component', col="#BBDDFF")
+```
+
+
+The standard deviation barplot (Figure~\ref{DenBoer_pca_variance}) highlights that the first component captures more or less twice as much standard deviation of the whole dataset as the second one. We can measure the relative importance of the standard deviations.
+
+``` {r}
+## Get the standard deviation and variance per principal component
+sd.per.pc <- expr.prcomp$sdev
+var.per.pc <- sd.per.pc^2
+
+## Display the percentage of total variance explained by each 
+sd.per.pc.percent <- sd.per.pc/sum(sd.per.pc)
+var.per.pc.percent <- var.per.pc/sum(var.per.pc)
+barplot(var.per.pc.percent[1:10], main='Den Boer (2009), Percent of variance  per component', xlab='Component', ylab='Percent variance', col='#BBDDFF')
+silence <- dev.copy2pdf(file="pca_variances.pdf", width=7, height=5)
+```
+
+### Analysis of the first versus second component
+    
+We can generate a <span class="concept">biplot</span>, where each sample appears as a dot, and the X and Y axes respectively represent the first and second components of the PCA-transformed data. The R function *stats::biplot()* automatically generates the biplot, but the result is somewhat confusing, because the biplot displays the whole sample labels.
+
+``` {r fig.width=8, fig.height=8, eval=FALSE}
+## We do not run this, but we provide the instructions just for information
+biplot(expr.prcomp,var.axes=FALSE,
+       panel.first=grid(col='black'), 
+       main=paste('PCA; Den Boer (2009); ',
+       ncol(denboer2009.expr), 'samples *', 
+       nrow(denboer2009.expr), 'genes', sep=' '), 
+       xlab='First component', ylab='Second component')
+```
+
+We will rather generate a custom plot, with labels and colors indicating the subtype of ALL.
+
+``` {r fig.width=8, fig.height=8}
+## Plot components PC1 and PC2
+plot(expr.prcomp$x[,1:2],
+       type='n',
+       panel.first=c(grid(col='black'), abline(a=30,b=1.3, lwd=3, lty="dashed", col="red")),
+         main=paste('PCA; Den Boer (2009); ',
+           ncol(denboer2009.expr), 'samples *', nrow(denboer2009.expr), 'genes', sep=' '), 
+         xlab='PC1', ylab='PC2')
+text(expr.prcomp$x[,1:2],labels=sample.labels,col=sample.colors,pch=0.5)
+legend('bottomleft',col=group.colors, 
+         legend=names(group.colors),pch=1,cex=0.6,bg='white',bty='o')
+silence <- dev.copy2pdf(file="PC1_vs_PC2.pdf", width=8, height=8)
+
+```
+
+The coloring and cancer-type labels highlight a very interesting property of the PCA result: in the plane defined by the two first components of the PCA-transformed data, we can draw a straight line that perfectly separates T-ALL samples from all other subtypes (red dashed line on the plot). All T-ALL cells are grouped in one elongated cloud on the upper left side of the plot. The other cloud seems to contain some organization as well: subtypes are partly intermingled but there are obvious groupings.
+        
+### Analysis of the second versus third component
+
+The following figure  shows that the second and third components capture information related to the cancer subtypes: the third component separates quite well TEL-AML1 (top) from hyperdiploid (bottom) samples, whereas the pre-B have intermediate values. The separation is however less obvious than the T-ALL versus all other subtypes that we observed in the two first components.
+      
+``` {r fig.width=8, fig.height=8}
+## Plot components PC2 and PC3
+plot(expr.prcomp$x[,2:3],
+       col=sample.colors,
+       type='n',
+       panel.first=grid(col='black'), 
+         main=paste('PCA; Den Boer (2009); ',
+           ncol(denboer2009.expr), 'samples *', nrow(denboer2009.expr), 'genes', sep=' '), 
+         xlab='PC2', ylab='PC3')
+text(expr.prcomp$x[,2:3],labels=sample.labels,col=sample.colors,pch=0.5)     
+legend('bottomleft',col=group.colors, 
+         legend=names(group.colors),pch=1,cex=0.6,bg='white',bty='o')
+silence <- dev.copy2pdf(file="PC2_vs_PC3.pdf", width=8, height=8)
+```
+
+
+### Exercise
+  
+<div class="exo">
+Generate plots of a few additional components (PC4, PC5,...) and try to evaluate if they further separate subtypes of cancers.
+</div>
+
+### Discussion of the PCA results
+
+In the "historical" dataset from Golub (1999), three sample groups (AML, T-ALL and B-ALL) appeared almost perfectly separated by a simple display of the two first components of the PCA-transformed data. The dataset from DenBoer (2009) is less obvious to interpret, due to the nature of the data itself: firstly, all the samples come from the same cell type (lymphoblasts), whereas the main separation of Golub was between myeloblasts and lymphoblasts. Secondly, Den Boer and co-workers defined a wider variety of subtypes. However, we see that a simple PCA transformation already reveals that the raw expression data is well structured. It is quite obvious that we will have no difficulty to find a signature discriminating T-ALL from other ALL subtypes, since T-ALL are already separated on the plane of the two first components. We would however like to further refine the diagnostics, by training a classifier to discriminate between the other subtypes as well. 
+
+Note that until now we did not apply any training: PCA transformation is a "blind" (unsupervised) approach, performing a rotation in the variable space without using any information about pre-defined classes. Since we dispose of such information for the 190 samples of the training set, we can use a family of other approaches, generically called <span class="concept">supervised classification</span>, that will rely on class membership of the training samples in order to train a classifier, which will further be used to assign new samples to the same classes.
+
+### Selecting principal components as predictor variables}
+
+Optionnally, principal components can be used as predictor variables for supervised classification. The advantage is that the first components supposedly concentrate more information than any individual variables, and the classifier is thus in principle able to achieve a better discrimination with less variables (and thus be less prone to over-fitting). However, we should keep in mind that variables showing a high variance may differ from the most discriminating ones.  
+
+## Linear Discriminant Analysis (LDA)
+
+
+### Training the classifier
+
+We will define a vector which will associate each individual (sample) to either of two labels: Bo for pre-B ALL samples, and "o" for all the other subtypes.
+
+
+```{r}
+## Define the labels for a 2-groups classifier
+group.of.interest <- "Bo"
+one.vs.others<- sample.labels
+one.vs.others[sample.labels != group.of.interest] <- "o"
+print(table(one.vs.others))
+```
+
+We can now use our dataset to train a linear discriminant classifier, using the R *lda()* function. In a first time, we will use the whole dataset to train the classifier. 
+
+
+<div class="attention">
+Warning: the step below costs time, memory, and is expected to give very bad results. We run it only for didactic purpose.
+</div>
+
+Indeed, the goal of this tutorial is to introduce the problems of <span class="concept">overfitting</span> due to the <span class="concept">over-dimensionality</span> of the variable space, and to show how this problem can be circumvented by selecting a relevant subset of the variables before running the supervised classification. 
+
+Feature selection is particularly important when - as in the current case - the dataset contains many more variables (>22.000 genes) than objects (190 samples). In the first trial below we will intently ignore this over-dimensionality of the dataset, and measure the consequences of this bad choice. In the following sections, we will show how to resolve the problem of over-dimensionality by selecting subsets of variables.
+
+
+```{r}
+## Load the MASS library, which contains the lda() function
+library(MASS)
+
+## Train a classifier
+one.vs.others.lda.allvars <- lda(t(denboer2009.expr),one.vs.others,CV=FALSE) 
+```
+
+The *lda()* function issues a warning, indicating that there is a collinearity between some variables. Let us ignore this warning for the time being (this problem will be solved below by selecting datasets with less variables).
+
+Let us inspect the result of lda().
+```{r}
+attributes(one.vs.others.lda.allvars)
+```
+
+
+Let us inspect the contents of the lda result.
+
+```{r}
+print(one.vs.others.lda.allvars$counts)
+print(one.vs.others.lda.allvars$prior)
+print(one.vs.others.lda.allvars$svd)
+```
+
+
+  * **counts** indicates the number of samples belonging to the different training classes (44 pre-ALL B with label "Bo", and 146 others with label "o")
+  * **prior** gives the <span class="concept">prior probabilities</span> of each class, i.e. the probability for a sample to belong to either of the classes (in our case: 23% Bo, 77% others). By default, priors are simply estimated from the proportion of objects in the training classes, but an experienced user might decide to impose different priors based for example on additional information about the population.
+  
+  * **svd**, the singular value, indicates the ratio of the between-group and within-group standard deviations. We obtain a value of 11.17, suggesting that the classifier will be quite good at discriminating the Bo group from the other samples. 
+  
+You can inspect yourself the other attributes (N, lev, call)  
+
+### Using the classifier to assign elements to classes
+
+After having trained the classifier, we can use it to classify new samples. 
+A naive - but <span class=attention>wrong</span> - way to test the efficiency of our classifier would be to use it to predict the class of our training objects.
+
+The R *predict()* function is used to assign a class to a *new* dataset, based on an object generated by the *lda()* function. We use it here in a foolish way, to predict class of the training set itself (we will show below the problem).
+
+```{r}
+## Non-recommended usage of the predict() function, since we assign a class to the training objects themselves
+predict.lda.allvars <- predict(object=one.vs.others.lda.allvars, newdata = t(denboer2009.expr))
+
+attributes(predict.lda.allvars)
+
+## Posterior probabilities (print the 10 first rows only)
+print(predict.lda.allvars$posterior[1:10,])
+
+## Predicted classes
+print(predict.lda.allvars$class)
+```
+
+The predictor computed the <span class="concept">posterior probability</span> of each object (sample) to belong to the two training classes ("Bo"" or "others"", respectively), and assignedeach object to one of these classes based on the highest posterior.
+
+We can now compare training and predicted classes, and measure the <span class="concept">hit rate</span>, i.e. the proportion of objects assigned to the correct class.
+
+```{r}
+## Print the contingency table
+table(one.vs.others, predict.lda.allvars$class)
+
+## Compute the hit rate
+hits <- sum(one.vs.others == predict.lda.allvars$class)
+errors <- sum(one.vs.others != predict.lda.allvars$class)
+total <- hits + errors
+(hit.rate.internal <- hits / total)
+(error.rate.internal <- errors / total)
+```
+
+**Beware:** what we did above is absolutely forbidden: we used a training set to train a classifier, and we assessed the precision of this classifier based on the training set itself.
+
+## Evaluating the classifier by cross-validation
+
+### K-fold cross-validation
+
+A fair evaluation of a classifier requires to use separate datasets for training and testing, respectively.  
+
+A simple way to achieve this is the <span class="concept">2-fold cross-validation</span> to randomly split the original set in two equal parts, and use one for training and the other one for testing. Since the left-out subset has not been used for training, the evaluation is indicative of the expected accuracy when the classifier will be used to predict the class of new samples. However, a classifier trained with only half of the samples will be suboptimal. Splitting the dataset in two equal parts would thus lead to a sub-esimation of its predictive power.
+
+A more refined approach, called <span class="concept">k-fold cross-validation</span>, is to randomly split the data set in $k$ subsets. We can discard one subset, train a classifier with the $k-1$ remaining subsets, and predict the class of the $k^{th}$ subset. 
+
+### Leave-One-Out (LOO) cross-validation
+
+The <span class="concept">Leave-one-out</span> (<span class="concept">LOO</span>) is a particular mode of cross-validation, where each element of the training set will be in turn discarded (left out) to evaluate a classifier trained with all the other elements. This is the most economical way to perform a k-fold cross-validation. Actually, LOO can be understood as "n-fold" cross-validation, if $n$ is the number of samples of the training set.
+
+The R function *lda()* includes a very convenient option (*cv*, for *cross-validation*) that automatically runs LOO cross-validation. 
+
+```{r}
+## Run a Leave-one-out (LOO) cross-validation
+one.vs.others.lda.allvars.loo <- lda(t(denboer2009.expr),one.vs.others,CV=TRUE) 
+
+table(one.vs.others, one.vs.others.lda.allvars.loo$class)
+
+## Compute the hit rate
+(hit.rate.loo <- sum(one.vs.others == one.vs.others.lda.allvars.loo$class) / total)
+(error.rate.loo <- 1 - hit.rate.loo)
+```
+
+We have an obvious contradiction: 
+
+ 1. The (biased) internal validation shows that, after training, the classifier is able to re-assign 88% of the samples to the right class, among pre-B ALL and the other subtypes.
+ 
+ 2. An unbiased validation based on the Leave-one-out test shows that the apparent accuracy is a trap: when the classifier has to assign a class to a sample not seen before (because it was left out during the training), the hit rate drops to 53%.
+ 
+ 
+### Random expectation for the hit rate
+ 
+We could push further our investigation, by estimating the random expectation for the hit rate. We can test this with a very simple test: let us imagine a random classifier, which would assign labels "Bo" or "o" to each sample according to their prior probabilities (23% and 77% resp.). 
+
+A very simple way to simulate such a random classifier is to permute the vector of training labels, and to compute the hit rate between permuted and original labels. We can repeat this random sampling $10.000$ times and plot an histogram, which will indicate not only the mean behaviour but also the fluctuation around it.  
+
+We can also compute the theoretical expectation for the random hit rate.
+
+
+```{r}
+## Run 10000 permutation tests to estimate the random expectation for the hit rate
+random.hit.rates <- vector()
+for (rep in 1:10000) {
+  random.hit.rates <- append(random.hit.rates, sum(one.vs.others == sample(one.vs.others)) / total)
+}
+(random.hit.rates.mean <- mean(random.hit.rates))
+
+## Compute the theoretical value for the random expectation
+prior <- as.vector(table(one.vs.others))/length(one.vs.others)
+(hit.rate.expect <- sum(prior^2))
+
+## Draw the histogram
+hist(random.hit.rates, breaks=(0:total)/total, col="lightgrey", 
+     freq=TRUE,
+     main="Hit rate analysis",
+     xlab="Hit rate",
+     ylab="Frequency")
+arrows(x0=hit.rate.loo, y0 = 1000, x1=hit.rate.loo, y1=100, 
+       col="darkgreen", lwd=2, code=2, , length=0.2, angle=20)
+arrows(x0=hit.rate.internal, y0 = 1000, x1=hit.rate.internal, y1=100, 
+       col="red", lwd=2, code=2, , length=0.2, angle=20)
+arrows(x0=hit.rate.expect, y0 = 1000, x1=hit.rate.expect, y1=100, 
+       col="darkblue", lwd=2, code=2, , length=0.2, angle=20)
+
+legend("topleft", legend=c("random", "random expectation", "LOO", "internal"), 
+       col=c("grey", "darkblue", "darkgreen", "red"), 
+       lwd=c(4,2,2,2))
+
+```
+
+
+### The problem of over-fitting
+
+
+### Selecting a subset of the variables (feature selection)
+
+In a first attempt to discriminate genes from the Bo class (pre-B-ALL), we will select top-ranking genes according to their significance of the Welch test (Bo versus others).
+
+
+```{r}
+
+## Test the mean equality between Bo subtype and all other subtypes 
+welch.Bo.vs.others <- t.test.multi(denboer2009.expr, 
+                                   one.vs.others,
+                                   volcano.plot = FALSE)
+
+## Print the names of the 20 top-ranking genes.
+## Note that these are not sorted !
+print(rownames(welch.Bo.vs.others[welch.Bo.vs.others$rank <= 20,]))
+
+## Sort gene names by Welch sig
+welch.Bo.vs.others.sorted <- welch.Bo.vs.others[order(welch.Bo.vs.others$sig, decreasing=TRUE),]
+sorted.names <- rownames(welch.Bo.vs.others.sorted)
+print(sorted.names[1:20])
+welch.Bo.vs.others[sorted.names[0:20], c("E.value","sig")]
+```
+
+
+For the sake of curiosity, we can draw a plot with the two top-ranking genes in order to see how well they separate our group of interest (pre-B all) from all the other ALL subtypes.
+
+``` {r fig.width=8, fig.height=8}
+## Print a plot with the two top-ranking genes with the Bo versus other Welch test
+g1 <- sorted.names[1]
+g2 <- sorted.names[2]
+x <- as.vector(as.matrix(denboer2009.expr[g1,]))
+y <- as.vector(as.matrix(denboer2009.expr[g2,]))
+plot(x,y,
+     col=sample.colors,
+     type="n",
+     panel.first=grid(col="black"), 
+     main="Den Boer (2009), 2 top-ranking genes for Welch test", 
+     xlab=paste("gene", g1), ylab=paste("gene", g2))
+text(x, y,labels=one.vs.others,col=sample.colors,pch=0.5)
+legend("bottomright",col=group.colors, 
+         legend=names(group.colors),pch=1,cex=0.6,bg="white",bty="o")
+
+silence <- dev.copy2pdf(file=paste(sep="", group.of.interest, "_vs_others_Welch_g1_g2.pdf"), width=8, height=8)
+```
+
+
+The plot shows a rather good general trends: Bo samples are concentrated in the top-left side of the plot. They have thus generally a low level of expression for the first gene (GPRASP1) and a high level for the second one (CD19). 
+
+However, none of the two top-ranking genes is sufficiently discriminant by its own: a selection based on GPRASP1 alone (a vertical boundary on the plot) would fail to distinguish Bo genes from the other ones. The same would be true for a selection based on CD19 alone (horizontal boundary). We can push this experiment further by plotting the third and fourth top-ranking genes according to Welch test.
+
+``` {r fig.width=8, fig.height=8}
+## Print a plot with the third and fourth top-ranking genes with the Bo versus other Welch test
+g3 <- sorted.names[3]
+g4 <- sorted.names[4]
+x <- as.vector(as.matrix(denboer2009.expr[g3,]))
+y <- as.vector(as.matrix(denboer2009.expr[g4,]))
+
+plot(x,y,
+     col=sample.colors,
+     type="n",
+     panel.first=grid(col="black"), 
+     main="Den Boer (2009), top-ranking genes 3 and 4 for Welch test", 
+     xlab=paste("gene", g3), ylab=paste("gene", g4))
+text(x, y,labels=one.vs.others,col=sample.colors,pch=0.5)
+legend("bottomright",col=group.colors, 
+#         legend=names(denboer2009.group.colors),pch=1,cex=0.6,bg="white",bty="o")
+         legend=names(group.colors),pch=1,cex=0.6,bg="white",bty="o")
+silence <- dev.copy2pdf(file=paste(sep="", group.of.interest, "_vs_others_Welch_g3_g4.pdf"), width=8, height=8)
+```
+
+Here again, we would not be able to draw a boundary that would perfectly separate the samples of our group of interest from all other ones.
+
+The principle of discriminant analysis is to establish a much more refined criterion to discriminate objects (samples in our cases), by computing a score as a linear combination of the variables. A priori, we could feed the linear discriminant classifier (the R *lda()* function) with all the variables of the data table (all the genes). However, this would probably return poor results, because when the number of features (genes) is larger than the number of individuals (samples), the classifier will tend to be overfit to the circumstantial particularities of the training objects, and it will fail to classify new objects.
+
+It is thus very important to select a relevant number of variables before training a classifier. It is almost an art to select the most appropriate selection criterion and the optimal number of variables. In this course we will only present some basic methods. 
+
+
+
+```{r}
+## Load the library containing the linear discriminant analysis function
+library(MASS)
+
+## Select the 20 top-ranking genes sorted by significance of the Welch test
+top.variables <- 20
+selected.genes <- sorted.names[1:top.variables]
+
+## Train the classifier
+one.vs.others.lda.classifier <- lda(t(denboer2009.expr[selected.genes,]),one.vs.others,CV=FALSE) 
+```
+
+
+### Evaluating the hit rate by Leave-One-Out (LOO) cross-validation}
+
+The *lda()* function includes an option to automatically run a cross-validation test (*cv*), which relies on the <span class="concept">Leave-one-out</span> procedure (<span class="concept">LOO</span>). 
+
+The principle of this test is to temporarily discard one element from the training set (<span class="concept">left out</span> element), to train a classifier with the remaining elements, and to use the trained classified to predict the group of the left out element. The procedure is applied to each element in turn. This cross-validation ensures a non-biased evaluation of the rates of correct and incorrect classification. 
+
+``` {r}
+## Use the MASS:lda() function with the cross-validation option
+one.vs.others.lda.loo <- lda(t(denboer2009.expr[selected.genes,]),one.vs.others,CV=TRUE) 
+
+## Collect the LOO prediction result in a vector
+one.vs.others.loo.predicted.class <- as.vector(one.vs.others.lda.loo$class)
+table(one.vs.others.loo.predicted.class)
+
+## Build a confusion table of known versus predicted class
+(one.vs.others.lda.loo.xtab <- table(one.vs.others, one.vs.others.loo.predicted.class))
+
+## Build a more general contingency table to check the assignation 
+## of each known group to "Bo" (pre-B ALL) or "o" (other). 
+## This permits to perform a more detailed analysis of the 
+## misclassifications.
+(one.vs.others.lda.loo.xtab2 <- table(sample.labels, one.vs.others.loo.predicted.class))
+
+## Display the contingency table as a heat map
+library(lattice)
+levelplot(one.vs.others.lda.loo.xtab)
+
+## Compute the hit rate
+hits <- one.vs.others == one.vs.others.loo.predicted.class
+errors <- one.vs.others  != one.vs.others.loo.predicted.class
+
+## Compute the number of hits 
+## (we need to omit NA values because LDA fails to assign a group to some objects).
+(nb.hits <- sum(na.omit(hits)))
+(nb.pred <- length(na.omit(hits)))
+(hit.rate <- nb.hits / nb.pred )
+```
+
+
+
+## Multi-group classification
+
+Linear discriminant analysis also enables to direcly classify a set of individuals into multiple groups. We could for example use the original sample labels to train a classifier, which would learn to recognize the different subtypes of ALL. 
+
+``` {r}
+## Use the MASS:lda() function with the cross-validation option
+multigroup.lda.loo <- lda(t(denboer2009.expr[selected.genes,]),sample.labels,CV=TRUE) 
+
+## Collect the LOO prediction result in a vector
+multigroup.loo.predicted.class <- as.vector(multigroup.lda.loo$class)
+table(multigroup.loo.predicted.class)
+
+## Build a confusion table of known versus predicted class
+(multigroup.lda.loo.xtab <- table(sample.labels, multigroup.loo.predicted.class))
+
+## Display the contingency table as a heat map
+library(lattice)
+levelplot(multigroup.lda.loo.xtab)
+
+## Compute the hit rate
+hits <- sample.labels == multigroup.loo.predicted.class
+errors <- sample.labels != multigroup.loo.predicted.class
+
+## Compute the number of hits 
+## (we need to omit NA values because LDA fails to assign a group to some objects).
+(nb.hits <- sum(na.omit(hits)))
+(nb.pred <- length(na.omit(hits)))
+(hit.rate <- nb.hits / nb.pred )
+```
+
+
+
+### Random expectation for the hit rate
+
+We could compute the random expectation of the hit rate. Let us imagine a tricky classifier that woudl assign the labels randomly, for two groups of equal sizes. Each object would have equal chances to be assigned to it correct class, and the random assignation would thus gvive 50% of correct classification.
+
+#### Random expectation for a 2-groups permutation of training labels
+
+However, in our case the training classes are unbalanced: $n_{GOI}=44$ samples belong to the group of interest, and $n_{others}$ to the other groups. If samples are re-assigned randomly with proportions equal to their prior frequencies, the assignation probabilities are: 
+
+$$p_{GOI}= n_{GOI}/n = 44/190=0.23$$
+
+$$p_{other}= n_{GOI}/n = 146/190=0.77$$
+
+A random assignation would thus assign correctly $23\%$ of pre-ALL samples, and $77\%$ of the samples of other subtypes would be correctly assigned to the group "others". We can thus compute the random expectation for the hit rate.
+
+$$\hat{hits}_{GOI} = n_{GOI} \cdot p_{GOI} + n_{others} \cdot p_{others} = 44 \cdot 0.232 + 146 \cdot 0.768 = 122.54$$
+
+$$\had{hit rate}_{GOI} = \hat{hits}_{GOI} / n = 122.54/190 = 0.64 = 64%$$
+
+Note the same result is obtained directly by taking the sum of squares of prior probabilities: 
+
+$$\hat{hits}_{GOI} = p_{GOI}^2 + p_{others}^2 = 0.232^2 + 0.768^2 = 0.64 = 64%$$
+
+
+```{r}
+n <- length(sample.labels)
+n.goi <- sum(sample.labels == group.of.interest)
+n.others <- sum(sample.labels != group.of.interest)
+prior <- c("goi"=n.goi/n,
+           "others" = n.others/n)
+print(prior)
+
+exp.hits <- c("goi"=(n.goi*prior["goi"]),
+              "other"=(n.others*prior["others"]))
+print(exp.hits)
+
+exp.hit.rate <- sum(prior^2)
+print(exp.hit.rate)
+```
+
+A random classifier which would respect the balance of the training groups (and thus assign labels according to the group prior probabilities) would thus already achieve a hit rate of $65\%$.
+
+#### Random expectation for a multi-groups permutation of training labels
+
+We can extend the above idea to estiamte the expected proportion of correspondances between permuted labels in a multi-group configuration. 
+
+```{r}
+multi.samples.per.class <- unlist(table(sample.labels))
+multi.prior <- (multi.samples.per.class)/sum(multi.samples.per.class)
+(multi.expect.hit.rate <- sum(multi.prior^2))
+```
+
+The random hit rate for permuted labels is the sum of square priors.
+
+$$\hat{hit rate} = \sum_{i=1}^{g}{p_i}$$
+
+Where $g$ is the number of groups (ALL subtypes) and $p_i$ the prior probability of the $i- {th}$ group.
+
+## Exercise: training a classifier with permuted labels
+
+<div class="exo">
+
+1. Use the <span class="program">R</span> function <tt>sample()</tt> to randomly permute the training labels (store the result in a vector called "sample.labels.perm"), and test the hit rate of a classifier trained with these randomized labels.
+
+2. Use the <span class="program">R</span> function <tt>sample()</tt> to randomly permute the values of the input table (store the result in a data frame called "expr.perm"), and test the hit rate of a classifier trained with these randomized data.
+
+</div>
+
+### Solutions
+  
+We will successively run the permutation test with two configurations: 
+1. multi-group classification (using the original sample labels)
+2. two-group classification (pre-B all versus others)
+  
+
+
+### Label permutation test for multi-group classification 
+
+``` {r}
+## Permute the training labels
+sample.labels.perm <- as.vector(sample(sample.labels))
+
+## Compare original training groups and permuted labels.
+table(sample.labels, sample.labels.perm)
+```
+
+We can now run the leave-one-out (LOO) cross-validation with the permuted labels. 
+
+``` {r}
+## Run LDA in cross-validation (LOO) mode with the permuted labels
+lda.loo.labels.perm <- lda(t(denboer2009.expr[selected.genes,]),sample.labels.perm,CV=TRUE) 
+
+## Build a contingency table of known versus predicted class
+loo.predicted.class.labels.perm <- as.vector(lda.loo.labels.perm$class)
+lda.loo.labels.perm.xtab <- table(sample.labels.perm, loo.predicted.class.labels.perm)
+print(lda.loo.labels.perm.xtab)
+```
+
+The particular values sould vary at each trial, since the sample labels are permuted at random. 
+
+``` {r}
+## Compute the number of hits 
+## (we need to omit NA values because LDA fails to assign a group to some objects).
+hits.label.perm <- sample.labels.perm == loo.predicted.class.labels.perm
+(nb.hits.label.perm <- sum(na.omit(hits.label.perm))) ## This gives 25 this time, but should give different results at each trial
+(nb.pred.label.perm <- length(na.omit(hits.label.perm))) ## This should give 187
+(hit.rate.label.perm <- nb.hits.label.perm / nb.pred.label.perm ) ## This gives 0.13 this time, should give different results at each trial
+```
+
+It might seem surprizing to obtain an apparently decent hit rate (~75%) with the permutation test. Indeed, since sample labels were assigned at random, the classifer sould not be able to learn anything. 
+
+
+### Label permutation test for two-group classification 
+
+``` {r}
+## Permute the training labels
+sample.labels.perm.2gr <- as.vector(sample(one.vs.others))
+
+## Compare original training groups and permuted labels.
+table(one.vs.others, sample.labels.perm.2gr)
+
+## Compute the percent of correspondence between training groups 
+## and permuted labels
+permuted.equal <- sum(diag(table(one.vs.others, sample.labels.perm.2gr)))
+(permuted.equal.rate <- permuted.equal/length(one.vs.others))
+```
+
+After permutation, each of the permuted classes should contain on average ~23% of samples from the "Bo" subtype, and ~77% of sample from other subtypes (the precise numbers fary between repetitions of the random sampling). 
+
+Note that in the two-groups configuration we already have 64% of equality between the original and permuted labels. This rate is higher than 50% because the groups are unbalanced: a label "other" will frequently be permuted with another label "other". 
+
+We can now run the leave-one-out (LOO) cross-validation with the permuted labels. 
+
+``` {r}
+## Run LDA in cross-validation (LOO) mode with the permuted labels
+lda.loo.labels.perm.2gr <- lda(t(denboer2009.expr[selected.genes,]),sample.labels.perm.2gr,CV=TRUE) 
+
+## Build a contingency table of known versus predicted class
+loo.predicted.class.labels.perm.2gr <- as.vector(lda.loo.labels.perm.2gr$class)
+lda.loo.labels.perm.2gr.xtab <- table(sample.labels.perm.2gr, loo.predicted.class.labels.perm.2gr)
+print(lda.loo.labels.perm.2gr.xtab)
+
+## Compute the hit rate of the classifier trained with permuted labels
+(hit.rate.label.perm.2gr <- sum(diag(lda.loo.labels.perm.2gr.xtab)) / sum(lda.loo.labels.perm.2gr.xtab))
+```
+
+It might seem surprizing to obtain an apparently good hit rate (~75%) with the permutation test. The *lda()* trained with permuted labels achieved a better classification than the expected hit for a random assignation. Does it mean that the program was able to learn anything from randomly permuted labels?
+
+Actually, the permuted samples still contain a informative indication: the classes are unbalanced, with 77% of the samples belonging to the group labelled "other". A "gambler" classifier that would assign all elements to the majority class would always achieve a better hit rate than a random classifier. 
+On average, this "gambler" classifier would achieve a 77% hit rate in an unbalanced two-groups configuration like ours. 
+
+The *lda()* classifier cannot be properly speaking qualified of gambler. However, the confusion table reveals that, indeed, during the LOO test, the *lda()* classified tends to assign many samples to the "other" (more than their prior frequency), which explains its relatively high hit rate of ~75% in this permutation test. 
+
+In summary, we should always be **very cautious** when interpreting the results of supervised classification. Indeed, an apparently good hit rate might be achieved even in absence of any informative difference between the groups, by simple effects of the group sizes. This effect is particularly important for a two-group classification, but can also appear in multi-group classification with strongly unbalanced groups.
+
+The reliability of a classifier should thus be estimated by comparing its performances on a real dataset with the results obtained in permutation tests.
+
+## Exercises
+	
+	
+###  Exercise: Impact of the number of training variables
+	
+<div class="exo">
+Test the impact of the number of variables used for training the classifier. Draw a plot representing the hit rate (Y axis) as a function of the number of top genes used for the LDA classification, using different selection criteria:
+
+    * Gene-wise variance
+	  * P-value of a Welch test (T-cells against all other types)
+    * ANOVA
+</div>
+
+### Random expectation
+
+<div class='exo'>
+1. Generate a randomized expression matrix by sampling the values of the Den Boer dataset with the R function <tt>sample()</tt> (as we did in the practical on multiple testing corrections).
+
+2. Run the same procedure with this randomized matrix as we did above with the original expression matrix, and calculate hit rate with increasing number of variables selected by 
+
+  a. Variance
+  b. Welch test (T-cells against all other types)
+
+3. Compare the hit rates obtained with the permuted matrix and with the original expression matrix.
+
+</div>
+
+
+
+
+<!--
+### Single variable-wise ordering (by individual hit rate)
+
+
+### Feed-forward variable selection
+
+
+### Evaluation the classifier with an independent testing set
+-->
+
+
+## Other classification approaches
+
+### Quadratic discrminant analysis (QDA)
+
+```{r}
+(n.variables <- length(selected.genes))
+
+## train a quadratic disctiminant analysis (QDA) classifier
+one.vs.others.qda.loo <- qda(t(denboer2009.expr[selected.genes,]),one.vs.others,CV=TRUE) 
+table(one.vs.others, one.vs.others.qda.loo$class)
+(one.vs.others.qda.loo.hit.rate <- sum(one.vs.others == one.vs.others.qda.loo$class)/n)
+
+
+## Permutation test on labels with quadratic disctiminant analysis (QDA) classifier
+label.perm.one.vs.others.qda.loo <- qda(t(denboer2009.expr[selected.genes,]),
+                                        sample(one.vs.others, replace=FALSE),
+                                        CV=TRUE) 
+table(one.vs.others, label.perm.one.vs.others.qda.loo$class)
+(label.perm.one.vs.others.qda.loo.hit.rate <- 
+   sum(one.vs.others == label.perm.one.vs.others.qda.loo$class)/n)
+
+
+## Redo the same with LDA, for comparison
+one.vs.others.lda.loo <- lda(t(denboer2009.expr[selected.genes,]),one.vs.others,CV=TRUE) 
+table(one.vs.others, one.vs.others.lda.loo$class)
+(one.vs.others.lda.loo.hit.rate <- sum(one.vs.others == one.vs.others.lda.loo$class)/n)
+
+```
+
+
+### K-nearest-neighbours (KNN) classifier}
+
+### Support vector machines}
+
+
+
+===========================================
+
+<address>
+[Denis Puthier](http://denis.puthier.perso.esil.univmed.fr/)
+& [Jacques van Helden](http://jacques.van-helden.perso.luminy.univmed.fr/)
+</address>
+

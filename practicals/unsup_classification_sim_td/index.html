@@ -1,0 +1,285 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+    <title></title>
+    <script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+        <script type="text/javascript" src="../syntaxhighlight/shBrushR.js"></script>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    <script type="text/javascript">
+    SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+SyntaxHighlighter.all();
+        </script>
+<script type='text/javascript' src='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+
+  </head>
+
+<body>
+<script language="JavaScript" type="text/javascript">
+  <!--
+    function sizeTbl2(h,i) {
+	var tbl = document.getElementById(i);
+	tbl.style.display = h;
+}
+ // -->
+</script>
+
+<br>
+<h1>Unsupervized classification using simulated data (inspided by B. Ghattas).</h1>
+<br>
+
+<h2>Content</h2>
+<ul>
+<li><a href="#simdata">The simulated dataset</a></li>
+<li><a href="#kmeans">Partitioning using K-means algorithm</li>
+<li><a href="#hc">Classification using hierarchical clustering</li>
+</ul>
+<br>
+
+<hr>
+<a name="simdata"></a>
+<h2>The simulated dataset</h2>
+<br>
+<div class="protocol">
+<ul>
+
+		<li> Create two vectors X and Y containing 500 values drawn from a uniform distribution (<tt>runif</tt>).</li>
+		<li> Display the corresponding scatter plot using the <tt>plot</tt> function.</li>
+</ul>
+</div>
+
+<br>
+<br>
+<a href="javascript:sizeTbl2('block','0')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','0')">Hide solution</a>
+
+<div id="0"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+# 2 vectors X and Y
+set.seed(123)
+X <- runif(500)
+Y <- runif(500)
+plot(X,Y)
+</pre>
+</div>
+<br>
+
+<br>
+<p>Each point contained within a circle of center O and radius r satisfy the equation below:</p>
+$$\sqrt{(P_x-0_x)^2+(P_y-0_y)^2} \le r $$
+
+<div class="protocol">
+<ul>
+
+    <li>Create a vector that will store class labels : <i>cl</i></li>
+</ul>
+</div>
+
+<pre class="brush:r">
+cl <- rep(NA,500)
+head(cl)
+</pre>
+</div>
+
+
+<br>
+<div class="exo">
+<ul>
+<li> Define the points that satisfy the equation above for a circle with center (0,3;0,3) and radius r=0.25. </li>
+<li> For the corresponding indexes assign value 1 to <i>cl</i> elements.</li>
+<li> Do the same procedure for a circle with center (0.8;0.4) and radius r=0.25 then for a circle with center (0.5;0.6) and radius r=0.25. Assign the values 2 and 3 for the corresponding indexes of <i>cl</i> respectively.</li>
+</ul>
+</div>
+
+
+
+<br>
+<a href="javascript:sizeTbl2('block','1')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','1')">Hide solution</a>
+
+<div id="1"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+## Identify points include in the first circle
+ind <- sqrt((X-0.3)^2 + (Y-0.3)^2) <= 0.25
+cl[ind] <- 1
+## Identify points include in the second circle
+ind <- sqrt((X-0.8)^2 + (Y-0.4)^2) <= 0.25
+cl[ind] <- 2
+## Identify points include in the third circle
+ind <- sqrt((X-0.5)^2 + (Y-0.6)^2) <= 0.25
+cl[ind] <- 3
+</pre>
+</div>
+<br>
+
+<div class="protocol">
+<ul>
+
+		<li> Create a matrix m whose columns will be <i>X</i>, <i>Y</i> and <i>cl</i>. </li>
+		<li> Discard any point that fall outside the circles previously defined. Use <tt>na.omit</tt> or <tt>complete.cases</tt> . </li>
+		<li> Use <tt>plot</tt> to visualize the selected points.</li>
+</ul>
+
+</div>
+
+<br>
+<a href="javascript:sizeTbl2('block','2')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','2')">Hide solution</a>
+
+<div id="2"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+## m contains the coordinates of each point
+## and the associated circle (or NA if it falls outside any defined circle).
+m <- cbind(X,Y,cl)
+## Discard any point falling outside the circles.
+m <- na.omit(m)
+plot(m[,1:2])
+</pre>
+</div>
+<br>
+<br>
+
+<hr>
+<a name="kmeans"></a>
+<h2>Partitioning using  K-means algorithm</h2>
+
+
+<p>k-means clustering is a method of cluster analysis which aims to partition n observations into k clusters in which each observation belongs to the cluster with the nearest mean. The number of partition should be defined by the user.</p>
+
+<div class="protocol">
+<ul>
+
+    <li> Check the ability of the K-means algorithm to recover the three classes previously defined (<tt>kmeans</tt> function ). The classification result will be stored in the <i>cluster</i> slot of the <i>kmeans</i> object (this is a S3 object you can use the <tt>names</tt> function to access slot names and the $ operator to select one of these slots). Use the <tt>plot</tt> function to visualize the result of the classification (you can for instance colorize each point according to its class). </li>
+</div>
+
+
+<br>
+<a href="javascript:sizeTbl2('block','3')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','3')">Hide solution</a>
+
+<div id="3"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+<pre class="brush:r">
+## Kmeans classification
+k <- kmeans(m[,1:2], centers=3)
+## k is an S3 object with several informations
+names(k)
+## the $cluster slot contains the classe assign to each point based on K-means
+plot(m,col=k$cluster,pch=16)
+</pre>
+</div>
+<br>
+
+
+<hr>
+<name="hc"></a>
+<h2>Classification using hierarchical clustering</h2>
+
+<p>Hierarchical clustering is a method that aim to cluster objects according to their distances. Thus, first, one need to define a criteria that reflect object dissimilarity. In this 2D example, the natural choice is the euclidean distance.</p>
+
+<div class="protocol">
+<ul>
+  <li> Create a distance matrix using <tt>dist</tt>. </li>
+  <li> Apply hierarchical clustering to this matrix (<tt>hclust</tt>). </li>
+  <li> Use the <tt>plclust</tt> function to display the results. </li>
+  <li> Cut the tree in three classes using the <tt>cutree</tt> function. </li>
+  <li> Visualize the results of both K-means and hierarchical clustering using the plot function (use pch parameter to display hierarchical clustering results and colors for k-means). </li>
+</ul>
+</div>
+
+
+
+<br>
+<a href="javascript:sizeTbl2('block','4')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','4')">Hide solution</a>
+
+<div id="4"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+## Create a distance matrix
+d <- dist(m)
+
+## perform hierarchical clustering
+h <- hclust(d)
+
+## Draw the dendrogram
+plot(h)
+
+## cut the tree to define three classes
+rect.hclust(h,k=3)
+p.typ <- cutree(h,3)
+
+## Plot the corresponding results.
+## The type of points correspond to the results obtained using hierarchical clustering.
+## The color correspond to k-means results.
+plot(m,col=k$cluster,pch=p.typ)
+</pre>
+</div>
+<br>
+
+
+<hr>
+<a name="agglo"></a>
+<h2>About the agglomeration method</h2>
+
+Download the <i>shapes_2</i> dataset.
+
+<pre class="brush:r">
+shapes_2 <- read.table("http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/misc/shapes_2.txt", sep="\t", head=T)
+head(shapes_2)
+</pre>
+
+<p>Perform a K-means partitioning then a hierarchical clustering with agglomerative method set to "complete", "single" and "average". You can use the  functions <tt>colors</tt>, <tt>rainbow</tt>, <tt>topo.colors</tt> ou better <tt>brewer.pal</tt> (<tt>RColorBrewer</tt> library in BioC) in order to select a set of colors to identify the 11 classes.</p>
+<p>In this very particular case which method perform best ? Why ?</p>
+
+
+
+<br>
+<a href="javascript:sizeTbl2('block','5')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','5')">Hide solution</a>
+
+<div id="5"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+<pre class="brush:r">
+
+#kmeans
+k <- kmeans(shapes_2, 11,nstart=100,iter=100)
+library(RColorBrewer)
+palette(brewer.pal(11,"Paired"))
+par(mfrow=c(2,2),mar=c(1,1,1,1))
+plot(shapes_2, col =k$cluster,pch=16,cex=0.5)
+legend("topright","Kmeans")
+
+# hcluster average
+shapes.dist <- dist(shapes_2)
+h <- hclust(shapes.dist,metho="av")
+c <- cutree(h,11)
+plot(shapes_2,col=c,pch=16,cex=0.5)
+legend("topright","HC:Average")
+
+# hclust complete
+h <- hclust(shapes.dist,metho="comp")
+c <- cutree(h,11)
+plot(shapes_2,col=c,pch=16,cex=0.5)
+legend("topright","HC:Complete")
+
+# hclust single
+h <- hclust(shapes.dist,metho="sing")
+c <- cutree(h,11)
+plot(shapes_2,col=c,pch=16,cex=0.5)
+legend("topright","HC:Single")
+</pre>
+</div>
+</body>
+
+</HTML>
+

@@ -1,0 +1,75 @@
+---
+title: "Exercises - Peak calling statistics"
+author: "Jacques van Helden"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    highlight: tango
+    theme: united
+    toc: yes
+    toc_depth: 3
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+css: ../../html/course.css
+---
+
+## Questions
+
+Questions
+---------
+
+1.  Download the two bed files describing read maps.
+2.  Load these two tables in R.
+3.  Count the total reads for the FNR and input libraries, respectively.
+4.  Normalize the input library in order to obtain the same sum as the
+    test (FNR) library.
+5.  Compare the distributions of counts per reads (normalized for the
+    input) in the ChIP-seq and input samples.
+
+6.  For each bin, compute the following statistics, and collect them in
+    a table (one row per bin, one column per statistics):
+
+    **Note**: each of these statistics can be computed with a single
+    operation -- in R, you should avoid loops whenever possible.
+
+    1.  Number of reads in the test (FNR ChIP-seq)
+    2.  Number of reads in the input
+    3.  Normalized number of reads in the input (norm.input)/
+    4.  Reads per base in the input
+    5.  Fold enrichment (ratio between test and normalized input)
+    6.  Log-fold enrichment (log~10~ of the fold enrichment)
+    7.  P-value of the test reads, using a Poisson distribution with
+        local lambda estimate (explain your model).
+    8.  P-value of the test reads, using a binomial distribution
+        (explain your model).
+    9.  P-value of the test reads, using a hypergeometric distribution
+        (explain your model).
+
+7.  Draw some dot plots to compare the different statistics (fold
+    enrichment, log-fold, p-values with the different models).
+8.  **Discuss the results.**
+
+## Solutions
+
+### Download the two bed files describing read maps, and load these two tables in R
+
+```{r}
+url.base <- "/Users/jvanheld/ASG1/"
+url.data <- file.path(url.base, "data","chipseq", "Escherichia_coli_FNR_vs_input")
+list.files(url.data)
+```
+
+
+
+
+## References
+
+#### MACS method descripion
+1. Zhang, Y., Liu, T., Meyer, C.A., Eeckhoute, J., Johnson, D.S., Bernstein, B.E., Nussbaum, C., Myers, R.M., Brown, M., Li, W., et al. (2008) Model-based analysis of ChIP-Seq (MACS). Genome Biol, 9, R137.
+
+#### Data sources
+
+1. Morgane Thomas-Chollier's tutorial [Hands-on introduction to ChIP-seq analysis](http://www.biologie.ens.fr/~mthomas/other/chip-seq-training/).
+

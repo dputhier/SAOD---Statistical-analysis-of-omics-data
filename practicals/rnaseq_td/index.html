@@ -1,0 +1,481 @@
+<html>
+<head>
+   	<title>RNA-seq practical session</title>
+		<link rel="stylesheet" type="text/css" href="../base.css" media="screen,projection" />
+    	<link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+   	<script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    	<script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+    	<link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    	<link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    	<script type="text/javascript">
+      	SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+      	SyntaxHighlighter.all();
+    	</script>
+    
+</head>
+  
+  <body>
+    
+    <script language="JavaScript" type="text/javascript">
+      <!--
+	  function sizeTbl2(h,i) {
+	  var tbl = document.getElementById(i);
+	  tbl.style.display = h;
+	  }
+	  // -->
+    </script> 
+
+    <h1>RNA-Seq analysis: practical session using Tuxedo suite</h1>
+ 
+<p>The "Tuxedo Suite" is mainly composed of Bowtie, Tophat, Cufflinks, CuffDiff. It has been developed in order to ease read mapping, discovery of splice junction and novel gene structure and differential expression analysis. In the practical session we will use this suite to analyse two samples obtained from study "SRP000698" available in the 
+SRA database</p>
+
+
+<h2>Content</h2>
+<ul>
+<li><a href="#dataset">The SRP000698 dataset: Genome-wide analysis of allelic expression imbalance in human primary cells by high-throughput transcriptome resequencing.</a></li>
+<li><a href="#reference"></a></li>
+</ul>
+
+
+
+<a name="#dataset"></a>
+<hr><h2>The SRP000698 dataset: Genome-wide analysis of allelic expression imbalance in human primary cells by high-throughput transcriptome resequencing</h2>
+<p> In this article  the authors have used RNA-Seq technology to compare the transcriptome of actived and resting T-Cells. Using this technology they were also able to monitor allele-specific expression (ASE), that is, specific expression arising from maternally and paternally derived alleles. In this tutorial we will mainly concentrate on mapping read to the genome and compute expression levels with the Tuxedo suite.</p>
+
+
+<h3>Getting more informations about the experiment</h3>
+<div class='protocol'>
+   <ul>
+	    <li>The SRA Sequence Read Archive (SRA) web site can be accessed <a href='http://trace.ncbi.nlm.nih.gov/Traces/sra/'> here </a>. </li>
+	    <li>The SRA Run browser (<i>Tools</i> section) can be used to search for a SRA object <i>Search >SRA Objects</i></li>
+	</ul>
+   </div>
+
+<div class='exo'>
+      <p>
+	<ol>
+            <li>Get informations about the SRA study "SRP000698"</li>
+            <li>What is the study about ?</li>
+            <li>What platform was used ?</li>
+            <li>How many reads were produced ?</li>
+             <li>How many samples were analyzed ? </li>
+            <li>Get informations about experiments "SRX011549" and "SRX011550" (SRA Objects)</li>
+            <li>Which of these two samples is untreated or treated ? </i>
+            <li>How many runs were performed per samples ?</li>
+            <li>Is this experiment single-end or paire-end sequencing ? What are the sizes of the reads ? </li>
+            <li>How many reads are available per run on average ? Calculate it roughly. </li>
+            <li>Select one run. What is the sequence of the first read ?</li>
+            <li>what is the quality of this read ? </li>
+	</ol>
+    </div>
+
+<p></p>
+
+
+
+<h3>Obtaining the data</h3>
+    <p> Analysis of the whole dataset would be time consuming or would require access to a small computing server. As a workaround, data were previously retrieved from SRA, fastq-transformed using SRA toolkit (fastq-dump) and mapped to the human genome (version hg19). A subset of reads that aligned onto chromosome 10 was extracted and will be used for this tutorial.</p>
+
+<div class='exo'>
+<ol>
+	<li>Open a terminal.</li>
+	<li>Change the current working directory to <i>/filer/openspace/DEPOT</i>.</li>
+	<li>Create a new directory and give it your login as a name.</li>
+	<li>Go into this directory and create directories named <i>fastq</i>, <i>progs</i>, <i>tophat_results</i> and <i>cufflinks_results</i>.</li>
+	<li>Go in the <i>fastq</i> directory and retrieve the datasets below.</li>
+	<li>Uncompress the datasets.</li>
+	<li>Look at the first lines of the <i>SRR027888.SRR027890_chr10_1.fastq</i> file to check the fastq format.</li>
+</ol>
+</div>
+
+
+<table>
+
+	<tr>
+	  <th>File name</th>
+	  <th>Experiment</th>
+          <th>Description</th>
+	</tr>
+
+	<tr>
+	  <td><a href="ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027888.SRR027890_chr10_1.fastq.gz">SRR027888.SRR027890_chr10_1.fastq.gz </a></td>
+	  <td>SRX011549</td>
+          <td>Right end read</td>
+	</tr>
+	
+        <tr>
+          <td><a href="ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027888.SRR027890_chr10_2.fastq.gz">SRR027888.SRR027890_chr10_2.fastq.gz</a></td>
+          <td>SRX011549</td>
+          <td>Left end read</td>
+        </tr>
+
+        <tr>
+          <td><a href="ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027889.SRR027891_chr10_1.fastq.gz"> SRR027889.SRR027891_chr10_1.fastq.gz</a></td>
+          <td>SRX011550</td>
+          <td>Right end read</td>
+        </tr>
+        
+        <tr>
+          <td><a href="ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027889.SRR027891_chr10_1.fastq.gz">SRR027889.SRR027891_chr10_2.fastq.gz</a></td>
+          <td>SRX011550</td>
+          <td>Left end read</td>
+        </tr>
+
+      </table>
+
+<a href="javascript:sizeTbl2('block','sol_mk')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_mk')">Hide solution</a>
+
+<div id=sol_mk  style="overflow:hidden;display:none">
+	<h4>Solution</h4>
+   <pre class="brush:bash;">	
+## Changing working directory
+WORKINGDIR=/filer/openspace/DEPOT/
+cd ${WORKINGDIR}
+
+## Creating sub-directories
+mkdir -p ${USER}
+ls -trl
+cd ${USER}
+mkdir -p fastq progs tophat_results cufflinks_results
+cd fastq
+
+## Retrieving data
+wget ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027888.SRR027890_chr10_1.fastq.gz
+wget ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027888.SRR027890_chr10_2.fastq.gz
+wget ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027889.SRR027891_chr10_1.fastq.gz
+wget ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027889.SRR027891_chr10_2.fastq.gz
+
+## Uncompressing data
+gunzip *gz
+
+## Checking fastq file format
+SRR027888.SRR027890_chr10_1.fastq # q to quit
+   </pre>
+</div>
+    
+
+
+<hr><h2>Quality control of high throughput sequencing data</h2>
+<p><a href="http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc"> FastQC </a> aims to provide a simple way to do some quality control checks on raw sequence data coming from high throughput sequencing pipelines. It provides a modular set of analyses which you can use to give a quick impression of whether your data has any problems of which you should be aware before doing any further analysis. </p>
+
+<div class='protocol'>
+      <ol>
+        <li>Download the <a href="http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc"> FastQC </a> program and install it inside the progs directory. </li>
+<pre class="brush:bash;">
+## Changing working directory to 'progs'
+cd ${WORKINGDIR}${USER}"/progs"   
+
+## Retrieving the FastQC program    
+wget http://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.10.1.zip
+
+## Uncompressing the file
+unzip fastqc_v0.10.1.zip
+
+## make the fastqc file executable
+chmod u+x FastQC/fastqc
+</pre>
+           
+		 
+		  <li>Launch the FastQC program and check quality of <i>SRR027888.SRR027890_chr10_1.fastq</i> fastq file.</li>
+      </ol>
+</div>
+
+
+<div class='exo'>
+      <p>
+        <ol>
+            <li>Carefully inspect all the statistics. What do you think of the overall quality of the dataset ?</li>
+        </ol>
+</div>
+
+
+<hr><h2>Read trimming</h2>
+<p>Read trimming is a pre-processing step in which input read ends are cutted (most generally the right end). Here, reads were previously trimmed. However one should keep in mind that this step is crucial when working with bowtie/tophat. Indeed as bowtie does not perform "hard-clipping" (that is clip sequence NOT present in the reference) it may be unable to align a large fraction of the dataset when poor quality ends are kept. Several software may be used to perform sequence trimming: </p>. 
+
+<ul>
+<li><a href="http://hannonlab.cshl.edu/fastx_toolkit/">FASTX-Toolkit<a></li>
+<li><a href="https://github.com/najoshi/sickle">sickle<a></li>
+<li><a href="http://bioconductor.org/packages/2.11/bioc/html/ShortRead.html">the ShortRead Bioconductor package<a></li>
+</ul>
+
+
+<hr><h2>Mapping read with TopHat</h2>
+TopHat is a fast splice junction mapper for RNA-Seq reads. It aligns RNA-Seq reads to mammalian-sized genomes using the ultra high-throughput short read aligner Bowtie, and then analyzes the mapping results to identify splice junctions between exons. 
+
+<h3>TopHat installation</h3>
+
+<div class='protocol'>
+<ul>
+<li>Install the TopHat software using the following instructions:</li>
+<pre>
+## Changing working directory to 'progs'
+cd ${WORKINGDIR}${USER}"/progs"   
+
+## Retrieving and uncompressing the bowtie program
+wget http://garr.dl.sourceforge.net/project/bowtie-bio/bowtie2/2.0.2/bowtie2-2.0.2-source.zip
+unzip bowtie2-2.0.2-source.zip
+
+## Changing directory to bowtie-0.12.7
+cd bowtie2-2.0.2
+
+## Compiling bowtie
+make 
+
+## Retrieving and uncompressing tophat
+cd ..
+wget http://tophat.cbcb.umd.edu/downloads/tophat-2.0.6.Linux_x86_64.tar.gz
+tar xvfz tophat-2.0.6.Linux_x86_64.tar.gz
+
+</pre>
+</ul>
+</div>
+
+
+
+
+<pre>
+# Indexation de la référence
+cd ~/NGS_DATA/bowtie-0.12.7/indexes
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/chr10.fa.gz
+gunzip chr10.fa.gz
+bowtie-build chr10.fa chr10.hs
+</pre>
+
+<div class='protocol'>
+      <ol> 
+        <li>Select <i>NGS: RNA Analysis -> RNA-SEQ -> Tophat for Illumina.</i></li>
+        <li> Set <i>Is this library mate-paired ?</i> to <i>Paired-end.</i></li>
+        <li> Select SRR027888.SRR027890_chr10_1.fastq.gz as the first RNA-Seq FASTQ file and SRR027888.SRR027890_chr10_2.fastq.gz as the second RNA-Seq FASTQ file.</li>
+        <li> Select <i>hg19 full </i>as a reference genome.</li>
+        <li> Set <i>TopHat settings to use</i> as <i>Full parameter list. </i></li>
+        <li> Set <i>Mean Inner Distance between Mate Pairs</i> to 200.</li>
+        <li> Set <i>Std. Dev for Distance between Mate Pairs</i> to 30 (you can use hist(rnorm(1000,200,30)) in R to visualize fragment length distribution under a normal assumption.</li>
+        <li> Set <i>Maximum number of mismatches that can appear in the anchor region of spliced alignment</i> to 1.</li>
+        <li> Set <i>Maximum number of alignments to be allowed</i> to 10.</li>        
+        <li> Set <i>Number of mismatches allowed in the initial read mapping:</i> to 3.</li>
+        <li> Execute.</li>
+        <li> Have a look at the results.</li>
+     </ol>
+</div>
+
+
+    <div class='exo'>
+      <p>
+        <ol>
+            <li>In the original <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2792152/?tool=pubmed">article</a>, read the "Illumina library construction" subsection (material and method section). What about the selected "Mean Inner Distance between Mate Pairs".</li>
+            <li>Convert the BAM file (compressed) to SAM file (uncompressed). Use <i>Statistics -> Count</i> to count the occurence of each chromosome in the mapping results</li> 
+            <li>Are the mapping results as expected ?</li>
+            <li>What does the <i>junctions.bed, insertions.bed</i> and <i>deletions.bed</i> files contain ?
+        </ol>
+    </div>
+
+    <hr><h2>Viewing the results with Integrated Genome Browser (IGV).</h2>
+<p> The <a href="http://www.broadinstitute.org/igv/home">Integrative Genomics Viewer</a> (IGV) is a high-performance visualization tool for interactive exploration of large, integrated genomic datasets. It supports a wide variety of data types, including array-based and next-generation sequence data, and genomic annotations.</p>
+
+<div class='protocol'>
+      <ol> 
+        <li> Select the result containing the file "accepted.hits.bam" (click on its title). By using the small icon in shape of a floppy-disk, saved both the <i>bam</i> file and its related <i>index</i> (a <i>*.bai</i> file, don't forget it).</li>
+        <li>Create an IGV account <a href="http://www.broadinstitute.org/software/igv/?q=registration">here</a></li> 
+        <li>Download IGV and launch it with 750 MB or 1.2 Gb depending of your machine</li>
+        <li>In IGV select hg19 genome and Chromosome 10</li>
+        <li>Use <i>File > Load from file</i> and browse to the <i>bam</i> file.</li>  
+        <li>Zoom in to visualize reads mapped onto the genome.</li>
+        <li>In Galaxy, save the junctions.bed, insertions.bed and deletions.bed files and load them into IGV  (<i>File > Load from file</i>).
+     </ol>
+</div>
+
+
+<hr><h2>Computing FPKM with cufflinks</h2>
+Cufflinks perform transcript assembly and FPKM (RPKM) estimates for RNA-Seq data. One important parameter of Cufflinks is to choose a reference genome that will tell cufflinks the locations of the gene for which we want to compute the expression. This argument appear as <i>Use Reference Annotation</i> parameter in Galaxy.
+
+      <ol> 
+        <li><b>No:</b> No reference annotation used. Cufflinks will assemble transcript using TopHat results.</li> 
+        <li><b>Yes (-G):</b> Cufflinks use the supplied reference annotation (GTF/GFF) to estimate isoform expression. Ignore alignments not structurally compatible with any reference transcript.</li> 
+        <li><b>Yes as a guide (-g):</b> Cufflinks use the supplied reference annotation (GTF/GFF) to guide assembly of reference transcripts. Output will include all reference transcripts as well as any novel genes and isoforms that are assembled.</li> 
+     </ol>
+
+<p>Here we will use RefSeq transcripts as references (that is we won't discover novel genes). First, we need a <i>gtf/gff</i> file indicating the locations of exonic regions.</p>
+
+<div class='protocol'>
+      <ol> 
+        <li>GO to <a href="http://genome.ucsc.edu/">UCSC genome browser</a></li>
+        <li>From the upper menu select <i>Tables</i></li> 
+        <li>Select <i>human</i> (genome), <i>hg19</i> (assembly), <i>Gene and Genes prediction tracks</i> (group), <i>refGene</i> (Gene), <i>chr10</i> (position), GTF (output format), Galaxy (Send output to),  delete any filter</li>
+        <li>Click on <i>get output</i></li>
+        <li>Click on <i>send query to Galaxy</i></li> 
+     </ol>
+</div>
+<p></p>
+Now that we have a GTF file we can ask cufflinks to compute coverage and FPKM based on the input gene structure.
+<p></p>
+<div class='protocol'>
+      <ol> 
+        <li>Select NGS TOOLBOX BETA -> NGS: RNA Analysis -> RNA-SEQ -> Cufflinks </li>
+        <li>Use the produced <i>bam file</i> as input.</li> 
+        <li>Ask for quartile normalization.</li>
+        <li>Execute</li>
+        <li>Use <i>Text Manipulation -> Convert delimiters to TAB</i> on cuffLinks output (gene expression).</li>
+        <li>Use <i>Filter and Sort -> Sort</i> to sort the last output on column 10 (decreasing order).</li>
+        <li>Select the location of the most highly expressed gene and paste it in IGV to browse to this location.</li>
+     </ol>
+</div>
+
+    <hr><h2>Creating a workflow</h4>
+The Galaxy workflow system allows analysis containing multiple tools to be extracted from histories, and rerun. We will use a workflow to perform mapping and compute FPKM for sample SRX011550.
+<p></p>
+    <div class='exo'>
+      <p>
+        <ol>
+          <li>Build a workflow to perform mapping and compute FPKM</li>
+          <li>Apply this workflow to sample SRX011550</li>
+        </ol>
+      </p>
+    </div>
+
+<p></p>
+    <div class='tips'>
+      Some tips for this exercise:
+      <ol>
+        <li>In the title of the History panel, click Options -> Extract Workflow</li>
+        <i>At this point, you have the option to select a subsets).</li> 
+        <li>Use NGS TOOLBOX BETA -> RNA-SEQ -> Cuffdiff.</li>
+        <li>Set <i>Min Alignment Count</i> to 10. </li>
+        <li>Select <i>Set Parameters for Paired-end Reads</i> and set <i>Mean Inner Distance between Mate Pairs</i> to 200 (Note: Cufflinks now learns the fragment length mean for each SAM file, so using this option is no longer required/recommended with paired-end reads).</li> 
+        <li>Execute</li> 
+        <li> Retrieve the file "gene differential expression testing" file. Open it in Excel and sort the results by Log-Ratio.</li>
+        <li>Some nice differential expressions are observed at locations: chr10:64571755-64578927, chr10:99,116,457-99,161,127, chr10:99,116,457-99,161,127, chr10:102,747,292-102,754,158.</li> 
+     </ol>
+</div>
+<p></p>
+In this last step, we will display the results using R.
+<ol>
+<li> <a href="http://denis.puthier.perso.esil.univmed.fr/rna-seq/Galaxy105-%5BCuffdiff_on_data_86,_data_85,_and_data_3__gene_differential_expression_testing%5D.tabular">FPKM values</a></li>
+<li><a href="http://denis.puthier.perso.esil.univmed.fr/rna-seq/Galaxy109-%5BUCSC_Main_on_Human__refGene_%28chr10_1-135534747%29%5D.tabular">refSeq table (UCSC)</a></li>
+<li><a href="http://denis.puthier.perso.esil.univmed.fr/rna-seq/Galaxy105-[Cuffdiff_on_data_86,_data_85,_and_data_3__gene_differential_expression_testing].tabular">cuffDiff p-values</a></li>
+</ol>
+<p></p>
+<div class='code_r'>
+      <ol> 
+                <li># First we read FPKM tracking (cuffDiff results).</li>
+                <li>d <- read.table("Galaxy106-[Cuffdiff_on_data_86,_data_85,_and_data_3__gene_FPKM_tracking].tabular",sep="\t",head=T)</li>
+                <li>head(d)</li>
+                <li>head(m)</li>
+                <li>m <- cbind(d$q1_FPKM,d$q2_FPKM)</li>
+                <li>dim(m) # 1577</li>
+                <li>rownames(m) <- d$gene_id</li>
+                <li>colnames(m) <- c("q1_FPKM","q2_FPKM")</li>
+                <li>head(m)</li>
+                <li>plot(m[,1],m[,2])</li>
+                <li>plot(log2(m[,1]),log2(m[,2]))</li>
+                <li># We will delete any gene whose FPKM is below 1</li>
+                <li>m1 <- m[,1]</li>
+                <li>m2 <- m[,2]</li>
+                <li>msub <- m[ m1 > 1 & m2 > 1,]</li>
+                <li># Let's have a look at the results.</li>
+                <li>plot(log2(m[,1]),log2(m[,2]))</li>
+                <li>points(log2(msub[,1]),log2(msub[,2]), pch=16, col="red")</li>
+                <li># Now we are working with msub.</li>
+                <li># Let's have a look at the distribution. </li>
+                <li>boxplot(msub)</li>
+                <li>boxplot(log2(msub),col=c("red","gray"), pch=16)</li>
+                <li>library(affy)</li>
+                <li>plotDensity(log2(msub), col=c("red","gray"), lwd=3, lty=1)</li>
+                <li># we will transform the data in log scale (base 2)</li>
+                <li>msub <- log2(msub)</li>
+                <li># What's about normalizing</li>
+                <li>q3 <- apply(msub, 2, quantile, 0.75)</li>
+                <li>msub.q3 <- sweep(msub, 2 , q3, FUN="-")</li>
+                <li>boxplot(msub.q3)</li>
+                <li>q2 <- apply(msub, 2, quantile, 0.5)</li>
+                <li>msub.q2 <- sweep(msub, 2 , q2, FUN="-")</li>
+                <li>boxplot(msub.q2)</li>
+                <li># We will work with msub.q2.</li>
+                <li># Let's compute the log-ratio</li>
+                <li>ratio <- msub.q2[,1] - msub.q2[,2]</li>
+                <li>hist(ratio,br=100)</li>
+                <li># Now we would like to add some geneSymbol</li>
+                <li># Go to UCSC get refSeq table with all field. Send it to galaxy and retrieve it on your disk.</li>
+                <li># note here that were are using the "comment.char" argument to "". Why ?</li>
+                <li>ann <- read.table("Galaxy109-[UCSC_Main_on_Human__refGene_(chr10_1-135534747)].tabular",sep="\t", comment.char="", head=T)</li>
+                <li>names(ann)</li>
+                <li># Let's create a vector which contains geneSymbol and whose names are refSeq identifiers:</li>
+                <li># Don't forget to transform refSeq and geneSymbol into vectors !</li>
+                <li>refSeq <- as.vector(ann$name)</li>
+                <li>geneSymbol <- as.vector(ann$name2)</li>
+                <li>names(geneSymbol) <- as.vector(refSeq)</li>
+                <li>geneSymbol <- geneSymbol[rownames(msub.q2)]  # Here we are ordering GeneSymbol according to msub.q2 rownames.</li>
+                <li>head(geneSymbol)</li>
+                <li>head(rownames(msub.q2))</li>
+                <li>#Now we will retrieve the results of cuffDiff</li>
+                <li># Get them from Galaxy</li>
+                <li>cuffDiff <- read.table("Galaxy105-[Cuffdiff_on_data_86,_data_85,_and_data_3__gene_differential_expression_testing].tabular",sep="\t",head=T)</li>
+                <li># Let's create a vector which contains q.values and whose names are refSeq identifiers:</li>
+                <li># Don't forget to transform refSeq and geneSymbol into vectors !</li>
+                <li>qval <- cuffDiff$q_value</li>
+                <li>names(qval) <- as.vector(cuffDiff$gene_id)</li>
+                <li>qval <- qval[rownames(msub.q2)] # Here we are ordering q.values according to msub.q2 rownames.</li>
+                <li>plot(sort(qval), pch=".")</li>
+                <li># Now we can create the final diagrams (a scatter plot and a volcano plot)</li>
+                <li>#1</li>
+                <li>plot(msub.q2, col="gray30",pch=16, cex=0.5, xlab="Activated T-Cells", ylab="Naive T-Cells")</li>
+                <li>for(i in -10:10){abline(v=i, lty=2, col="lightgray")}</li>
+                <li>for(i in -10:10){abline(h=i, lty=2, col="lightgray")}</li>
+                <li>abline(h=0)</li>
+                <li>abline(v=0)</li>
+                <li>msub.q2.1 <- msub.q2[,1]</li>
+                <li>msub.q2.2 <- msub.q2[,2]</li>
+                <li>abline(0,1)</li>
+                <li>abline(0,1)</li>
+                <li>abline(1,1)</li>
+                <li>abline(-1,1)</li>
+                <li>text(msub.q2.1[abs(ratio)>1], msub.q2.2[abs(ratio)>1], lab=geneSymbol[abs(ratio)>1], cex=0.3, pos=3)</li>
+                <li>#2 </li>
+                <li>X11()</li>
+                <li>plot(ratio, -log10(qval), col="gray30",pch=16, cex=0.5, xlab="ratio", ylab="-log10(q.value)", xlim=c(-6,6))</li>
+                <li>for(i in -6:6){abline(v=i, lty=2, col="lightgray")}</li>
+                <li>for(i in 0:12){abline(h=i, lty=2, col="lightgray")}</li>
+                <li>toDisplay <- abs(ratio) > 1 & qval < 0.05</li>
+                <li>text(ratio[toDisplay], -log10(qval[toDisplay]), lab= geneSymbol[toDisplay], pos=3,cex=0.4)</li>
+                <li>abline(v=0)</li>
+
+
+      </ol>
+</div>
+<p></p>
+<p></p>
+<div class='tips'>
+    <b>If you get troubles computing all steps of the analysis of SRP000698 related samples...</b>
+
+    <p> The full analysis have been pre-computed on is available has work spaces (histories) through the Galaxy web server. The following items are availables:
+    <ul>
+      <li><a href='http://main.g2.bx.psu.edu/u/dputhier/h/srx011549new'> Read mapping and FPKM for sample SRX011549</a></li>
+      <li><a href='http://main.g2.bx.psu.edu/u/dputhier/h/srx011550'>Read mapping and FPKM for sample SRX011550</a></li>
+      <li><a href='http://main.g2.bx.psu.edu/u/dputhier/w/cufflinkworkflowhg19'>Workflow for read mapping FPKM computation</a></li>
+      <li><a href='http://main.g2.bx.psu.edu/u/dputhier/h/cuffdiffsrx011549vssrx011550'>Differential analysis of SRX011550 and SRX011549 (cuffDiff results)</a></li>
+    </ul>
+<p></p>
+    <p> If needed (just do it in case there is no alternative solution), import the data using the following procedure.
+
+        <ol>
+         <li>Click on one of the link above</li>
+        <li>In the top-right corner of the window, click <i>Import history</i></li>
+        <li>In the message box, click the link <i>Start using this
+            history</i></li>
+        <li> You can manage histories using <i>options > Saved history </i>  
+        </ol>
+    </div>
+
+    <hr>
+
+<a name="references" >
+<h2>References</h2>
+<ol>
+<li><b>Genome-wide analysis of allelic expression imbalance in human primary cells by high-throughput transcriptome resequencing.</b> Heap GA, Yang JH, Downes K, Healy BC, Hunt KA, Bockett N, Franke L, Dubois PC, Mein CA, Dobson RJ, Albert TJ, Rodesch MJ, Clayton DG, Todd JA, van Heel DA, Plagnol V. Hum Mol Genet. 2010 Jan 1;19(1):122-34.</li>
+</ol>
+
+  </body>
+</html>
+
+

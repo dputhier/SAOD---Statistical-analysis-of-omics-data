@@ -1,0 +1,640 @@
+\documentclass[10pt]{article}
+
+\usepackage{amsmath,epsfig,fullpage,hyperref}%psfig,pstricks,
+\parindent 0in
+\usepackage[latin1]{inputenc} % LaTeX, comprends les accents !
+\usepackage[T1]{fontenc}      % Police contenant les caract?res fran?ais
+\usepackage{geometry}         % D?finir les marges
+%\usepackage[francais]{babel}  % Placez ici une liste de langues, la
+%\pagestyle{headings}        % Pour mettre des ent?tes avec les titres
+
+%\bibliographystyle{frplain}
+%\bibliography{myDatabase}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\AtBeginDocument{
+        \def\labelitemi{\textbullet}
+}
+\usepackage{/usr/local/lib/R/share/texmf/Sweave}
+\SweaveOpts{prefix.string=graphics/plot}
+\begin{document}
+
+
+\title{\bf R language: A quick tutorial}
+\author{Denis Puthier }
+\maketitle
+
+\begin{center}
+Laboratoire INSERM TAGC/ERM206, Parc Scientifique de Luminy case 928,13288 MARSEILLE cedex 09, FRANCE.
+\end{center}
+
+\tableofcontents
+\newpage
+
+This tutorial is just a brief tour of the language capabilities and  is intented to give some clues to begin with the R programming language. For a more detailled overview see "R for beginners" (E. Paradis, http://cran.r-project.org/doc/contrib/Paradis-rdebuts\_en.pdf)
+\bigskip
+
+
+\section{Basic aspects of the language.}
+
+<<eval=TRUE, echo=FALSE>>=
+rm(list=ls())
+@
+
+
+R is an object-oriented programming language. You can easily create basic objects of class \Rfunction{vector}, \Rfunction{matrix},
+\Rfunction{data.frame}, \Rfunction{list}, \Rfunction{factor},... \medskip
+
+A vector \textit{x} that contains one value.
+
+
+<<eval=TRUE, echo=TRUE>>=
+x <- 15
+@
+
+
+\medskip
+You can see the content of \textit{x} by simply calling it.
+
+<<eval=TRUE, echo=TRUE>>=
+x
+@
+
+\medskip
+
+Alternatively, you can use the "=" operator. However "<-" is most generally prefered.
+
+<<eval=TRUE, echo=TRUE>>=
+x = 22
+x
+@
+\medskip
+
+
+You can add comment by starting a line with a hash (\#). In this case the code at the right of the hash won't be interpreted.
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+#x <-  57
+x
+@
+
+
+<<eval=T, echo=TRUE>>=
+x
+@
+\medskip
+
+Instructions can be separated by semi-colons (;) or new-line.
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+x <- 12; y <- 13
+x;y
+@
+
+
+\medskip
+<<eval=TRUE, echo=F>>=
+y <- 13
+@
+Once values are assigned to an object, R will store this object in the memory (RAM). Previously created objects can be \textbf{l}i\textbf{s}ted using the \Rfunction{ls} function.
+%code 7
+<<eval=TRUE, echo=TRUE>>=
+ls()
+@
+\medskip
+
+Object can be deleted using the \Rfunction{rm} (\textbf{r}e\textbf{m}ove) function.
+<<eval=TRUE, echo=TRUE>>=
+rm(x)
+rm(y)
+ls()
+@
+
+ \medskip
+
+\section{Syntax for calling Functions.}
+
+In the above section we have created vectors containing  numeric data. We have also used functions (\Rfunction{ls} and \Rfunction{rm}). We can use numerous functions to perform specific tasks. When calling a function, we will use this generic syntax:
+
+\begin{center}
+\begin{Sinput}
+ - NameOfTheFunction(arg1= a, arg2= b,...)
+\end{Sinput}
+\end{center}
+\medskip
+arg1 et arg2 (...) : arguments of the function.\medskip
+a and b : The objects that will be passed to the function.
+\medskip
+
+To access the documentation of a given function, use the \Rfunction{help} function (or the question mark). The documentation gives you an overview of the function (usage, arguments name and class, returned values and examples). For instance to get information about the \Rfunction{substr} function (used to extract part of a character string) use one of the following instructions:
+
+\begin{Soutput}
+> help(substr) # or ?substr
+\end{Soutput}
+
+\begin{scriptsize}
+\begin{Soutput}
+substr                 package:base                 R Documentation
+
+Substrings of a Character Vector
+
+Description:
+
+     Extract or replace substrings in a character vector.
+
+Usage:
+
+     substr(x, start, stop)
+     substring(text, first, last = 1000000)
+     substr(x, start, stop) <- value
+     substring(text, first, last = 1000000) <- value
+
+Arguments:
+
+ x, text: a character vector.
+
+start, first: integer. The first element to be replaced.
+
+stop, last: integer. The last element to be replaced.
+
+   value: a character vector, recycled if necessary.
+
+Details:
+
+     'substring' is compatible with S, with 'first' and 'last' instead
+     of 'start' and 'stop'. For vector arguments, it expands the
+     arguments cyclically to the length of the longest _provided_ none
+     are of zero length.
+
+     When extracting, if 'start' is larger than the string length then
+     '""' is returned.
+
+     For the extraction functions, 'x' or 'text' will be converted to a
+     character vector by 'as.character' if it is not already one.
+
+     For the replacement functions, if 'start' is larger than the
+     string length then no replacement is done.  If the portion to be
+     replaced is longer than the replacement string, then only the
+     portion the length of the string is replaced.
+
+     If any argument is an 'NA' element, the corresponding element of
+     the answer is 'NA'.
+
+Value:
+
+     For 'substr', a character vector of the same length and with the
+     same attributes as 'x' (after possible coercion).
+
+     For 'substring', a character vector of length the longest of the
+     arguments.  This will have names taken from 'x' (if it has any
+     after coercion, repeated as needed), and other attributes copied
+     from 'x' if it is the longest of the arguments).
+
+Note:
+
+     The S4 version of 'substring<-' ignores 'last'; this version does
+     not.
+
+     These functions are often used with 'nchar' to truncate a display.
+      That does not really work (you want to limit the width, not the
+     number of characters, so it would be better to use 'strtrim'), but
+     at least make sure you use 'nchar(type="c")'.
+
+References:
+
+     Becker, R. A., Chambers, J. M. and Wilks, A. R. (1988) _The New S
+     Language_. Wadsworth & Brooks/Cole. ('substring'.)
+
+See Also:
+
+     'strsplit', 'paste', 'nchar'.
+
+Examples:
+
+     substr("abcdef",2,4)
+     substring("abcdef",1:6,1:6)
+     ## strsplit is more efficient ...
+
+     substr(rep("abcdef",4),1:4,4:5)
+     x <- c("asfef", "qwerty", "yuiop[", "b", "stuff.blah.yech")
+     substr(x, 2, 5)
+     substring(x, 2, 4:6)
+
+     substring(x, 2) <- c("..", "+++")
+     x
+\end{Soutput}
+\end{scriptsize}
+\medskip
+When calling a function, the name of the arguments can be omitted if they are placed as expected. For instance if one wants to extract character 2 to 4 in the string "microarray":
+
+<<eval=TRUE, echo=TRUE>>=
+substr("microarray", 2,4)
+@
+\medskip
+If the  arguments are not in the expected order their names are mandatory (note that, for convenience, they can be abbreviated but the abbreviation used should be unambiguous):
+
+
+\begin{Soutput}
+> substr(2,4,"microarray")                    # arguments are misplaced
+[1] NA
+Warning message:
+In substr(2, 4, "microarray") :
+  NAs introduits lors de la conversion automatique
+\end{Soutput}
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+substr(start=2,stop=4,x="microarray") # works
+@
+\begin{Soutput}
+> substr(st=2,st=4,x="microarray")            #ambiguous
+Erreur dans substr(st = 2, st = 4, x = "microarray") :
+  argument formel "start" correspondant ? plusieurs arguments fournis
+\end{Soutput}
+\medskip
+
+
+\section{Modes. Functions for creating vectors.}
+\subsection{Modes}
+A vector can contain several variables of the same mode. Most frequently, the mode will be one of: "numeric", "character" or "logical".
+\subsection{Functions and operators for creating vectors.}
+\paragraph{The function \Rfunction{c}}
+The function \Rfunction{c} is used to \textbf{c}ombine values into a vector.
+
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+mic <- c("Agilent", "Affy")       # A character vector
+mic
+is(mic)
+num <- c(1,2,3)                   # A numeric vector
+num
+is(num)
+bool <- c(T,F,T)                  # A logical vector
+bool
+is(bool)
+num > 1.5                          # Also returns a logical vector
+@
+\medskip
+\paragraph{The operator ":"}
+This operator generates a sequence from 'from' to 'to' in steps of '1' .
+For numeric arguments 'from:to' is equivalent to 'seq(from, to)'.
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+1:3
+seq(3, 1)
+3:1                   # Values in decreasing order
+@
+\medskip
+\paragraph{Functions \Rfunction{rep}, \Rfunction{seq}}
+The \Rfunction{rep} function \textbf{rep}eats a value as many times as requested.
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+rep(3,5)
+@
+
+The \Rfunction{seq} function is used to create numeric \textbf{seq}uence.
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+seq(0,10,by=2)
+seq(0,10,length.out=3)
+@
+\medskip
+\paragraph{Functions to generate random number}
+
+the \Rfunction{rnorm} function is used to generate normally distributed values with mean equal to 'mean' (default 0) and standard deviation equal to 'sd' (default 1).
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+x <- rnorm(1000,mean=2,sd=2)
+hist(x)
+@
+\medskip
+\section{Vector manipulation.}
+\subsection{Indexing vectors}
+Extraction or replacement of parts of a vector can be performed using the "[" operator (which is equivalent to the \Rfunction{subset} function). Numeric vectors, logical vectors or names are used to indicate which positions in the vector are to be extracted or replaced.
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+set.seed(1)
+x <- round(rnorm(10),2)
+x
+x[2]
+x[1:3]
+x[c(2,6)]
+which(x>0)       # returns the positions containing positive values
+x[which(x>0)]    # returns the requested positive values (using a vector of integers)
+x > 0            # returns TRUE if a positions contains a positive value
+x[x > 0]
+nm <- paste("n",1:10, sep="")
+nm
+names(x) <- nm
+x["n10"]          # Indexing with the names of the element
+@
+\medskip
+
+
+
+\subsection{Replacing parts of a vector}
+Simply use the "<-" operators. Note that in R, missing values are defined as "NA" (Not Attributed).
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+x[1:2] <- c(10,11)
+x
+x[4:6] <- NA
+x
+is.na(x)              # returns TRUE if the position is NA
+x <- na.omit(x)       # To delete NA values
+x
+@
+\medskip
+\subsection{Vectorization}
+R is intented to handle large data sets and to retrieve information using a concise syntax. Thanks to the internal feature of R, called \textit{vectorization}, numerous operation can be written without a loop:
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+x <- 0:10
+y <- 20:30
+x+y
+x^2
+sqrt(x)
+@
+\medskip
+
+
+\section{Objects of class: \Rfunction{factor}, \Rfunction{Matrix}, \Rfunction{data.frame} and \Rfunction{list}.}
+
+\subsection{factor}
+This object looks like a vector. It is used to store categorical variables. A vector can be converted to a factor using the \Rfunction{as.factor} function. The \Rfunction{levels} function can be used to extract the names of the categories and to rename them.
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+x <- rep(c("good","bad"),5)
+x
+x <- as.factor(x)
+x
+x <- as.factor(x)
+x
+levels(x)
+levels(x) <- 0:1
+x
+table(x)
+@
+\medskip
+\subsection{Matrix}
+Matrix are intended to store 2-dimensional datasets. Each value will be of the same mode. As with vectors, one can use names, numeric vectors or a logical vector for indexing this object. One can index rows or columns or both.
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+x <- matrix(1:10,ncol=2)
+colnames(x) <- c("ctrl","trmt")
+row.names(x) <- paste("gene", 1:5, sep="_")
+x
+x[,1]                       # first column
+x[1,]                       # first row
+x[1,2]                      # row 1 and column 2
+x[c(T,F,T,T,T),]
+@
+
+Note that the syntax below that use a logical matrix is also frequently used to extract or replace part of a matrix.
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+x < 2 | x > 8
+x[x < 2 | x > 8] <-  NA
+@
+
+
+\subsection{data.frame}
+This object is very similar to the matrix except that each column can contain a given mode (a column with characters, a column with logicals, a column with numerics,...).
+
+\subsection{list}
+Object of class list can store any type of object. They should be indexed with the "[[" or \$ operators.
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+l1 <- list(A=x, B=rnorm(10))
+l1
+is(l1[[1]])
+is(l1[[2]])
+l1$A
+@
+
+
+\subsection{The "Apply" family of functions}
+
+They are used to loop through row and columns of a matrix (or dataframe) or through elements of a list.
+
+\susection{The \Rfunction{apply} function}
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+x <- matrix(1:10,ncol=2)
+apply(x,1, sd)        # 1 stands for rows
+apply(x,2, sd)        # 2 stands for colums
+@
+
+\susection{The \Rfunction{lapply} function}
+The \Rfunction{\textbf{l}apply} is used for \textbf{l}ist (or data.frame).
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+lapply(l1, is)        # The types of the object stored in the list.
+@
+
+
+\subsection{The \Rfunction{tapply} function}
+This function tipically takes a vector and a factor as arguments. For instance, we have data that fall in three caterogies ("good", "bad", "medium"). We can compute different statistics related to the category:
+
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+cat <- rep(c("good", "bad", "medium"),5)
+cat <- as.factor(cat)
+x <- rnorm(length(cat))
+x[cat == "good"] <- x[cat == "good"]+2
+x[cat == "medium"] <- x[cat == "medium"]+1
+boxplot(x~cat)
+tapply(x,cat,sd)
+tapply(x,cat,mean)
+tapply(x,cat,length)
+@
+
+
+\subsection{Graphics with R}
+
+\subsection{Graphics}
+
+R offers a large variety of high-level graphics functions (\Rfunction{plot}, \Rfunction{boxplot}, \Rfunction{barplot}, \Rfunction{hist}, \Rfunction{pairs}, \Rfunction{image}, ...). The generated graphics can be modified using low-level functions (\textbf{points}, \textbf{text}, \textbf{line}, \textbf{abline}, \textbf{rect}, \textbf{legend}, ...).
+
+\subsection{A simple example using two colour microarray data processed with basic R functions.}
+
+\paragraph{Loading and visualizing the data}
+<<eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+# Create an OS-independent path to the directory "swirldata"
+# located in the package "marray"
+path <- system.file("swirldata", package = "marray")
+path
+getwd()                   # the current working directory
+setwd(path)               # set working directory to "path"
+getwd()                   # The working directory has changed
+dir()                     # list the working directory
+#file.show("swirl.1.spot") # this file contains a Header
+d <- read.table("swirl.1.spot", header=T, sep="\t", row.names=1)
+is(d)
+colnames(d)
+G <- d[,"Gmedian"]
+R <- d[,"Rmedian"]
+plot(R,G, pch=16, cex=0.5, col="red") # low values are densely packed
+                                      # in the UL corner
+library(geneplotter)
+smoothScatter(R,G)                    # even more marked
+
+boxplot(R,G)                          # 1rst , 2nd (median) and 3rd quartile
+R <- log2(R)
+G <- log2(G)
+plot(R,G, pch=16, cex=0.5, col="red")
+boxplot(R,G)
+@
+
+\paragraph{MA plot}
+A MA plot without normalization.
+<<fig=T, eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+M <- R-G
+A <- R+G
+plot(A,M, pch=16,cex =0.5)
+low <- lowess(M~A)
+lines(low,col="blue", lwd = 2)       # lwd: line width
+abline(h=0, col="red")              # h: horizontal
+abline(h=-1, col="green")
+abline(h=1, col="green")
+
+# Genes considered as "good" have an
+# absolute ratio of 1 (2 in linear scale).
+good <- abs(M) > 1
+points(A[good], M[good], col="red")
+# They aren't so good...
+gn <- 1:nrow(d)
+text(A[good], M[good], lab=gn[good],cex=0.4,pos=2)
+@
+
+
+\subsection{S4 objects in R}
+In the last example, we have used Gmedian and  Rmedian data. However, we should have also considered the background signal. The problem is that we should have created four vectors (or four matrix if several microarrays were analyzed). As it is rather difficult to manipulate the four matrices we will design a class ("micBatch") that will contain all information within a single object.
+
+<<fig=T, eval=TRUE, echo=TRUE,keep.source=TRUE>>=
+# micBatch
+# "representation" corresponds to all attributes of the object:
+# "prototype" corresponds corresponds to default values:
+
+setClass("micBatch",
+    representation(
+        R="matrix",
+        G="matrix",
+        Rb="matrix",
+        Gb="matrix",
+        phenotype="matrix",
+        genes="character",
+        description="character"),
+    prototype=list(
+        R=matrix(nr=0,nc=0),
+        G=matrix(nr=0,nc=0),
+        Rb=matrix(nr=0,nc=0),
+        Gb=matrix(nr=0,nc=0),
+        phenotype=matrix(nr=0,nc=0),
+        description=new("character")
+            )
+    )
+
+myMA=new("micBatch")
+
+slotNames(myMA)
+getClassDef("micBatch")
+
+myMA@R <- matrix(rnorm(20),nc=5)
+myMA@R <- matrix(rnorm(20),nc=5)
+myMA@Rb <- matrix(rnorm(20),nc=5)
+myMA@Gb <- matrix(rnorm(20),nc=5)
+
+# let's visualize the object.
+# (implicit call to the "show" method).
+myMA
+
+# Let's define the method "show" for an object of class
+# micBatch
+
+setMethod("show", signature("micBatch"),
+       function(object){
+        cat("An instance of class micBatch\n")
+        cat("Nb sample=", ncol(object@R),"\n")
+        cat("Nb genes=", nrow(object@R),"\n")
+})
+
+# Let's call the "show" method
+myMA
+@
+
+As shown in this example we can easily define methods for the class \Rfunction{micBatch}. Just remind that we could have define a method for the "[" operator. This would have been particularly interesting to extract rows (genes) and columns (arrays) of the object.
+
+
+\section{Bioconductor}
+Bioconductor offers a set of libraries of functions that are useful to biologists (see http://bioconductor.org for more informations)
+
+
+\begin{itemize}
+\item cDNA Microarray analysis:\\
+  -marray, ArrayQuality, arrayMagic, limma, sma
+\item  Affymetrix GeneChip analysis:\\
+  -Affy, simpleaffy
+\item  Probe Metadata:\\
+- Annotate, hgu133aprobe,  hgu95av2probe, ABPkgBuilder
+\item High level plotting functions
+- geneplotter
+\item  Microarray data filtering:\\
+  -Genefilter
+\item  Statistical analysis:\\
+  -SAMR, siggenes, multtest, DEDS, pickgene
+\item Interpretation:\\
+  -GO, Gostats, goCluster, geneplotter
+\item Graphs:\\
+  -graph, Rgraphviz, biocGraph,
+\item Training datasets:\\
+  -golubEsets, fibroEseT...
+\item Flow cytometry:\\
+  -flowCore, flowViZ...
+\item Proteomics
+  -MassSpecWavelet, PROcess, xcms...
+\item Image analysis:\\
+  -EBImage
+\end{itemize}
+
+
+\subsection{Example: 2 color Arrays}
+
+Affymetrix data can be analyzed using the \Rfunction{affy} package.\\
+You can run this example using raw data of the GSE2004 dataset (Gene Expression Omnibus).\\
+
+<<fig=T, eval=F, echo=TRUE,keep.source=TRUE>>=
+library(marray)
+path <- system.file("swirldata", package = "marray")
+setwd(path)
+m <- read.Spot()
+plot(m[,1])
+maImage(m[,1])
+n <- maNorm(m,norm="printTipLoess")
+plot(n[,1])
+plot(n[,2])
+@
+
+
+\subsection{Example: Affy Data normalization}
+
+Affymetrix data can be analyzed using the \Rfunction{affy} package.\\
+You can run this example using raw data of the GSE2004 dataset (Gene Expression Omnibus).\\
+
+<<fig=T, eval=F, echo=TRUE,keep.source=TRUE>>=
+setwd("/where/the/cel/files/are")
+library(affy)
+d <- ReadAffy()
+is(d)
+image(d[,1])
+n <- rma(d)
+write.exprs(n,"normalized.txt")
+@
+
+\section{Further readings}
+\begin{itemize}
+ \item R for beginners\\
+ http://cran.r-project.org/doc/contrib/Paradis-rdebuts\_en.pdf\\
+ \item Bioinformatics and Computational Biology Solutions Using R and Bioconductor. Robert Gentleman, Vincent Carey, Wolfgang Huber, Rafael Irizarry, Sandrine Dudoit.ISBN: 978-0-387-25146-2\\.
+ http://www.springer.com/computer/computational+biology+and+bioinformatics/book/978-0-387-25146-2
+
+\end{itemize}
+
+
+\end{document}

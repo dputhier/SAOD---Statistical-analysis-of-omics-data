@@ -1,0 +1,239 @@
+---
+title: "Analyse statistique des données génomiques 2015<br>(AMU SBBCU23L - ASG1)"
+author: "Jacques van Helden and Denis Puthier"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    highlight: tango
+    theme: united
+    toc_depth: 3
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+css: course.css
+---
+
+## Organisation of the course
+
+#### Teachers
+
+1.  Jacques van Helden (JvH)
+2.  Denis Puthier (DP)
+
+#### Year
+
+2015-2016
+
+#### Audience
+
+- 2ème année du Master en Bioinformatique, biochimie structurale et génomique (BBSG).
+- Ecole doctorale
+
+* * * * *
+
+## Course content - 2015
+
+* * * * *
+
+### Introduction to R
+
+> - [slides and code](http://jvanheld.github.io/EBA15_stats_RStudio/).
+>   - R objects (vector, matrix, data.frame).
+>   - Functions (read.table(), c(), seq()... ).
+>   - Graphics with R.
+
+### Occurrence statistics
+
+> 1. [Occurrence statistics (intro)](../practicals/occurrence_statistics/occurrence_statistics.html)
+> 2. **Poisson distribution**.
+>    - Example with ChIP-Seq data taken from introductory material.
+> 3. **Read mapping statistics and the binomial distribution**.
+>    - Theoretical solution: solved on the white board during the course.
+>    - Practical solution: [[Rmd](../practicals/chip-seq_read_mapping/read_mapping_solutions.Rmd)] [[html](../practicals/chip-seq_read_mapping/read_mapping_solutions.html)] [[pdf](../practicals/chip-seq_read_mapping/read_mapping_solutions.pdf)]
+> 4. **Hypergeometric distribution and enrichment statistics**
+>    - Theoretical solution: solved on the white board during the course.
+>    - Example application: DAVID and GREAT statistics.
+>      - Practical solution: [[html](../practicals/go_statistics_td/go_statistics_td_2015.html)]
+> 5. **Application example: K-mer occurrences in ChIP-seq peaks** 
+>     - Datasets and procedure [html](../practicals/kmer_occurrences/kmer_occurrences_chip-seq_peaks.html)
+    
+* * * * * 
+
+### Microarray analysis
+
+> 1.  [Introduction to multivariate analysis](../pdf_files/07.00.multiv_intro.pdf)
+> 2.  [Transcriptome microarrays: study cases](../pdf_files/07.01.multiv_study_cases.pdf)
+> 3.  [Differential\_expression.pdf](../pdf_files/07.04.differential_expression.pdf)
+> 4.  Microarray data: selecting differentially expressed genes with R or TmeV [[html](../practicals/affy_selection_td/affy_selection_td.html)] [[Rmd](../practicals/affy_selection_td/affy_selection_td.Rmd)] [[pdf](../practicals/affy_selection_td/affy_selection_td.pdf)]
+> 5.  [Sampling distributions](../practicals/sampling_distrib.html)
+
+
+* * * * *
+
+
+### The multiple ways to correct multiple testing
+
+#### Theory
+
+> 1.  Bonferoni
+> 2.  E-value
+> 3.  FWER
+> 4.  Benjamini-Hochberg
+> 5.  q-value
+
+#### Slides
+
+> 1.  [Multiple testing corrections slides](../pdf_files/06.04.multitesting_corrections.pdf)
+> 2.  [metrics.pdf](../pdf_files/08.metrics.pdf)
+> 3.  [clustering.pdf](../pdf_files/09.clustering.pdf)
+> 4.  [Clustering (DP)](../practicals/unsup_classif_slides/unsup_classification.pdf)
+
+#### Practicals
+
+> 1.  Multiple testing corrections practical [[html](../practicals/multiple_testing_td/multiple_testing_corrections.html)] [[Rmd](../practicals/multiple_testing_td/multiple_testing_corrections.Rmd)]
+
+* * * * *
+
+### Clustering (unsupervised classification)
+
+#### Theory
+
+> 1.  (dis)similarity metrics
+> 2.  hierarchical clustering
+> 3.  k-means clustering
+> 4.  bootstrap.
+
+#### Practicals
+
+> 2.  [Handling clustering methods (artificial datasets)](../practicals/unsup_classification_sim_td/index.html)
+> 3.  [Microarray data analysis: clustering.](../practicals/unsup_classification_td/index.html)
+    
+* * * * *
+
+### Analysis of RNA-seq data
+
+#### Slides
+
+1. [RNA-seq intro](../practicals/rnaseq/rnaseq.pdf)
+
+> 1.  RNA-seq technology
+> 2.  Splice-aware aligners
+> 3.  Transcript model inference
+> 4.  Normalization
+> 5.  Differential expression
+
+#### Practicals
+
+> 1.  [RNA-seq read mapping](../practicals/rnaseq_td/rnaseq_td.html)
+> 2.  [The negative binomial](../practicals/rnaseq_diff/rnaseq_diff.html)
+> 3.  [RNA-seq differential expression with DESeq](../practicals/rnaseq_diff/rnaseq_diff.html)
+
+* * * * *
+
+### Supervised classification
+
+#### Theory
+
+> 1.  Training vs testing sets
+> 2.  Mehods: LDA, SVM, KNN
+> 3.  Validation: k-fold, leave-one-out
+> 4.  Variable selection
+> 5.  How to avoid over-fitting ?
+
+
+#### Slides
+
+> 1.  [Correlation analysis](../pdf_files/07.03.correlation_analysis.pdf)
+> 2.  [Introduction to multivariate analysis](../pdf_files/07.00.multiv_intro.pdf)
+> 3.  [Visualisation](../pdf_files/10.visualization.pdf) (to see an example of PCA)
+> 4.  [Discriminant analysis](../pdf_files/11.discriminant_analysis.pdf)
+
+
+#### Practicals
+
+> 1.  Supervised classification
+>    -   Source code [[Rmd](../practicals/supervised_classification_td/supervised_classification_td.Rmd)]
+>    -   Results [[html](../practicals/supervised_classification_td/supervised_classification_td.html)] [[pdf](../practicals/supervised_classification_td/supervised_classification_td.pdf)]
+
+* * * * *
+
+
+
+
+<!--
+### Read mapping probabilities
+
+**Date:** 24/10/2015
+
+#### Slides
+
+1. [Analysis of ChIP-seq data](../practicals/chip-seq/chipSeq.pdf)
+
+    a.  The ChIP-seq method
+    b.  Quality control
+    c.  Read mapping
+    d.  Peak calling
+    e.  Peak annotation
+
+2.  [Theoretical distributions](../pdf_files/05.theoretical_distrib.pdf)
+
+    Theoretical support for this practical and the following ones. 
+
+
+
+
+
+#### Practicals
+
+
+1. [Bioinformatics tools for read mapping](../practicals/chip-seq/mapping_tutorial.html)
+
+
+#### Homework
+
+During the course we computed the mapping probabiliy for a given short read agains a given genomic position. As homework, finish the exercise by computing the expected number of matches 
+
+- for a single read in the whole genome
+- for the whole read library against the whole genome
+
+2.  [Peak calling](../practicals/chip-seq/mapping_tutorial.html#peaks)
+3.  [Annotation](../practicals/affynorm_td/index.html)
+
+
+
+* * * * * 
+
+
+* * * * 
+
+
+## To do
+
+* * * * *
+
+### Peak calling statistics
+
+Devoir maison    (rapport à rendre le XX/11/2014)
+    - Exercise
+        [[html](../practicals/chip-seq_peak_calling/peak_calling_statistics.html)]
+
+
+   - Source code
+        [[Rmd](../practicals/chip-seq_peak_calling/peak-calling_solution_JvH.Rmd)]
+    - Results
+      [[html](../practicals/chip-seq_peak_calling/peak-calling_solution_JvH.html)]
+      [[pdf](../practicals/chip-seq_peak_calling/peak-calling_solution_JvH.pdf)]
+
+
+* * * * *
+
+### Functional enrichment probabilities (hypergeometric)
+
+**Date:** 09/11/2015
+
+
+    
+* * * * *
+-->
+

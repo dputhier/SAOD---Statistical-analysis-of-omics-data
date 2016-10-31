@@ -1,0 +1,806 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+<title>The title of your presentation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="description" content="impress.js is a presentation tool based on the power of CSS3 transforms and transitions in modern browsers and inspired by the idea behind prezi.com." />
+    <meta name="author" content="puthier" />
+    <link rel="stylesheet" type="text/css" href="../../../course.css" media="screen,projection" />
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+    <link href="css/impress-demo.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="stylesheet" type="text/css" href="impressaddon.css" media="screen,projection" />
+    <script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    <script type="text/javascript">
+                SyntaxHighlighter.config.clipboardSwf = '../syntaxhighlight/clipboard.swf';
+                SyntaxHighlighter.all();
+        </script>
+
+</head>
+
+<body class="impress-not-supported">
+
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress">
+
+    <div class="step slide" data-x="-1000" data-y="-1500">
+      <br>
+      <br>
+      <br>
+      <hr>
+      <h1>Unix: everything I can tell in one hour</h1>
+      <hr>
+      <br>
+      <br>
+      <br>
+      <br>
+        <h2>D. Puthier </h2>
+        <p>Inserm U1090/Technologies Avancées pour le Génome et la Clinique</p>
+	<br>
+	<br>
+	<p>Press <b>F11</b> for full screen</p>
+
+    </div>
+
+
+
+    <div class="step slide" data-x="0" data-y="-1500">
+      <hr>
+      <h1>Installing Linux</h1>
+      <hr>
+      <br>
+      
+        <ul>
+          <li>Using WUBI: allows Ubuntu to be installed and uninstalled in a safe, easy way as with any other Windows application. </li>
+	  <br>
+          <li>Using VirtualBox: VirtualBox allows you to run more than one operating system at a time. </li>
+	  <br>
+          <li>Inside a dedicated partition </li>
+        </ul>
+      
+
+    </div>
+
+    <div class="step slide" data-x="1000" data-y="-1500">
+        <center>
+        <IFRAME SRC="http://www.ubuntu.com/" NAME="main" SCROLLING="AUTO" ALIGN=TOP WIDTH=800 HEIGHT=600 MARGINWIDTH=0 MARGINHEIGHT=0 FRAMEBORDER=0>
+Sorry, your browser does not support iframes. Please download the latest version of <A HREF="http://www.microsoft.com/windows/ie" TARGET="_new">Internet Explorer</A> or <A HREF="http://www.netscape.com/download" TARGET="_new">Netscape</A> to view the news.</IFRAME>
+	</center>
+    </div>
+
+    <div class="step slide" data-x="2000" data-y="-1500">
+      <hr>
+      <h1>Command synopsis</h1>
+      <hr>
+      <br>
+      <pre class="brush:bash; toolbar: false; gutter: false;"> 
+	command1 -a valueOfa -b valueOfb file      
+		</pre>
+      <br>
+      <ul>
+	<li> -a, -b : arguments</li>
+	<li> valueOfa, valueOfb : the values set for -a and -b</li>
+	 <li>Don't forget to add spaces</li>
+      </ul>
+      <br>
+      <h3>Examples:</h3>
+      <br>
+      <pre class="brush:bash; toolbar: false; gutter: false;">
+	head -n 5 refGene.txt 
+	tail -n 5 refGene.txt
+      </pre>      
+     </div> 
+
+  <div class="step slide" data-x="3000" data-y="-1500">
+      <hr>
+      <h1>Directories and files</h1>
+      <hr>
+      <br>
+      <h2>The cd commande</h2>
+      <br>
+      <ul>
+			
+			<li><b>C</b>hange <b>d</b>irectory</li>
+					
+      </ul>
+		<pre class="brush:bash; toolbar: false; gutter: false;"> 
+		cd the/Directory/Path      
+		</pre>
+		<h3>Examples:</h3>
+      <pre class="brush:bash; toolbar: false; gutter: false;"> 
+	   cd ~
+	   cd ../..
+	   cd ..      
+		</pre>
+
+     </div> 
+    <div class="step slide" data-x="4000" data-y="-1500">
+      <hr>
+      <h1>Directories and files</h1>
+      <hr>
+      <br>
+      <h2>The root directory</h2>
+      <br>
+      <ul>
+
+			<li>The root of the file tree is designated by "/"</li>
+	 		<li>Can be viewed as the C:\ under windows</li>
+      </ul>
+      <br>
+		<h3>Examples:</h3>
+      <pre class="brush:bash; toolbar: false; gutter: false;"> 
+	   cd / 
+	   ls      
+		</pre>
+	      <ul>
+
+			<li>contains /bin (<b>bin</b>aries), /home (user documents), /boot (boot manager), /etc (configuration files), /mnt (mounting points),... </li>
+	 		<li>Can be viewed as the C:\ under windows</li>
+      </ul>	
+     </div> 
+     
+    <div class="step slide" data-x="5000" data-y="-1500">
+      <hr>
+      <h1>Directories and files</h1>
+      <hr>
+      <br>
+      <h2>The home directory</h2>
+      <br>
+      <ul>
+			<li>Contains the working directories of current users (/home/puthier, /home/dupont,...)</li>
+			<li>Refered as "~"</li>
+	 		<li>Stored in the $HOME variable</li>
+      </ul>
+       <br>
+      		<h3>Examples:</h3>
+      <pre class="brush:bash; toolbar: false; gutter: false;"> 
+	   cd ~
+	   cd $HOME
+	   cd
+	   ls ~
+	   ls $HOME    
+		</pre>
+
+     </div> 
+
+
+
+     
+    <div class="step slide" data-x="6000" data-y="-1500">
+      <hr>
+      <h1>Directories and files</h1>
+      <hr>
+      
+      <h2>Absolute and relative path</h2>
+      <br>
+      <ul>
+			<li>With relative syntax the parent directory can be referred as ".."</li>
+			<li>With relative syntax the current working directory can be referred as "./"</li>
+	 		<li>Stored in the $HOME variable</li>
+      </ul>
+		<br>
+		      <pre class="brush:bash; toolbar: false; gutter: false;"> 
+	   cd ..
+	   pwd
+	   cd ../..
+	   pwd 
+	   cd     
+		</pre>
+		<p><b>NB</b>: <b>pwd</b> stands for <b>p</b>rint <b>w</b>orking <b>d</b>irectory</p>
+     </div> 
+     
+    
+
+    <div class="step slide" data-x="7000" data-y="-1500">
+      <hr>
+      <h1>Directories and files</h1>
+      <hr>
+      <br>
+      <h2>The ls command</h2>
+      <br>
+      <ul>
+			<li><b>l</b>i<b>s</b>t files and directories</li>
+			<li>ls -l: (<b>l</b>ong) display details about files and directories</li>
+	 		<li>ls -a: (<b>a</b>ll) list all files/directories including hidden files/directories (starting with a ".")  </li>
+	 		<li>ls -R: (<b>r</b>ecursive) list all subdirectories encountered recursively.</li>
+	 		<li>ls -t: (<b>t</b>ime) sort by modification time, newest first</li>
+	 		<li>ls -h: (<b>h</b>uman readable) display sizes in Ko, Mo, Go, To,...</li>
+	 		<li>The options can be combined</li>
+      </ul>
+       <br>
+      		<h3>Examples:</h3>
+      <pre class="brush:bash; toolbar: false; gutter: false;"> 
+		ls -rtl   
+		</pre>
+
+     </div> 
+
+    <div class="step slide" data-x="8000" data-y="-1500">
+      <hr>
+      <h1>Directories and files</h1>
+      <hr>
+      <br>
+      <h2>Creating files and directories</h2>
+      <br>
+      <ul>
+			<li>touch: create an empty file.</li>
+			<li>rm: <b>r</b>e<b>m</b>ove directory or files (please do not use during this course !)</li>
+			<li>mkdir: <b>m</b>a<b>k</b>e <b>dir</b>ectory</li>
+      </ul>
+       <br>
+      		<h3>Examples:</h3>
+      <pre class="brush:bash; toolbar: false; gutter: false;"> 
+		mkdir -p data
+		ls   
+		</pre>
+
+     </div> 
+    
+    
+   <div class="step slide" data-x="9000" data-y="-1500">
+      <hr>
+      <h1>Directories and files</h1>
+      <hr>
+      <br>
+      <h2>The <i>joker/wild card</i> characters</h2>
+      <br>
+      <ul>
+			<li>*: a set of characters (0 to n)</li>
+			<li></li>
+			<li>?: any character (one)</li>
+      </ul>
+       <br>
+      		<h3>Examples:</h3>
+      <pre class="brush:bash; toolbar: false; gutter: false;"> 
+		touch file1.txt file2.txt file10.txt
+		ls file*txt
+		ls file?.txt
+		</pre>
+
+     </div> 
+     
+     
+	<div class="step slide" data-x="-1000" data-y="0">
+      <hr>
+      <h1>Directories and files</h1>
+      <hr>
+      <br>
+      <h2>Viewing file content</h2>
+      <br>
+      <ul>
+			<li>head: the first lines of a file</li>
+			<li>tail: the last lines of a file</li>
+			<li>cat: send file content to standard output (screen)</li>
+			<li>less/more: paging through text one screenful at a time (<b>q</b> to <b>q</b>uit, / to search, <b>n</b> for <b>n</b>ext occurrence,...)</li>
+      </ul>
+       <br>
+      		<h3>Examples:</h3>
+      <pre class="brush:bash; toolbar: false; gutter: false;"> 
+		cat *txt
+		less myFile.txt
+		</pre>
+
+     </div> 
+     
+   	<div class="step slide" data-x="0" data-y="0" >
+      <hr>
+      <h1>Directories and files</h1>
+      <hr>
+      <br>
+      <h2>Copying</h2>
+      <br>
+      <ul>
+			<li>cp: <b>c</b>o<b>p</b>y file from source to destination</li>
+			<li>mv: move (rename) files</li>
+			<li>cat: send file content to standard output (screen)</li>
+			<li>less/more: paging through text one screenful at a time (<b>q</b> to <b>q</b>uit, / to search, <b>n</b> for <b>n</b>ext occurrence,...)</li>
+      </ul>
+       <br>
+      		<h3>Examples:</h3>
+      <pre class="brush:bash; toolbar: false; gutter: false;"> 
+		mv file1.txt file3.txt
+		cp file3.txt file4.txt
+		ls -rtlh file*txt
+		</pre>
+
+     </div> 
+
+   	<div class="step slide" data-x="1000" data-y="0" >
+      <hr>
+      <h1>Regular expressions</h1>
+      <hr>
+      <h2>A regular expression is a set of characters that specify a pattern.</h2>
+	
+		<br>
+			<table style="width: 400px; margin: auto;">
+			<tr>
+			<th>Syntax</th>
+			<th>Meaning</th>
+			</tr>
+			<tr>
+			<td>[a-z]</td>
+			<td>lowercase alphabetic character (interval, ex: [u-w]).</td>
+			</tr>
+			<tr>
+			<td>[A-Z]</td>
+			<td>uppercase alphabetic character (interval, ex: [A-E]).</td>
+			</tr>
+			<tr>
+			<td>[ABc]</td>
+			<td>A or B or c</td>
+			</tr>
+			<tr>
+			<td>.</td>
+			<td>Any character</td>
+			</tr>
+			<tr>
+			<td>[^ABab]</td>
+			<td>Any letter but not A/a or B/b.</td>
+			</tr>
+			<tr>
+			<td>^</td>
+			<td>Beginning of a line.</td>
+			</tr>
+			<tr>
+			<td>$</td>
+			<td>End of a line</td>
+			</tr>
+			<tr>
+			<td>x*</td>
+			<td>0 or n times x.</td>
+			</tr>
+			<tr>
+			<td>x+</td>
+			<td>1 or n times x.</td>
+			</tr>
+			<tr>
+			<td>x{n,m}</td>
+			<td> x repeated n to m times.</td>
+			</tr>
+			<td>/</td>
+			<td> Escape character</td>
+			</tr>
+			</table>
+
+     </div> 
+      
+
+   	<div class="step slide" data-x="2000" data-y="0" >
+      <hr>
+      <h1>Regular expressions</h1>
+      <hr>
+      <h2>Examples</h2>
+	
+		<br>
+			
+			<table style="width: 400px; margin: auto;"> 
+			<tr >
+			<th>Syntax</th>
+			<th>Meaning</th>
+			</tr>
+			<tr>
+			<td>\.txt$</td>
+			<td>Any string that ends with ".txt".</td>
+			</tr>
+			<tr>
+			<td>^[A  B]</td>
+			<td>Any string that starts with uppercase character.</td>
+			</tr>
+			<tr>
+			<td>^.{4,6}\.txt$</td>
+			<td>Four to six characters followed by ".txt"</td>
+			</tr>
+			<tr>
+			<td>^[A  Z].*\.txt$</td>
+			<td>A string starting with uppercase character and ending with ".txt"</td>
+			</tr>
+			<tr>
+			<td>[^ABab]</td>
+			<td>Any letter but not A/a or B/b.</td>
+			</tr>
+			<tr>
+			<td>^[^0  9]*\.sh$</td>
+			<td>A string without any number that ends with ".sh"</td>
+			</tr>
+			</table>
+			
+     </div> 
+      
+      
+   
+	 <div class="step slide" data-x="3000" data-y="0">
+      <hr>
+      <h1>Commands can be chained using pipes</h1>
+      <hr>
+      <br>
+      <img src="pipe.jpeg" width="800">
+      <h3>Command that can take a stream in their standard input and send the resulting stream to ouput are called <i>filters</i></h3>
+      <br>
+      <ul style="font-size:20px" >
+      <li>Standard input (stdin) refer to data (often text) going into a program.</li>
+      <li>Standard output (stdout) refer to the stream produced by a program. Most generally displayed on screen. Not all programs generate output (ex mv)</li>
+      <li>Standard error (stderr)  is another output stream typically used by programs to output error messages or diagnostics.</li>
+      </ul>
+     </div> 
+      
+   	 <div class="step slide" data-x="4000" data-y="0">
+      <hr>
+      <h1>Redirecting operators</h1>
+      <hr>
+      <br>
+      <h3>Redirecting operators are used to redirect a text stream to a file or a process.</h3>
+      <br>
+      <ul style="font-size:18px" >
+      <li> <b>|</b>  :  can be used to create chain of processes.</li>
+      <li> <b>></b>  :  writes the command output to a file (deleting the information that is already in the file).</li>
+      <li> <b>>></b> : Appends the command output to the end of a file without deleting the information that is already in the file.</li>
+      <li> <b>2></b> : Redirect standard error to a  file.</li>
+      </ul>
+      <br>
+		<h3>Examples</h3>
+		<pre class="brush:bash; toolbar: false; gutter: false;"> 
+		cat atextfile.txt | sort | uniq > myfile.txt
+		cat atextfile.txt | cut -f13 > newfile.txt
+		cat atextfile.txt|grep  "^[AM]" | head -2 >> newfile.txt
+		</pre>      
+     </div> 
+     
+     
+  	 <div class="step slide" data-x="5000" data-y="0">
+      <hr>
+      <h1>Some useful filters</h1>
+      <hr>
+      <br>
+      <h3>This list is not exhaustive</h3>
+      <br>
+      <ul>
+	      <li> grep  :  <b>g</b>eneral <b>r</b>egular <b>e</b>xpression <b>p</b>rocessor) searches through a stream lines containing an arbitrary text pattern, specified through a regular expression.</li>
+	      <li> sort  : sort a stream.</li>
+	      <li> sed: <b>s</b>tream <b>ed</b>itor. Sed has several commands, but sed is frequently used to substitute characters using a regular expression.</li>
+	      <li>awk/gawk : <b>A</b>ho, <b>W</b>einberger, and <b>K</b>ernighan. An interpreted programming language </li>
+	      <li>Perl :  </li>
+	      <li> head, tail, wc ...</li>
+      </ul>      
+     </div> 
+ 
+   	 <div class="step slide" data-x="6000" data-y="0">
+      <hr>
+      <h1>Sed</h1>
+      <hr>
+      <br>
+      <br>
+      
+      <ul style="font-size:20px" >
+      
+      		<h3>Examples</h3>
+		<pre class="brush:bash; toolbar: false; gutter: false;">
+		# Subsitute a string by another string
+		# String can be a regexp 
+		# Substitution may affect the first occurence of String or all of them (g)
+		
+		sed 's/String/anotherString/' myFile.txt
+		sed 's/String/anotherString/g' myFile.txt
+		
+		#or
+		
+		cat  myFile.txt | sed 's/String/newString/g'
+		</pre>   
+		      
+     </div> 
+     
+        	 <div class="step slide" data-x="7000" data-y="0">
+      <hr>
+      <h1>Awk</h1>
+      <hr>
+      <br>
+      <br>
+      
+      		<h3>General usage</h3>
+		<pre class="brush:bash; toolbar: false; gutter: false;">
+			awk 'condition {action}' file.txt
+			cat file.txt | awk 'condition {action}' 
+		</pre>   
+
+		<ul>
+	      <li> Where condition is typically an expression and action is a series of commands. </li>
+      </ul>  
+  
+  		<pre class="brush:bash; toolbar: false; gutter: false;">
+			awk 'BEGIN{something to do before reading the stream} condition {action} END{something to do at the end of the program}' file.txt
+		</pre> 
+		 
+		 <p><b>NB</b>: Perl oneliner programs follows almost the same structure.</p>       
+     </div> 
+
+
+        	 <div class="step slide" data-x="8000" data-y="0">
+      <hr>
+      <h1>Awk</h1>
+      <hr>
+      <br>
+      <br>
+      
+      		<h3>Examples:</h3>
+		<pre class="brush:bash; toolbar: false; gutter: false;">
+		
+			ls -l | awk 'BEGIN{FS=" "}$6 == "Feb" { sum += 1 } END { print sum }'
+
+			echo -e  "123\t123\n456\t325" > file.txt
+			
+			awk 'BEGIN{FS="\t"}($1==$2){print $0}' file.txt
+			
+			awk 'BEGIN{FS="\t"; OFS=":"}($1==$2){print $1,$2}' file.txt
+
+			...
+		</pre>     
+     </div> 
+   
+   
+<div class="step slide" data-x="9000" data-y="0">
+      <hr>
+      <h1>Awk</h1>
+      <hr>
+      <br>
+      <br>
+      
+      		<h3>Examples:</h3>
+		<pre class="brush:bash; toolbar: false; gutter: false;">
+		
+			ls -l | awk 'BEGIN{FS=" "}$6 == "Feb" { sum += 1 } END { print sum }'
+
+			echo -e  "123\t123\n456\t325" > file.txt
+			
+			awk 'BEGIN{FS="\t"}($1==$2){print $0}' file.txt
+			
+			awk 'BEGIN{FS="\t"; OFS=":"}($1==$2){print $1,$2}' file.txt
+
+			...
+		</pre>     
+     </div> 
+       
+<div class="step" data-x="9000" data-y="3000" data-rotate="360" >
+
+<h1>Merci</h1>
+
+</div> 
+
+ <!--
+        
+        This element introduces rotation.
+        
+        Notation shouldn't be a surprise. We use `data-rotate="90"` attribute, meaning that this
+        element should be rotated by 90 degrees clockwise.
+        
+    -->
+<!--     <div id="its" class="step" data-x="850" data-y="3000" data-rotate="90" data-scale="5">
+        <p>It's a <strong>presentation tool</strong> <br/>
+        inspired by the idea behind <a href="http://prezi.com">prezi.com</a> <br/>
+        and based on the <strong>power of CSS3 transforms and transitions</strong> in modern browsers.</p>
+    </div>
+
+    <div id="big" class="step" data-x="3500" data-y="2100" data-rotate="180" data-scale="6">
+        <p>visualize your <b>big</b> <span class="thoughts">thoughts</span></p>
+    </div>
+
+    <!--
+        
+        And now it gets really exiting! We move into third dimension!
+        
+        Along with `data-x` and `data-y`, you can define the position on third (Z) axis, with
+        `data-z`. In the example below we use `data-z="-3000"` meaning that element should be
+        positioned far away from us (by 3000px).
+        
+    -->
+<!--     <div id="tiny" class="step" data-x="2825" data-y="2325" data-z="-3000" data-rotate="300" data-scale="1">
+        <p>and <b>tiny</b> ideas</p>
+    </div> --> -->
+
+    <!--
+        
+        This step here doesn't introduce anything new when it comes to data attributes, but you
+        should notice in the demo that some words of this text are being animated.
+        It's a very basic CSS transition that is applied to the elements when this step element is
+        reached.
+        
+        At the very beginning of the presentation all step elements are given the class of `future`.
+        It means that they haven't been visited yet.
+        
+        When the presentation moves to given step `future` is changed to `present` class name.
+        That's how animation on this step works - text moves when the step has `present` class.
+        
+        Finally when the step is left the `present` class is removed from the element and `past`
+        class is added.
+        
+        So basically every step element has one of three classes: `future`, `present` and `past`.
+        Only one current step has the `present` class.
+        
+    -->
+<!--     <div id="ing" class="step" data-x="3500" data-y="-850" data-rotate="270" data-scale="6">
+        <p>by <b class="positioning">positioning</b>, <b class="rotating">rotating</b> and <b class="scaling">scaling</b> them on an infinite canvas</p>
+    </div>
+
+    <div id="imagination" class="step" data-x="6700" data-y="-300" data-scale="6">
+        <p>the only <b>limit</b> is your <b class="imagination">imagination</b></p>
+    </div>
+
+    <div id="source" class="step" data-x="6300" data-y="2000" data-rotate="20" data-scale="4">
+        <p>want to know more?</p>
+        <q><a href="http://github.com/bartaz/impress.js">use the source</a>, Luke!</q>
+    </div>
+
+    <div id="one-more-thing" class="step" data-x="6000" data-y="4000" data-scale="2">
+        <p>one more thing...</p>
+    </div> -->
+
+    <!--
+        
+        And the last one shows full power and flexibility of impress.js.
+        
+        You can not only position element in 3D, but also rotate it around any axis.
+        So this one here will get rotated by -40 degrees (40 degrees anticlockwise) around X axis and
+        10 degrees (clockwise) around Y axis.
+        
+        You can of course rotate it around Z axis with `data-rotate-z` - it has exactly the same effect
+        as `data-rotate` (these two are basically aliases).
+        
+    -->
+<!--     <div id="its-in-3d" class="step" data-x="6200" data-y="4300" data-z="-100" data-rotate-x="-40" data-rotate-y="10" data-scale="2">
+        <p><span class="have">have</span> <span class="you">you</span> <span class="noticed">noticed</span> <span class="its">it's</span> <span class="in">in</span> <b>3D<sup>*</sup></b>?</p>
+        <span class="footnote">* beat that, prezi ;)</span>
+    </div>
+ -->
+    <!--
+        
+        So to make a summary of all the possible attributes used to position presentation steps, we have:
+        
+        * `data-x`, `data-y`, `data-z` - they define the position of **the center** of step element on
+            the canvas in pixels; their default value is 0;
+        * `data-rotate-x`, `data-rotate-y`, 'data-rotate-z`, `data-rotate` - they define the rotation of
+            the element around given axis in degrees; their default value is 0; `data-rotate` and `data-rotate-z`
+            are exactly the same;
+        * `data-scale` - defines the scale of step element; default value is 1
+        
+        These values are used by impress.js in CSS transformation functions, so for more information consult
+        CSS transfrom docs: https://developer.mozilla.org/en/CSS/transform
+        
+<!--     
+    <div id="overview" class="step" data-x="3000" data-y="1500" data-scale="10">
+    </div>
+
+</div> -->
+
+<!--
+    
+    Hint is not related to impress.js in any way.
+    
+    But it can show you how to use impress.js features in creative way.
+    
+    When the presentation step is shown (selected) its element gets the class of "active" and the body element
+    gets the class based on active step id `impress-on-ID` (where ID is the step's id)... It may not be
+    so clear because of all these "ids" in previous sentence, so for example when the first step (the one with
+    the id of `bored`) is active, body element gets a class of `impress-on-bored`.
+    
+    This class is used by this hint below. Check CSS file to see how it's shown with delayed CSS animation when
+    the first step of presentation is visible for a couple of seconds.
+    
+    ...
+    
+    And when it comes to this piece of JavaScript below ... kids, don't do this at home ;)
+    It's just a quick and dirty workaround to get different hint text for touch devices.
+    In a real world it should be at least placed in separate JS file ... and the touch content should be
+    probably just hidden somewhere in HTML - not hard-coded in the script.
+    
+    Just sayin' ;)
+    
+-->
+<!-- <div class="hint">
+    <p>Use a spacebar or arrow keys to navigate</p>
+</div>
+<script>
+if ("ontouchstart" in document.documentElement) { 
+    document.querySelector(".hint").innerHTML = "<p>Tap on the left or right to navigate</p>";
+}
+</script> -->
+
+<!--
+    
+    Last, but not least.
+    
+    To make all described above really work, you need to include impress.js in the page.
+    I strongly encourage to minify it first.
+    
+    In here I just include full source of the script to make it more readable.
+    
+    You also need to call a `impress().init()` function to initialize impress.js presentation.
+    And you should do it in the end of your document. Not only because it's a good practice, but also
+    because it should be done when the whole document is ready.
+    Of course you can wrap it in any kind of "DOM ready" event, but I was too lazy to do so ;)
+    
+-->
+<script src="js/impress.js"></script>
+<script>impress().init();</script>
+
+<!--
+    
+    The `impress()` function also gives you access to the API that controls the presentation.
+    
+    Just store the result of the call:
+    
+        var api = impress();
+    
+    and you will get three functions you can call:
+    
+        `api.init()` - initializes the presentation,
+        `api.next()` - moves to next step of the presentation,
+        `api.prev()` - moves to previous step of the presentation,
+        `api.goto( idx | id | element, [duration] )` - moves the presentation to the step given by its index number
+                id or the DOM element; second parameter can be used to define duration of the transition in ms,
+                but it's optional - if not provided default transition duration for the presentation will be used.
+    
+    You can also simply call `impress()` again to get the API, so `impress().next()` is also allowed.
+    Don't worry, it wont initialize the presentation again.
+    
+    For some example uses of this API check the last part of the source of impress.js where the API
+    is used in event handlers.
+    
+-->
+
+</body>
+</html>
+
+<!--
+    
+    Now you know more or less everything you need to build your first impress.js presentation, but before
+    you start...
+    
+    Oh, you've already cloned the code from GitHub?
+    
+    You have it open in text editor?
+    
+    Stop right there!
+    
+    That's not how you create awesome presentations. This is only a code. Implementation of the idea that
+    first needs to grow in your mind.
+    
+    So if you want to build great presentation take a pencil and piece of paper. And turn off the computer.
+    
+    Sketch, draw and write. Brainstorm your ideas on a paper. Try to build a mind-map of what you'd like
+    to present. It will get you closer and closer to the layout you'll build later with impress.js.
+    
+    Get back to the code only when you have your presentation ready on a paper. It doesn't make sense to do
+    it earlier, because you'll only waste your time fighting with positioning of useless points.
+    
+    If you think I'm crazy, please put your hands on a book called "Presentation Zen". It's all about 
+    creating awesome and engaging presentations.
+    
+    Think about it. 'Cause impress.js may not help you, if you have nothing interesting to say.
+    
+-->
+
+<!--
+    
+    Are you still reading this?
+    
+    For real?
+    
+    I'm impressed! Feel free to let me know that you got that far (I'm @bartaz on Twitter), 'cause I'd like
+    to congratulate you personally :)
+    
+    But you don't have to do it now. Take my advice and take some time off. Make yourself a cup of coffee, tea,
+    or anything you like to drink. And raise a glass for me ;)
+    
+    Cheers!
+    
+-->
+

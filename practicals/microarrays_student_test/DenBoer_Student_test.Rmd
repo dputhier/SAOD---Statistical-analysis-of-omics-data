@@ -1,0 +1,1032 @@
+---
+title: 'Exploring Student test with microarray data
+  Student *t* statistics'
+author: "Jacques van Helden"
+date: '`r Sys.Date()`'
+output:
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 4
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    theme: cerulean
+    toc: yes
+    toc_depth: 4
+css: ../../html/course.css
+bibliography: ../../bibliography/ASG1_references.bib
+---
+
+
+```{r knitr setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=FALSE, message=FALSE, warning=FALSE, comment="")
+
+library(knitr)
+
+
+```
+
+* * * * * * 
+
+
+## Abbreviations
+
+| Abbreviation | Description   |
+|--------------|---------------|
+| ALL | Acute Lymphoblastic Leukaemia|
+| A/M/P | Absent / Marginal / Present calls |
+
+
+* * * * * * 
+
+## Goal of this practical
+
+The goal of this practical is to understand the principles of **Student t-test** by exploring step-by-step the different components of the $t_obs$ statistics. To this purpose, we will apply a test to detect genes differentially expressed in between two cancer types in microarray transcriptomic profiles. 
+
+* * * * * * 
+
+## Study case
+
+As study case, we will analyse microarray transcriptomic profiles from @DenBoer:2009ik.
+
+In this experiment, the authors characterized the transcriptome of 190 patients suffering from Acute Lymphoblastic Leukaemia (ALL). Lymphoblastic leukaemia is characterized by the abnormal clonal proliferation, within the bone marrow, of lymphoid progenitors blocked at a precise stage of their differentiation. The abnormal proliferation can result from various mutations, some of which are recurring in various patients. The DenBoer dataset includes information about the genetic problem associated with each leukaemia. 
+
+In their original article, Den Boer and co-workers defined a ***transcriptomic signature***, i.e. a selection of genes whose transcription profile is specifically affected in one or more subtypes of leukaemia. The expression profiles of these genes can then be used to classify new samples from acute lymphoblastic leukaemia (ALL), and predict the type of associated genetic perturbation. 
+
+An advantage of this dataset is that we dispose of relatively large samples (>30 individuals per group), relative to many other publications of transcriptome analysis.
+
+### Pre-processing of the data
+
+The full dataset is available in the the [Gene Expression Omnibus](http://www.ncbi.nlm.nih.gov/geo/) ([GEO](http://www.ncbi.nlm.nih.gov/geo/)) database, as a series with ID [GSE13425](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE13425). However we do not need to download the raw dataset. Instead, we will provide on this web site the normalized matrix expression profiles in the form of tab-delimited files. 
+
+Data were produced using Affymetrix geneChips (Affymetrix Human Genome U133A Array, HGU133A). Information related to this platform are available on GEO website under identifier [GPL96](http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=GPL96).
+
+* * * * * * 
+
+## Tutorial: loading data tables into R
+
+### Summary
+
+- Start R.
+
+- Have a look at the description of the **read.table()** function: in the *R* console, type *help(read.table)* and read the help page.
+
+- In the next sections, will  load three data tables into R using the *R* function *read.table()*.  This function allows us to directly read tab-delimited text files located either on our own computer or on a remote server (using an http URL). We will successively load 3 files providing complementary information.
+
+    - the expression matrix (GSE13425_Norm_Whole.txt)
+        - Contains genes as rows and samples as columns. 
+        - Data were previously normalized using RMA algorithm (they are thus transformed in logarithm base 2).
+    - the A/P/M matrix (GSE13425_AMP_Whole.txt)
+        - Indicates whether a gene was called **A**bsent, **P**resent or **M**arginal.
+    - Phenotypic data (GSE13425_phenoData.txt)
+        - The GSE13425_phenoData.txt file contains phenotypic information about samples.
+
+
+### Definition of the course URL and data path
+
+We will load the data from this course supporting Web site. 
+For this we need to define two variables. 
+
+1. The general URL of this course, which we store in a variable *url.course*.
+2. The path to the microarray datasets, which is defined by appending the folder (*data/marrays*) to the URL of the course. For this, we use the *R* function **file.path()**, which automatically concatenates the pieces of a file or folder path. 
+
+```{r}
+
+## Define the URL of the example data sets
+## url.course <- "http://localhost/courses/ASG1" ## TEMPORARY, for JvH only (comment this line and uncomment the next one)
+url.course <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1"
+microarray.data.url <- file.path(url.course, "data", "marrays")
+
+## Check the results
+print(paste("Course URL: ", url.course))
+print(paste("Microarray data folder: ", microarray.data.url))
+
+```
+
+### Loading the expression matrix
+
+We will now load the expression matrix, which is stored in a file named *GSE13425_Norm_Whole.txt* in  the microarray data folder of the server.  This file contains a table with one row per probeset (~gene) and one column per sample. Each sample was taken from a patient suffering from a particular type of **Acute Lymphoblastic Leukemia** (**ALL**). 
+
+We will once use the following functions: 
+
+- *file.path()* to build the full URL to the expression table
+- *read.table()* to read the table from this URL. Note that this functions allows you to load a table either from a local folder (on your computer), or from any Web site.
+
+```{r load_expression_matrix}
+
+## Get some help about the read.table fonction
+# help(read.table)
+
+## Load expression values
+expr.file <- file.path(microarray.data.url, "GSE13425_Norm_Whole.txt") ## Build the full URL of the matrix
+message("Downloading matrix table from ", expr.file)
+expr.matrix <-  read.table(expr.file,sep="\t", head=T, row=1)
+
+```
+
+#### Questions
+
+After having loaded the expression matrix with the *R* function *read.table()*, we should have a variable of type *data.frame* containing one row per gene and one column per sample. Before going further, we will perform some basic tests to check the content of this data frame.
+
+1. Count the number of genes and samples in the expression table. 
+2. Display the first 10 rows and 5 columns of the matrix
+3. Draw an histogram with the values of the $26^{th}$ column (sample) of the expression matrix. 
+
+#### Solution
+
+```{r check_expression_table}
+
+## Check the type of the variable "expr.matrix" (should return data.frame)
+class(expr.matrix)
+
+## Get the dimensions of the expresion table
+dim(expr.matrix)
+
+## Number of probesets (rows)
+nrow(expr.matrix)
+
+## Number of samples (columns)
+ncol(expr.matrix)
+
+## Display the first 10 rows and 5 columns of the matrix
+print(expr.matrix[1:10,1:5])
+```
+
+
+Since we are generating this report with an R markdown document with RStudio,  we can also use the *kable()* function of the R package *knitr* to generate a nicely formatted table. 
+
+```{r using_kable}
+## Generate a nicely formatted table. 
+library(knitr) ## Load the R library knitr 
+kable(expr.matrix[1:10,1:5]) ## Generate a nicely formatted table
+
+```
+
+* * * * * *
+
+
+## Distribution of expression values
+
+Before going any further, we will draw an histogram with the distribution of all the expression values for all genes and all samples.  
+
+The *R* function *hist()* enables to draw an histogram, give a vector of values. To get more information about this function, you can type *help(hist)* in the *R* console.
+
+Since the expression matrix is stored in and *R* object of class *data.frame*, we will first need to convert it to a vector. For this, we can use the *R* function *unlist()*.
+
+```{r fig.width=7, fig.height=5, fig.cap="Distribution of RMA-normalized expression values in Den Boer expression matrix. Beware that RMA normalization includes a log2 transformation. "}
+## Histogram of all expression values
+hist(unlist(expr.matrix), breaks=100, 
+     main="Den Boer expression values",
+     xlab="RMA-normalized expression value (log2-transformed)",
+     ylab="Number of measures",
+     )
+
+```
+
+The global distribution of RMA-normalized expression values across for all samples and all genes ranges from `r min(unlist(expr.matrix))` to `r max(unlist(expr.matrix))`. We should be aware that RMA normalization includes a log2 transformation. 
+
+*This has important consequences*
+
+1. The ***actual intensities*** of the measured expression are obtained with $I = 2^x$. For this expression matrix, intensities thus range from $2^{min(x)} = `r prettyNum(digits=3, 2^min(unlist(expr.matrix)))`$ to  $2^{max(x)} = `r prettyNum(round(2^max(unlist(expr.matrix))))`$. 
+
+
+2. Since the gene-wise group means were computed on log2-transformed values, they correspond to the ***geometric mean*** rather than the arithmetic mean. 
+
+\bar{x}_{i,g} = \frac{1}{n_g} \sum_{j \in g} (x_{i,j}) = \frac{1}{n_g} \sum_{j \in g} (log_2(I_{i,j})) = \frac{1}{n_g} log_2(\prod_{j \in g} (I_{i,j}))
+= log_2(\sqrt[n_g]{\prod_{j \in g} (I_{i,j})})
+
+
+3. For a given gene $i$, the ***difference between group means*** is equivalent to a log-ratio between the non-log2-transformed values. It should be interpreted as a ***log2-fold change***. 
+
+For a given gene $i$, the ***difference between sample means*** of two groups ($g_1$ and $g_2$) can be computed as follows.  
+
+$$d_i = \bar{x}_{i,g_2} - \bar{x}_{i,g_1}$$
+
+The corresponding ***fold-change*** of expression can be computed as follows.
+
+$$FC_i = 2^{d_i}$$
+
+For a comparison between groups 1 and 2 ***up-regulated genes*** are those with a fold-change $\gt 1$, which corresponds to a ***positive log2 fold change***. Reciprocally, ***down-regulated genes*** are those with a fold-change $lt 1$, and have a ***negative log2 fold change***. 
+
+Let us take two illustrative examples of up- and down-regulation. 
+
+a. Up-regulation fold-change of $FC = 2$ corresponds to a log2-fold change of $d = log_2(FC)= 1$. 
+      
+$$a / b = 2  \Rightarrow log2(a/b) = log2(2)  \Rightarrow log2(a) - log2(b) = 1  \Rightarrow log2(a) = log(b) + 1 $$
+
+We can consider our $X$ values as log2-transformed intensities of the first group ($x = log2(a)$), and our $Y$ values as log2-transformed intensities of the second group ($y = log2(b)$). 
+
+
+b. Down-regulation: a fold-change of $FC = 1/2$ corresponds to a log2-fold change of $d = log_2(FC) = -1$.  
+      
+$$a / b = 1/2  \Rightarrow log2(a/b) = log2(1/2)  \Rightarrow log2(a) - log2(b) = -1  \Rightarrow log2(a) = log(b) - 1 $$
+
+In the rest of this tutorial, all the analyses will be led on the RMA-normalized values (this is the standard procedure), but we should always keep in mind that ***the difference between group means of RMA-normalized values is actually a log2-fold change***.
+
+
+* * * * * *
+
+### Loading phenotypic data
+
+We will not load the **phenotypic data**, which is crucial to any analysis since this data type contains the information on all the samples found in a microarray expression matrix. 
+
+```{r load_pheno_and_amp}
+## Load phenotypic data
+pheno.file <- file.path(microarray.data.url, 'phenoData_GSE13425.tab')
+message("Loading pheno data from ", pheno.file)
+pheno <- read.table(pheno.file, sep='\t', head=TRUE, row=1)
+
+## Check the size of the pheno table 
+dim(pheno) 
+## Should give 190 4, i.e. one row per sample, and one column per information
+
+## Get the information type (naes of the pheno table)
+names(pheno)
+
+## Extract the cancer subtype from the pheno matrix
+cancer.type <- as.vector(pheno$Sample.title)
+
+## Check the length of the vector (should be the number of patients, i.e. the number of colums of the expression matrix)
+length(cancer.type)
+
+## Check the 10 first values of the cancer type vector
+head(cancer.type, n=10)
+
+## Check the 10 last values of the cancer type vector
+tail(cancer.type, n=10)
+
+## Check some other values of the cancer type vector
+print(cancer.type[140:150])
+```
+
+Th *R* function *table()* permits to count the number of elements of different types within a given dataset. We can use it to count the number of samples of each type among the 190 samples. We will sort the result by decreasing size using the *R* function *sort()*
+
+```{r count_cancer_types}
+## Sort the resulting (one-column) table by decreasing number of samples.
+cancer.type.counts <- sort(table(cancer.type), decreasing = TRUE)
+
+## The funciton table() returns an object of a specific R class, named "table"
+class(cancer.type.counts)
+
+## Sort the resulting (one-column) table by decreasing number of samples.
+print(cancer.type.counts)
+
+```
+
+We can also nicely format the result table using the knitr *kable()* function. However, this require to convert the table object into a data frame. For this, we can use the *R* function *as.data.frame()*.
+
+```{r count_cancer_types_kable}
+## We can also the number of samples per subtype of leukemia in a well-formated table 
+kable(as.data.frame(cancer.type.counts),col.names="Samples per type",
+      caption = "Number of biological samples per subtype of acute lymphoblastic leukemia in Den Boer dataset. ")
+
+```
+
+
+We can see that some cancer type are represented by a large number of biological samples (hyperdiploid, pre-B ALL, TEL-AML1 and T-AML) whereas other types are represented by a handful of samples, or even a single one. 
+
+Since differential analysis requires a sufficient number of observations per group, we will restrict the following steps to the four best represented subtypes in this data set. 
+
+### Loading the absent/marginal/present calls
+
+In Affymetrix, each probeset is labelled with a tag which can take three values: Absent (A),  Marginal (M), or Present (P), depending on the intensity detected in the different probes representing a given transcript. 
+
+```{r fig.width=7, fig.height=5}
+## Load Absent/Marginal/Present (AMP) calls
+amp <- read.table(file.path(microarray.data.url, "GSE13425_AMP_Whole.txt"),
+                  sep="\t", head=T, row=1)
+
+## Count the total number of calls of each type (A/M/P)
+table(unlist(amp))
+
+## Compute a matrix of Boolean values indicating, for each entry of the expression matrix, whether it is absent or not
+absent.calls <- amp=="A"
+
+## Count the number of "Absent" labels per gene as the marginal sum of absent calls matrix.
+absent.per.gene <- apply(absent.calls, 1, sum)
+
+## Count the number of genes detected in at least 30 samples
+sum(absent.per.gene <= (ncol(expr.matrix) - 30))
+```
+
+We can draw an histogram indicating the distribution of the number of absent calls per gene. 
+
+```{r fig.width=7, fig.height=5, fig.cap="Distribution of the number of absent calls per gene. "}
+
+## Draw an histogram showing the number of absent calls per gene
+hist(absent.per.gene, breaks=0:ncol(expr.matrix), 
+     xlab="Number of absent calls", ylab="Number of probesets (genes)",
+     main="Number of absent calls per probeset")
+```
+
+#### Interpretation of the "absent" (A) calls
+
+At first sight, the "absent/marginal/present" calls may seem frightening: altogether, the expression matrix contains more probesets declared absent than present, and the histogram shows that several thousands of genes (`r sum(absent.per.gene == ncol(expr.matrix))`) are declared absent in absolutely all the samples. 
+
+Note that the interpretation of "absent" labels is not obvious. Genes declared "absent" in almost all samples are often considered irrelevant because they are supposed to be undetectable with the microarray, possibly for some technical reason. However, another possibility would be that these genes are actually inactive in most samples (for example because they are generally not expressed in blood cells), and their detection in some samples might reveal a dysregulation of these genes. For this tutorial, we will thus deliberately avoid the classical "filtering" step, which consists in retaining only the genes declared present in a given number of samples. 
+
+Note that we will still be able to revise this decision at the very end of the analysis pipeline, by computing the number of genes declared differentially expressed yet absent from most samples. 
+
+* * * * * * *
+
+### Creating an output directory on your own computer
+
+We will now define and create a directory to store the results on our computer. 
+
+```{r create_output_dir}
+## Define the output directory. You can adapt this to your local configuration.
+dir.output <- "~/STAT2_practicals/GSE13425"
+
+## Create the output directory (if it does not exist yet)
+dir.create(dir.output, showWarnings=FALSE, recurs=TRUE)
+
+## Change directory to dir.output
+setwd(dir.output)
+
+## Check it this directory already contains some files.
+list.files(dir.output)
+```
+
+* * * * * * *
+
+## Symbols and formulas
+
+We provide in the help page a table of [symbols and formulas](Student_test_info.html#symbols-and-formulas) + a short reminder of the principle of the Student t test.
+
+
+* * * * * * * *
+
+## Exercises
+
+We showed above how to count the number of biological samples per subtype of ALL. In the questions below, we will refer to these subtypes (groups) as ***g1*** and ***g2***. 
+
+Each student should now choose two groups containing at least 30 samples, and develop a code to perform the following operations.  
+
+For example, for this tutorial I will compare the TEL-AML1 and T-ALL subtypes.
+
+During this practical, you will be led to draw a succession of plots (scatter plots, histograms, ...), which will progressively lead you to compute the formula of the $t_{obs}$ statistics. The important is not so much the final result (you can find this formula in any textbook of statistics), but the way to it: at each step, you will have to **summarize in 2 sentences what can be seen on the figure you just generated, and how it relates to the figure generated at the previous step** (this is the actual exercise). 
+
+* * * * * *
+
+
+### Choice of towo groups of interest
+
+#### Q1. Count the number of samples per subtype of ALL, choose two groups (g1, g2) with at least 30 individuals, and build two vectors (g1.columns, g2.columns) indicating which columns of the matrix correspond to these respective groups.
+
+
+
+```{r solution_group_selection}
+
+print(data.frame(sort(table(cancer.type), decreasing=TRUE)))
+
+## Choose the two groups of interest 
+## (each student should choose two groups of her/his own, with at least 30 elements)
+g1 <- "T-ALL"
+g2 <- "TEL-AML1"
+
+## Select the columns of the expression table corresponding to these two groups
+g1.columns <- which(cancer.type == g1)
+g2.columns <- which(cancer.type == g2)
+
+```
+
+* * * * * *
+### Graphical exporation of the group-wise sample means
+
+#### Q2. For each gene, compute the mean expression level across all the 190 samples of the expression matrix.
+
+For this, we use the *R* function *apply()*, which applies any function to either the rows or the columns of a matrix.
+
+```{r gene-wise means}
+mean.per.gene <- apply(expr.matrix, 1, mean, na.rm=TRUE)
+```
+
+
+#### Q3. Compute the group-wise mean for your two respective groups of interest.
+
+We will now apply the command *mean()* to a subset of the columns restricted to the selected groups. 
+
+```{r group-wise_means}
+
+## Compute the mean for the whole dataset
+all.means <- apply(expr.matrix, 1, mean, na.rm=TRUE)
+ 
+## Compute the mean per group in two separate vectors
+## (one vector per group, with one entry per gene)
+g1.means <- apply(expr.matrix[,g1.columns], 1, mean, na.rm=TRUE)
+g2.means <- apply(expr.matrix[,g2.columns], 1, mean, na.rm=TRUE)
+```
+
+Rather than working with a lot of separate vectors for each computed gene-wise statistics (group means, variances, standard deviations, ...), we will create a data frame with one row per gene, and one column per statistics. 
+
+```{r init_result_table}
+
+## Create a result table, which will contain the results of the successive computations
+result.table <- data.frame(m = all.means,
+                           m1 = g1.means,
+                           m2 = g2.means)
+
+## Check the first entries of the result table
+kable(head(result.table),
+      caption="First rows of the result table, used to collect different statistics per gene.",
+      digits=2)
+```
+
+In the next steps we will progressively add columns to this table. At the end of the analysis, this will enable us to export the totality of the result, or selected columns if we prefer. 
+
+* * * * * *
+
+#### Q4. Mean comparison plot. 
+
+a. Draw a plot comparing the mean expression levels of the two groups.
+b. Draw some milestones lines indicating (i) the absence of effect, (ii) an up-regulation with a fold-change 2; (iii) a down-regulation with a fold-change 1/2.
+c. Comment this plot: can you distinguish genes that seem obviously expressed differentially?
+
+We first present a minimal solution. 
+
+```{r mean_comparison_plot_minimal}
+
+## Generate a rough plot comparing the mean expression values between the two groups of interest.
+plot(result.table$m1, result.table$m2)
+
+```
+
+We can improve the plot as follows
+
+- add axes labels (*xlab*, *ylab*)
+- add a title (*main*)
+- choose smaller point size
+- use colours according to the local density of points, in order to enforce visually the zones where many points pile up.
+- draw a grid (*grid()*)
+- use same limits for X and Y axes and start at 0
+- Add to the plot some lines to denote the milestones: 
+
+    a. A diagonal line ($y = x$) to mark the equality between sample means (no effect) (*abline()*)
+    b. Horizontal and vertical lines $x=0$ and $y=0$, indicating the boundaries of possible values (expression cannot be negative).
+    c. The zero values on the X and Y axes, which are absolute boundaries, since intensity values must be positive by definition. 
+    d. A fold-change of 2 (remember, data were log2-transformed during normalization).
+    e. A fold-change of 1/2.
+
+For this we use the *R* function *abline()*, which can be used in three modalities: 
+
+- *abline(v=x)* to draw a vertical line crossing the X axis at some value x.
+- *abline(h=y)* to draw an horizontal line crossing the Y axis at some value y.
+- *abline(a=a, b=b)* to draw a line with the equation $y = a + bx$.
+
+
+
+```{r mean_comparison_plot, fig.width=7, fig.height=7, fig.cap="Comparison between group-wise means of two subtypes of acute lymphoblastic leukemia. Each dot represents one gene. Note that the values are RMA-normalized, and thus log2-transformed. The log-fold change thresholds (red lines) thus appear parallel to the diagonal."}
+
+## Compute the axis range: we want to go from 0 (the minimal possible
+## expression value) to the first integer that exceeds (ceiling) all 
+## expression values from group 1 and group 2.
+axis.range <- c(0, ceiling(max(result.table[,c("m1","m2")])))
+plot(result.table$m1, 
+     result.table$m2,
+     main="Comparison between group means",
+     xlab=paste(g1, "mean (RMA-norm log2 values)"),
+     ylab=paste(g2, "mean (RMA-norm log2 values)"),
+     xlim=axis.range, ylim=axis.range,
+     pch=20,
+     col = densCols(x=result.table$m1,
+                    y=result.table$m2)
+)
+grid(lty="solid", col="darkgray")
+
+## Add some milestone lines
+abline(h=0, col="black")
+abline(v=0, col="black")
+abline(a=0, b=1)
+abline(a=1, b=1, col="red")
+abline(a=-1, b=1, col="red")
+
+```
+
+**Note:** as discussed above, all values were log2-transformed during the preprocessing (RMA normalization). Consequently, the mean comparison plot, 
+
+- the 2-fold change ($FC = 2$) corresponds to a line $x = y + 1$, which is parallel to and above the diagonal
+- the 1/2-fold change ($FC = 0.5$) corresponds to a line $x = y - 1$, which is a parallel to and below the diagonal.
+
+* * * * * *
+
+### Group-wise variances and standard deviations
+
+In the plots above we saw that many genes seem to have a quite different mean expression values between the two selected groups of ALL. However, the difference between two means must be interpreted with caution, because it can reflect either an effect related to the populations themselves (the two cancer types), or stochastic variations of the measurements, which depend on the particular samples that were drawn (sampling fluctuations). 
+
+The classical way to solve this issue is to interpret the difference between means *relative to the variance*.
+
+
+* * * * * *
+
+#### Q5. Compute the variance and standard deviation of each gene: (i) for all the samples together, irrespective of their sub-type. (ii) For each of the two sampe types that you chose.
+
+Beware, the *R* function *var()* does **not** compute the sample variance ($s^2$), but rather a sample-based estimate of the population variance ($\hat{\sigma}^2$). We thus need to apply the inverse correction as the one used to estimate population variance from sample variance. 
+
+$$s^2 = \hat{\sigma}^2 \cdot \frac{n-1}{n}$$
+
+```{r variance_computation}
+
+## Compute sample variance for all genes together
+n <- ncol(expr.matrix)
+result.table$var<- (n-1)/n *  apply(expr.matrix, 1, var, na.rm=TRUE)
+
+## Compute the sample variance for each group, knowing that the var() 
+## function returns the corrected estimate of population variance. 
+n1 <- length(g1.columns) ## Count the number of samples in group 1
+result.table$var.g1  <- (n1-1)/n1*apply(expr.matrix[,g1.columns], 1, var, na.rm=TRUE)
+n2 <- length(g2.columns) ## Count the number of samples in group 2
+result.table$var.g2  <- (n2-1)/n2*apply(expr.matrix[,g2.columns], 1, var, na.rm=TRUE)
+
+## Compute standard deviations
+result.table$sd <- sqrt(result.table$var) ## Sample sd for the whole expression matrix
+result.table$sd.g1 <- sqrt(result.table$var.g1) ## Sample sd for group 1
+result.table$sd.g2 <- sqrt(result.table$var.g2) ## Sample sd for group 2
+
+
+## Check the result
+kable(head(result.table), digits=2,
+      caption="First rows of the result table, used to collect different statistics per gene.")
+
+```
+
+* * * * * *
+
+
+#### Q6. Variance comparison.
+
+a. Draw a plot comparing the variances of each gene (one dot per gene) between your two groups of interest.
+b. Draw a plot comparing the standard deviation of each gene (one dot per gene) between your two groups of interest.
+c. Comment these plots: does it seem reasonable to assume __homoscedasticity__?
+
+
+```{r variance_comparaison_plot, fig.width=7, fig.height=7, fig.cap="Comparison between gene-wise variances for group 1 (X) and group 2 (Y). "}
+
+par(mfrow=c(1,2))
+
+## Compare gene-wise variances between the two groups.
+max.var <- max(result.table[, c("var.g1","var.g2")])
+var.range <- c(0, ceiling(max.var))
+plot(result.table$var.g1,
+     result.table$var.g2,
+     main="Group-wise variances",
+     xlab=paste("Sample variance for", g1),
+     ylab=paste("Sample variance for", g2),
+     xlim=var.range, ylim=var.range, 
+     col=densCols(result.table$var.g1, result.table$var.g2)
+)
+grid(lty="solid", col="grey")
+abline(col="black", a=0, b=1) ## Plot the diagonal (no difference between variances)
+
+
+## Compare gene-wise standard deviations between the two groups.
+max.sd <- max(result.table[, c("sd.g1","sd.g2")])
+sd.range <- c(0, ceiling(max.sd))
+plot(result.table$sd.g1,
+     result.table$sd.g2,
+     main="Group-wise standard dev.",
+     xlab=paste(g1, "sample standard deviation"),
+     ylab=paste(g2, "sample standard deviation"),
+     xlim=sd.range, ylim=sd.range, 
+     col=densCols(result.table$sd.g1, result.table$sd.g2)
+)
+grid(lty="solid", col="grey")
+abline(col="black", a=0, b=1) ## Plot the diagonal (no difference between standard deviations)
+
+
+par(mfrow=c(1,1))
+
+```
+
+
+* * * * * * *
+
+### Means versus variances
+
+#### Q7. Draw a plot showing the standard deviation (all samples of all groups together) as a function of the mean expression value.
+
+
+```{r mean_vs_plot_all_patients, fig.width=5, fig.height=5, fig.cap="Variance (Y) versus mean (X) expression value for each gene (dot) across all the samples."}
+
+## Draw a plot comparing the variance (Y) to the mean (X) for the whole expression table
+plot(result.table$m, result.table$sd, 
+     main=paste("All samples: mean vs var"),
+     xlab=paste("Sample mean"),
+     ylab=paste("Sample standard deviation"),
+     col=densCols(result.table$m, result.table$s2)
+     )
+grid(lty="solid", col="gray")
+```
+
+
+* * * * * *
+
+#### Q8. Draw, for each group separately, a plot comparing sample mean and sample variance
+
+We will set the *R* graphical parameter *mfrow* to draw the two graphs side-by-side for the sake of comparison. 
+
+```{r mean_vs_var_per_group, fig.width=10, fig.height=5}
+
+## Draw a plot comparing the variance (Y) to the mean (X) for each group
+par(mfrow=c(1,2))
+plot(result.table$m1, result.table$var.g1, 
+     main=paste(g1, "mean vs var"),
+     xlab=paste(g1, "sample mean"),
+     ylab=paste(g1, "sample variance"),
+     col=densCols(result.table$m1, result.table$var.g1)
+     )
+grid(lty="solid", col="gray")
+plot(result.table$m2, result.table$var.g2, 
+     main=paste(g2, "mean vs var"),
+     xlab=paste(g2, "sample mean"),
+     ylab=paste(g2, "sample variance"),
+     col=densCols(result.table$m2, result.table$var.g2)
+     )
+grid(lty="solid", col="gray")
+par(mfrow=c(1,1))
+```
+
+
+* * * * * *
+
+### What did we learn so far?
+
+1. On the **mean comparison plot**, most genes are aligned along the diagonal, with some fluctuations. Some genes are however clearly distant, suggesting that they are over-expressed in `r g2` relative to `r g1`. Other points are clearly much lower than the diagonal, suggesting that they are over-expressed in `r g1` relative to `r g2`.
+
+2. The **variance and standard deviation plots** show very large differences between group 1 and group 2. This is a general property, which does not seem to be restricted to genes with perturbed expression. Indeed, in contrast with the mean comparison plot, the points do not seem to be aligned along the diagonal. Instead, most points seem to spread all over the lower square. In such conditions, **we could hardly support the assumption of homoscedasticity** (equal variance between groups), and we should thus apply Welch's test rather than Student. We will come back to this point later.
+
+3. The **mean versus variance plots** show us that different genes can have very different variances, even though they have similar means. This means that the differences between the means will have to be evaluated relative to the variances. This effect is visible when the variance is computed for all the samples together, but also for each one of the two groups of interest, when the plots are drawn separately. 
+
+* * * * * *
+
+
+### The MA plot: log fold changes versus average expression
+
+#### Q9. Draw a scatter plot representing one dot per gene, with the effect size (variable $d$, ordinate) as a function of the average between these subtype-specific expression means (variable $A$, abcsissa). Comment on the relationship between average expression level of expression of a gene and its expression mean.*
+
+```{r MA_plot, fig.width = 7, fig.height=7, fig.cap="Effect size (Y) versus average expression (X). Since the values were log2-transformed during the RMA normalization procedure, this plot is equivalent to the MA plot representation which became popular with two-color microarrays."}
+
+## The effect size is the difference between group means.
+## Since the RMA-normalized data is log2-transformed, this effect size 
+## is equivalent to the "M" variable of the MA plots. 
+result.table$d <- result.table$m1 - result.table$m2
+
+## Mean of the two group means.
+## Since the RMA-normalized data is log2-transformed, this effect size 
+## is equivalent to the "A" variable of the MA plots.  
+result.table$A <- (result.table$m1 + result.table$m2)/2
+
+plot(result.table$A,
+     result.table$d,
+     main="MA plot",
+     xlab= "Average expression: A = (m1 + m2)/2",
+     ylab = "Effect size: d = m2 - m1",
+     col=densCols(result.table$d, result.table$A)
+     )
+grid(lty="solid", col="grey")
+abline(col="black", h=0)
+abline(col="red", h=c(1, -1))
+
+```
+
+
+
+Let us keep in mind that the RMA-normalized values are log2-transformed. Consequently: 
+
+- the difference between means ($d$) corresponds to the log2-fold change between the two conditions (the $M$ variable of the *MA plots*),
+- the average between group-wise means corresponds to a geometric mean between the intensity values (the $A$ variable of *MA plots*).
+
+The graph we just drawn thus corresponds to the classical ***MA plot***, representing the log2-fold-change ($M$) as a function of the geometric mean of expression ($A$).
+
+Note the topological correspondence between this plot and the mean comparison plot above. 
+
+- the diagonal of the group-wise mean comparison plot became the horizontal axis of the MA plot
+- the fold-change thresholds are replaced by horizontal lines: for any $y$ value on the Y axis, $A \ge y$ is equivalent to a fold-change $FC \ge 2^y$, and conversely $A \le y$ is equivalent to $FC \le 2^y$. On the plot we marked in red the threshold lines for $A \ge 1 \equiv FC \ge 2$ and $A \le -1 \equiv FC \le 0.5$.
+
+* * * * * *
+
+### Estimating the pooled standard deviation
+
+#### Q10. For each gene, compute the __pooled standard deviation__.
+
+We can simply derive the standard deviations from the above computed variances. 
+The pooled standard deviation is computed according to the following formula (see the [help page](Student_test_info.html#symbols-and-formulas) for more details]). 
+
+$$\hat{\sigma}_p = \sqrt{\frac{n_1 s_1^2 + n_2 s_2^2}{n_1+n_2-2}}$$
+
+$$s = \sqrt{s^2}$$
+
+```{r standard_deviations}
+## Compute pooled standard deviation
+result.table$var.pooled <- (n1* result.table$var.g1 + n2* result.table$var.g2) / (n1+n2-2)
+result.table$sd.pooled <- sqrt(result.table$var.pooled)
+
+## Check the result
+kable(head(result.table), digits=2,
+      caption="First rows of the result table, used to collect different statistics per gene.")
+```
+
+
+* * * * * *
+
+#### Q11. Draw a scatter plot with the **pooled standard deviation** (ordinate) as a function of the **effect size** (abcsissa). Comment on the relationship between inter-group differences and dispersion (standad deviation).
+
+```{r sdev_vs_effect_size, fig.width=7, fig.height=7, fig.cap="Pooled standard deviation (Y) as a function of the effect size (X)"}
+
+## Plot the pooled standard deviations as a function of the effect size. 
+plot(result.table$d, xlab="Effect size (d = m2 - m1)",
+     result.table$sd.pooled, ylab="pooled standard deviation",
+     main = "Standard deviation vs. effect size",
+     col=densCols(result.table$d, result.table$sd.pooled)
+     )
+grid(col="grey", lty="solid")
+
+## Line marking the absence of effect
+abline(v=0, col="black") 
+
+## Line marking the inferior boundary of standard deviations (cannot be negative)
+abline(h=0, col="black") 
+
+## Lines marking arbitrary effect sizes of 1 and -1 respectively,
+## which correspond to fold-changes of 2 and 1/2 in raw microarray 
+## intensities.
+abline(v=c(-1,1), col="red") 
+
+```
+
+The plot above shows that the same effect size (e.g. a difference of $d=2$ between the two groups) can be associated to very different standard deviations. We thus get the feeling that a given effect size should not be considered as significant when they are associated with a high rather than a low value for the pooled standard deviation. Indeed, when a gene is associated to a high sample variability, our estimation of the difference between groups can fluctuate, and we might have obtained another estimation of the difference with a different sampling. 
+
+This is precisely what the $t$ statistics serves for: it provides an interpretation the difference between the means ***relative to*** the estimated sampling variations. In the next section we will compute it. 
+
+* * * * * *
+
+#### Q12. Compute **Student $t$ statistics ($t_{obs}$)** for each gene. Draw a plot representing this statistics (ordinate) as a function of the effect size (abcsissa). Comment on this plot and compare it to the previous ones. 
+
+$t_{obs} = \frac{\hat{\delta}}{\hat{\sigma}_\delta} =  \frac{\bar{x}_2 - \bar{x}_1}{\sqrt{\frac{n_1 s_1^2 + n_2 s_2^2}{n_1+n_2-2} \left(\frac{1}{n_1}+ \frac{1}{n_2}\right)}}$
+
+
+```{r student_t_computation}
+## Computation of Student t statistics
+result.table$t.Student <- result.table$d / (result.table$sd.pooled * sqrt(1/n1+1/n2))
+
+## Plot the pooled standard deviations as a function of the effect size. 
+plot(result.table$d, xlab="Effect size (d = m2 - m1)",
+     result.table$t.Student, ylab="Student t statistics",
+     main = "Student t statistics vs. effect size",
+     col=densCols(result.table$d, result.table$t.Student)
+     )
+grid(col="grey", lty="solid")
+
+## Lines marking the absence of effect on both effect size and Student t statistics
+abline(v=0, col="black") 
+abline(h=0, col="black") 
+
+## Lines marking arbitrary effect sizes of 1 and -1 respectively, 
+## which correspond to fold-changes of 2 and 1/2 in the raw microarray 
+## intensities. 
+abline(v=c(-1,1), col="red") 
+
+```
+
+We can see here that the Student statistics ($t_S$) is correlated to the effect size ($d$), yet the two statistics show important differences: a given value of effect size (e.g. $d=1$, denoted by a red vertical line on the plot) corresponds to a wide range of values for the $t_S$ statistics. 
+
+As shown in the table of **[symbols and formulas](Student_test_info.html#symbols-and-formulas)**, Student statistics has been obtained by dividing the effect size (the raw difference between the two sample means) by an estimation of the standard deviation of this difference ($\hat{\sigma}_{delta}$). 
+
+In summary, Student's $t$ statistics ($t_S$) is a way to measure the difference between group means ***relative to*** their dispersion. 
+
+* * * * * *
+
+### Student test and p-value
+
+#### Q13. Using Student probability function (*R* function *pt()*), compute the **p-value** of each gene. 
+
+For this, we need to define the ***degrees of freedom***. In a two-sample t-test (as in our case), the degrees of freedom are computed as the number of elements in the two groups ($n_1$, $n_2$) minus the number of means estimated from these elements (we estimated the means of group 1 and group 2, respectively). Thus: $df = n_1 + n_2 - 2$. 
+
+We will perform a ***two-sided test***, i.e. we want to estimate the significance for negative as well as positive differences between the two means. The simplest way to do this is to compute the p-value of the absolute difference, and to multiply it by two. This gives us the probability to observe by chance a $t_S$ value at least as distant from the null value, on either tails of the distribution. 
+
+
+```{r student_pval_computation}
+
+## Define the sign of the difference: up (m2 > m1) or down (m1 < m2)
+result.table$sign <- "null"
+result.table$sign[result.table$d > 0] <- "up"
+result.table$sign[result.table$d < 0] <- "down"
+
+## Count the number of up, down or null signs
+print(table(result.table$sign))
+
+## Computation of Student p-value.
+## The attribute "lower.tail" will be TRUE if the difference is negative
+result.table$p.value <- 2*pt(abs(result.table$t.Student), 
+                             df=n1 + n2 - 2, lower.tail = FALSE)
+
+```
+
+### Volcano plot
+
+#### Q14. Draw a plot showing the p-value as a function of the effect size, and a so-called volcano plot, representing -log10(p-value) as a function of the effect size.
+
+```{r student_volcano, fig.width=10, fig.height=5, fig.cap="(a) P-value as a function of the effect size. The vertical red lines indicate arbitrary thresholds on the effect size, respectively corresponding to fold changes of 1/2 and 2 on the fold change. The horizontal line shows a threshold of 5% on the p-value. Genes located below this line (i.e. with a low p^value) are declared significant. (b) Volcano plot, showing the -log10(p-value) as a function of the effect size. The horizontal red line denotes the same threshold of 5% on the p-value. Genes above this line are declared significant. "}
+par(mfrow=c(1, 2))
+
+################################################################
+## Plot the pooled standard deviations as a function of the effect size. 
+plot(result.table$d, xlab="Effect size (d = m2 - m1)",
+     result.table$p.value, ylab="Student p-value",
+     main = "Student p-value vs. effect size",
+     col=densCols(result.table$d, result.table$p.value)
+     )
+grid(col="grey", lty="solid")
+
+## Line marking the null effect
+abline(v=0, col="black") 
+
+## Lines marking arbitrary effect sizes of 1 and -1 respectively, 
+## which correspond to fold-changes of 2 and 1/2 in the raw microarray 
+## intensities. 
+abline(v=c(-1,1), col="red") 
+
+## Line marking an arbitrary threshold of 5% on the p-value
+abline(h=0.01, col="red")
+
+################################################################
+## Draw a volcano plot
+plot(result.table$d, xlab="Effect size (d = m2 - m1)",
+     -log10(result.table$p.value), ylab="-log10(p-value)",
+     main = "Volcano plot",
+     col=densCols(result.table$d, -log10(result.table$p.value))
+     )
+grid(col="grey", lty="solid")
+
+## Line marking the null effect
+abline(v=0, col="black") 
+
+## Lines marking arbitrary effect sizes of 1 and -1 respectively, 
+## which correspond to fold-changes of 2 and 1/2 in the raw microarray 
+## intensities. 
+abline(v=c(-1,1), col="red") 
+
+## Line marking an arbitrary threshold of 5% on the p-value
+abline(h=-log10(0.05), col="red")
+
+
+par(mfrow=c(1,1))
+
+```
+
+
+* * * * * *
+
+#### Q15. Draw an **histogram of the p-values** with 20 bins. Comment on the shape of the distribution. 
+
+```{r pvalue_distribution}
+## Histogram of the p-value distribution
+hist(result.table$p.value, breaks=20)
+```
+
+```{r check_validity}
+################################################################
+## Check that the result for a particular gene is consistent with R t.test() function
+test.gene <- 1
+test.gene.student <- t.test(x=expr.matrix[test.gene, cancer.type==g1], y = expr.matrix[test.gene, cancer.type==g2], var.equal = TRUE)
+print(test.gene.student)
+result.table$m1[test.gene]
+result.table$m2[test.gene]
+result.table$t.Student[test.gene]
+result.table$p.value[test.gene]
+
+```
+
+
+* * * * * *
+
+#### Q16. Compute the expected number of false positives if we set the p-value threshold to 0.05. 
+
+
+
+
+```{r}
+################################################################
+## Expected number of positives below a given alpha threshold
+
+## selected significance threshold (somewhat arbitrary)
+alpha <- 0.05 
+
+## Count the number of genes declared significant with this alpha on the nominal p-value
+n.positive <- sum(result.table$p.value < alpha)
+n.tests <- nrow(result.table) ## Number of probesets (genes) tested
+f.positive <-  n.positive / n.tests ## Proportion of genes declared positive
+exp.n.positive <- alpha * n.tests
+```
+
+* * * * * *
+#### Q17. Compute the ***e-value** of each gene.
+
+The ***e-value*** of a gene is the number of false positives that would be expected if we set the threshold to the p-value that was obtained for this particular gene. In other terms, if we consider this gene (and all the genes having a smaller or equal p-value) as significant, how many false positives would we expect ?
+
+The e-value is simply obtained by multiplying the ***nominal p-value*** (i.e. the p-value computed for each individual test) by the number of tests (in our case, the number of genes in the expression matrix).
+
+```{r evalue_computation}
+################################################################
+## Compute the e-value
+n.tests <- nrow(expr.matrix)
+result.table$e.value <- result.table$p.value * n.tests
+result.table$sig <- -log10(result.table$e.value) ## Significance
+```
+
+
+
+#### Q18 Draw a scatter plot of the **e-value** (ordinate) as a function of the **effect size**. On this plot, draw a line marking a reasonable threshold on the e-value and jusify your choice. Count the number of genes declared positive with this threshold. 
+
+
+```{r evalue_volcano}
+################################################################
+## Draw a volcano plot with the e-value rather than p-value
+plot(result.table$d, xlab="Effect size (d = m2 - m1)",
+     result.table$sig, ylab="sig = -log10(e-value)",
+     main = "E-value volcano plot",
+     col=densCols(result.table$d,result.table$sig),
+     ylim=c(min(result.table$sig), max(result.table$sig)*1.2)
+     )
+grid(col="grey", lty="solid")
+
+## Line marking the null effect
+abline(v=0, col="black") 
+
+## Lines marking arbitrary effect sizes of 1 and -1 respectively, 
+## which correspond to fold-changes of 2 and 1/2 in the raw microarray 
+## intensities. 
+abline(v=c(-1,1), col="red") 
+
+## Line marking an arbitrary threshold of 5% (stringent) or 1% (lenient) on the e-value
+abline(h=-log10(alpha), col="red") ## Stringent threshold: e-value <= 0.05
+abline(h=-log10(1), col="red", lty="dashed") ## Lenient threshold : e-value <= 1
+
+## Draw a legend with the number of genes declared positive
+legend("topleft", 
+       legend=c(paste("e-value <=", alpha, ":", sum(result.table$e.value <= alpha)),
+              paste("e-value <=", 1, ":", sum(result.table$e.value <= 1))),
+              lty=c("solid","dashed"),
+              col="red",
+              lwd=2)
+
+```
+
+
+* * * * *
+
+#### Q19. Compute the False Discovery Rate (FDR) using the *R* function *stats::p.adjust()*. Draw a volcano plot with FDR rather than p-values. Compare the p-value, e-value and FDR, and discuss about their respective interpretations. 
+
+```{r fdr_computation}
+################################################################
+## Compute the FDR (False Discovery Rate)
+result.table$fdr <- stats::p.adjust(result.table$p.value, method="fdr")
+
+## Compare FDR to p-value
+plot(result.table$p.value, result.table$fdr, log="xy"); abline(a=0, b=1); grid()
+## This FDR seems strange, it does not correspond to my computations, and it seems to be a monotonous function of the p-value, which should not be the case
+
+## Compute the q-value
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("qvalue")
+library(qvalue)
+
+
+################################################################
+## Draw a volcano plot with the e-value rather than p-value
+plot(result.table$d, xlab="Effect size (d = m2 - m1)",
+     -log10(result.table$fdr), ylab="sig = -log10(FDR)",
+     main = "FDR volcano plot",
+     col=densCols(result.table$d,-log10(result.table$fdr)),
+     ylim=c(min(-log10(result.table$fdr)), max(-log10(result.table$fdr))*1.2)
+     )
+grid(col="grey", lty="solid")
+
+## Line marking the null effect
+abline(v=0, col="black") 
+
+## Lines marking arbitrary effect sizes of 1 and -1 respectively, 
+## which correspond to fold-changes of 2 and 1/2 in the raw microarray 
+## intensities. 
+abline(v=c(-1,1), col="red") 
+
+## Line marking an arbitrary threshold of 5% on the FDR
+abline(h=-log10(alpha), col="red") 
+
+## Draw a legend with the number of genes declared positive
+legend("topleft", 
+       legend=c(paste("e-value <=", alpha, ":", sum(result.table$e.value <= alpha)),
+              paste("e-value <=", 1, ":", sum(result.table$e.value <= 1))),
+              lty=c("solid","dashed"),
+              col="red",
+              lwd=2)
+
+```
+
+
+* * * * *
+
+## References
+
+

@@ -1,0 +1,337 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+<title>The title of your presentation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="description" content="impress.js is a presentation tool based on the power of CSS3 transforms and transitions in modern browsers and inspired by the idea behind prezi.com." />
+    <meta name="author" content="puthier" />
+    <link rel="stylesheet" type="text/css" href="course.css" media="screen,projection" />
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+    <link href="css/impress-demo.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="stylesheet" type="text/css" href="impressaddon.css" media="screen,projection" />
+    <script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    <script type="text/javascript">
+                SyntaxHighlighter.config.clipboardSwf = '../syntaxhighlight/clipboard.swf';
+                SyntaxHighlighter.all();
+     </script>
+
+<script type='text/javascript' src='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+</head>
+
+<body class="impress-not-supported">
+
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress">
+
+    <div class="step slide" data-x="0" data-y="-1500">
+      <br>
+      <br>
+      <br>
+      <hr>
+      <h1>Normalization of Affymetrix DNA chip</h1>
+      <hr>
+      <br>
+      <br>
+      <br>
+      <br>
+        <h2>D. Puthier</h2>
+        <p>Inserm U1090/TAGC</p>
+	<br>
+	<br>
+	<p>Press <b>F11</b> for full screen</p>
+
+    </div>
+
+
+
+    <div class="step slide" data-x="1000" data-y="-1500">
+      <hr>
+      <h1>Affymetrix DNA Chip</h1>
+      <hr>
+      <br>
+     
+	
+	
+		<table>
+				<tr>
+				<td>
+						 <h2>Technology</h2>       
+				</td>
+				<td  >	<img class="right" src="illustrations/affydnachip.jpeg" alt="" width=200 ></td>
+				</tr>
+		</table>
+	
+		      <br>
+ 				<ul>
+	          <li>In situ synthesis of oligonucleotides.</li>
+	          <li>Features.</li>
+	            <ul class="level2">
+	                <li>Cells: 24&micro;m x 24&micro;m</li>
+	                <li>~ 1e7 oligos per cell</li>
+	                <li>~ 4e5-1.5e6 probes per chip</li>
+	            </ul>
+	        </ul>
+
+
+    </div>
+
+
+    <div class="step slide" data-x="2000" data-y="-1500">
+      <hr>
+      <h1>Affymetrix DNA Chip</h1>
+      <hr>
+      <br>
+     
+		<table>
+				<tr>
+				<td>
+						 <h2>Probes</h2>       
+				</td>
+				<td  >	<img class="right" src="illustrations/affyexon.jpg" alt="" width=400 ></td>
+				</tr>
+		</table>
+	
+		      <br>
+	            <ul>
+						 <li>Short oligonucleotides  (25 mers)</li>
+						 <li>3' arrays (3' IVT Expression Analysis)</li>
+						 <br>
+							<ul class="level2">
+								<li>PM and MM</li>
+			               <li>10-20 probes/gene</li>
+			            </ul>
+			            <br>
+			           <li>Exon/Gene arrays (Whole-Transcript Expression Analysis)</li>
+							<ul class="level2">
+								 <li>No more MM</li>
+			                <li>~4 probes per exon, ~40 per gene (Exon Arrays)</li>
+			                <li>~26 probes per gene (Gene arrays)</li>			                
+			            </ul>
+	        </ul>
+
+
+
+    </div>
+
+
+
+
+    <div class="step slide" data-x="3000" data-y="-1500">
+      <hr>
+      <h1>Affymetrix DNA Chip</h1>
+      <hr>
+      <br>
+  
+	  		<table >
+					<tr >
+					<td >
+							 <h2>Mismatch and perfect match</h2>       
+					</td>
+					<td  >	<img class="right" src="illustrations/mmpm.jpeg" alt="" width=300 ></td>
+					</tr>
+			</table>
+	
+		<br>
+		<br>
+		<br>
+		<ul>	
+		<li>Perfect Match (PM): specific probe</li>
+		<li>Mismatch (MM): degenerated probe</li>
+		<li>ProbePair: a pair of PM and MM</li>
+		<li>ProbeSet: a set of x PM and MM  targeting a gene (<i>e.g;</i> U12140_at)</li>
+		</ul>
+		<br>
+		<br>
+		<br>
+		
+	<img src="illustrations/mmpm-seq.jpeg" alt="" width=600 > 
+    </div>
+    
+     <div class="step slide" data-x="4000" data-y="-1500">
+      <hr>
+      <h1>Normalization: main sources of artefact</h1>
+      <hr>
+		<br>
+		<br>
+			<ul>	
+				<li>RNA quantity / quality</li>
+				<li>Labelling efficiency</li>
+				<li>Scanner parameters</li>
+				<li>Local background</li>
+			</ul>
+		<br>
+		<br>
+		
+		<img src="illustrations/bg.jpeg" alt="" width=600 > 
+    </div>
+
+
+     <div class="step slide" data-x="5000" data-y="-1500">
+      <hr>
+      <h1>Normalizing columns of a numeric matrix</h1>
+      <hr>
+		<br>
+				
+			<h2>Standardization (set mean to 0 and standard deviation to 1 in each column)</h2>
+				<br>
+						<ul>	
+							<li>centering: substracting the mean from each value</li>
+							<li>scaling: dividing the centered value by the standard deviation</li>
+						</ul>
+		<i>$$z = (x - m_{est}) / s_{est}$$</i>
+						
+		</p>where 
+		<br> 
+		<ul style="font-size:20px">
+			<li>\(\ z \) is the standardized value (the z-score)</li>
+			<li>\(\ m_{est} \)</i> is a sample-based estimate of the population mean</li>
+			<li>\(\ s_{est} \)</i> is a sample-based estimate of the population standard deviation</li>
+			</ul>
+			</p>
+		<br>
+		<br>
+    </div>
+
+     <div class="step slide" data-x="6000" data-y="-1500">
+      <hr>
+      <h1>Normalizing columns of a numeric matrix</h1>
+      <hr>
+				
+			<h2>Robust standardization (set median to 0 and median absolute deviation to 1 in each column)</h2>
+				<br>
+						<ul>	
+							<li>centering: substracting the median from each value</li>
+							<li>scaling: dividing the centered value by the median absolute deviation</li>
+						</ul>
+		<i>$$z = (x - \tilde{m}_{est}) / \tilde{s}_{est}$$</i>
+						
+		</p>where 
+		<br> 
+		<ul style="font-size:20px">
+			<li>\(\ z \) is the standardized value</li>
+			<li>\(\ \tilde{m}_{est} \)</i> is a sample-based estimate of the population median</li>
+			<li>\(\ \tilde{s}_{est} \)</i> is a sample-based estimate of the population mad</li>
+			</ul>
+			</p>
+		<br>
+		<br>
+		
+    </div>
+    
+     <div class="step slide" data-x="7000" data-y="-1500">
+      <hr>
+      <h1>Normalizing columns of a numeric matrix</h1>
+      <hr>
+			<br>
+			<h2>Quantile normalization</h2>
+				<br>
+						<ul>	
+							<li>Force columns to contain the same set of values</li>
+						</ul>
+				<br>
+							<img src="illustrations/qnorm.jpeg" alt="" width=800 >  
+				<br>
+		
+    </div>
+
+
+
+     <div class="step slide" data-x="8000" data-y="-1500">
+      <hr>
+      <h1>The RMA algorithm</h1>
+      <hr>
+      <h2>Robust Multichip Average</h2>
+      <br>
+      <p>The most popular algorithm for Affymetrix data normalization</p>
+      <br>
+		<ul>
+			<li>MM values are excluded from analysis</li>
+			<li>Global background estimation and substraction </li>
+			<li>Quantile normalization (probe level)</li>
+			<li>Median Polish (summarization)</li>
+		</ul>		
+    </div>
+
+    <div class="step slide" data-x="9000" data-y="-1500">
+       <hr>
+      <h1>The RMA algorithm</h1>
+      <hr>
+      <h2>Median polish algorithm</h2>
+      <br>
+      <p>Motivations</p>
+      		<ul>
+					<li>Probes may display higher or lower affinity for targets</li>
+				</ul>
+				<br>
+				<br>
+				<img src="illustrations/mp1.jpeg" alt="" width=900 >  	
+    </div>
+   
+   
+    <div class="step slide" data-x="10000" data-y="-1500">
+       <hr>
+      <h1>The RMA algorithm</h1>
+      <hr>
+      <h2>Median polish algorithm</h2>
+      <p>Procedure</p>
+		<br>      
+      		<ul style="font-size:20px">
+					<li>Compute a residual matrix by iteratively</li>
+					<ul class="level2">
+						<li>Substract the corresponding median from each row</li>		
+						<li>Substract the corresponding median from each column</li>
+						<li>Stop if row medians and column medians are equal to zero</li>					
+					</ul>
+					<li>Subtract the residual matrix from the initial matrix</li>
+					<li>Compute the mean of each column to get summarized expression values</li>
+				</ul>
+				<img src="illustrations/mp2.jpeg" alt="" width=300>  	
+    </div>
+    
+    <div class="step slide" data-x="11000" data-y="-1500">
+       <hr>
+      <h1>Alternatives to RMA</h1>
+      <hr>
+      <br>
+      <h2>Other algorithms</h2>
+	   <br>
+      		<ul >
+					<li>GCRMA</li>
+					<li>PLIER</li>
+					<li>RefRMA</li>
+					<i>...</i>
+					<br>
+				</ul>
+		<br>
+		<br>
+		<h2>Performances</h2>
+		<br>
+      		<ul>
+					<li><a href="http://affycomp.biostat.jhsph.edu/AFFY3/TABLES.hgu/0.html">Affycomp<a></li>				
+		</ul>
+    </div>
+
+
+    <div class="step" data-x="5000" data-y="3000">
+		<h1>MERCI</h1>
+    </div>
+ 
+<script src="js/impress.js"></script>
+<script>impress().init();</script>
+
+
+</body>
+</html>
+

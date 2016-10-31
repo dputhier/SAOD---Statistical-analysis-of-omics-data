@@ -1,0 +1,266 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+    <title></title>
+    <script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+        <script type="text/javascript" src="../syntaxhighlight/shBrushR.js"></script>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    <script type="text/javascript">
+    SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+SyntaxHighlighter.all();
+        </script>
+
+  </head>
+
+<body>
+<script language="JavaScript" type="text/javascript">
+  <!--
+    function sizeTbl2(h,i) {
+	var tbl = document.getElementById(i);
+	tbl.style.display = h;
+}
+ // -->
+</script>
+
+<h1>Microarray data analysis: unsupervized clustering.</h1>
+
+
+
+
+<h2>Content</h2>
+<ul>
+<li><a href="#boer">Retrieving the den Boer normalized dataset</a></li>
+<li><a href="#R">Loading data into R</a></li>
+<li><a href="#subsetting">Selecting a subset of genes</li>
+<li><a href="#hclust">Hierarchical clustering with hclust</a></li>
+<li><a href="#treeview">Hierarchical clustering with the cluster and treeview software.</li>
+</ul>
+
+
+
+<hr>
+<a name="boer"></a>
+<h2>Retrieving the den Boer normalized dataset</h2>
+
+<p>Here we will use the GSE13425 experiment which which was retrieved from the <a href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE13425">Gene Expression Omnibus</a> (GEO) public database. In this experiment, the authors were interested in the molecular classification of acute lymphoblastic leukemia (ALL) that are characterized by the abnormal clonal proliferation, within the bone marrow, of lymphoid progenitors blocked at a precise stage of their differentiation.</p>  
+<p>Data were produced using Affymetrix geneChips (Affymetrix Human Genome U133A Array, HGU133A). Informations related to this platform are available on GEO website under identifier <a href="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=GPL96">GPL96</a>.</p>
+
+<p>Download the full <b>normalized</b> dataset.</p>
+<pre class="brush:bash">
+wget http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/GSE13425_Norm_Whole.txt
+wget http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/GSE13425_AMP_Whole.txt
+wget http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/phenoData_GSE13425.tab
+</pre>
+</div>
+
+
+
+<hr>
+<a name="R"></a>
+<h2>Loading data into R</h2>
+<p>Start R.</p>
+
+
+<div class="exo">
+<ul>
+<li>Have a look at the description of the <tt>read.table</tt> function. </li>
+<li>Load the expression matrix (<i>GSE13425_Norm_Whole.txt</i>), the A/P/M matrix (<i>GSE13425_AMP_Whole.txt</i>) and  phenotypic data into R using the <tt>read.table</tt> function (assign the results to objects named <i>data</i>, <i>amp</i>, and pheno <i>respectively</i>).</li>
+</div>
+
+
+<a href="javascript:sizeTbl2('block','sol_1')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_1')">Hide solution</a>
+
+<div id="sol_1"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+?read.table
+data <-  read.table("GSE13425_Norm_Whole.txt",sep="\t", head=T, row=1)
+amp <- read.table("GSE13425_AMP_Whole.txt",sep="\t", head=T, row=1)
+pheno <- read.table("phenoData_GSE13425.tab",sep="\t", head=T, row=1)
+</pre>
+</div>
+
+
+<p>The file <i>GSE13425_Norm_Whole.txt</i> contains genes as rows and samples as columns. Data were previously normalized using <tt>rma</tt> algorithm (they are thus transformed in logarithm base 2). The <i>phenoData_GSE13425.txt</i> file contains phenotypic data about samples. The <i>GSE13425_APM_Whole.txt</i> file contains information about A/P/M calls (genes as rows and samples as columns).</p>
+
+
+
+
+<hr>
+<a name="subsetting"></a>
+<h2>Selecting a subset of genes</h2>
+
+<h3>Selecting using the A/P/M criteria</h3>
+<p>First, we will select genes giving a significant signal in a given number of samples. </p>
+
+<div class="exo">
+<ul>
+<li>Select genes which are call present in at least 10% of the samples (n= 10724 genes).</li>
+</ul>
+</div>
+
+
+
+<a href="javascript:sizeTbl2('block','1')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','1')">Hide solution</a>
+
+<div id="1"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+isPresent <- amp == "P"
+ind <- rowSums(isPresent) >= 19  
+data <- data[ind, ]
+</pre>
+</div>
+
+
+
+<h3>Selecting using standard deviation</h3>
+<p>As the classification of the whole gene matrix is rather computer intensive we will select 30% of the genes based on standard deviation.</p>
+
+
+<div class="exo">
+<ul>
+<li>Select these genes.</li>
+<li>Change column names so that the new matrix will contains information about sample types.</li>
+<li>Write data onto disk (file <i>GSE13425_sub_1.txt</i>).</li>
+</ul>
+</div>
+
+
+
+<a href="javascript:sizeTbl2('block','2')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','2')">Hide solution</a>
+
+<div id="2"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+sd <- apply(data,1,sd)
+summary(sd)
+quantile(sd,0.7)
+data <- data[sd > quantile(sd,0.7),]
+colnames(data) <- paste(pheno$Sample_title, colnames(data), sep="| |")
+write.table(data, "GSE13425_sub_1.txt", sep="\t", quote=F, col.names=NA)
+</pre>
+</div>
+
+
+
+<hr>
+<a name="hclust"></a>
+<h2>Hierarchical clustering with <tt>hclust</tt></h2>
+
+<p>Euclidean distance is rarely used in the context of microarray analysis. A distance based on Pearson's correlation coefficient is most generally preferred (Spearman's rank correlation coefficient may also be used). Let's visualize the sample-sample correlation matrix using a heatmap.</p>
+
+
+
+<a href="javascript:sizeTbl2('block','3')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','3')">Hide solution</a>
+
+<div id="3"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+pear <- cor(data, method="pearson")
+palette <-colorRampPalette(c("yellow", "black","blueviolet"))
+library(lattice)
+levelplot(pear,col.regions=palette, scales=list(cex=0.2))
+
+# we can also store the result as a high quality pdf file
+pdf("coor.pdf"); levelplot(pear,col.regions=palette, scales=list(cex=0.2)); dev.off()
+</pre>
+</div>
+
+
+<p>The Pearson's correlation coefficient is bounded between -1 and 1. We can transform it into a distance using the following command:</p>
+
+
+
+
+<a href="javascript:sizeTbl2('block','4')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','4')">Hide solution</a>
+
+<div id="4"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+pear <- as.dist((1-pear)/2)
+</pre>
+</div>
+
+
+<p>Using this distance matrix we will use the <tt>hclust</tt> function to perform hierarchical clustering of samples.</p>
+
+
+<a href="javascript:sizeTbl2('block','5')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','5')">Hide solution</a>
+
+<div id="5"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+hp <- hclust(pear, method="average")
+pdf("hp.pdf")
+plot(hp,hang=-1, lab=pheno$Sample_title, cex=0.2)
+dev.off()
+system("evince hp.pdf&")
+</pre>
+</div>
+
+
+<hr>
+<a name="treeview"></a>
+<h2>Hierarchical clustering with the cluster and treeview software.</h2>
+
+
+<p>R is not particularly well-suited to visualize classification results for very large datasets. We will thus install the <tt>cluster</tt> and <tt>treeview software</tt> that are very handy to browse the results of a hierarchical clustering</p>
+
+
+<div class="protocol">
+<pre class="brush:r">
+# These are shell/bash commands !
+mkdir -p ~/bin
+cd ~/bin
+wget http://bonsai.hgc.jp/~mdehoon/software/cluster/cluster-1.50.tar.gz
+tar xvfz cluster-1.50.tar.gz
+cd cluster-1.50
+./configure --without-x
+make
+echo -e "\nalias cluster=$PWD/src/cluster" >> ~/.bashrc
+cd ..
+wget http://sourceforge.net/projects/jtreeview/files/jtreeview/1.1.6r2/TreeView-1.1.6r2-bin.tar.gz
+tar xvfz TreeView-1.1.6r2-bin.tar.gz
+echo "alias javatreeview='java -jar  $PWD/TreeView-1.1.6r2-bin/TreeView.jar'" >> ~/.bashrc
+source  ~/.bashrc
+cd -
+</pre>
+</div>
+
+<div class="exo"> 
+<p>Using the cluster software, compute hierarchical clustering both on genes and samples.</p>
+</div>
+
+<a href="javascript:sizeTbl2('block','7')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','7')">Hide solution</a>
+
+<div id="7"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+cluster -f GSE13425_sub_1.txt -g 2 -e 2 -m a  -cg m
+javatreeview
+</pre>
+</div>
+
+
+<p>Now you can open the <i>.cdt</i> file, that was produced by <tt>cluster</tt> using javatreeview. How are the samples classified ? What can you say about gene classification ?</p>  
+
+</HTML>
+

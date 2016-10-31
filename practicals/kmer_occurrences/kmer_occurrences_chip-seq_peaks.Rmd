@@ -1,0 +1,130 @@
+---
+title: "Detecting over-represented k-mers in ChIP-seq peaks"
+author: "Jacques van Helden and Denis Puthier"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    highlight: tango
+    theme: united
+    toc: yes
+    toc_depth: 4
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+    toc_depth: 4
+css: ../../html/course.css
+---
+
+* * * * * 
+
+## Exercise
+
+K-mer occurrences were counted for various k-mer sizes ($k=6$, $7$, and $8$, resp.) in three types of sequences. 
+
+1. **CEBPA peaks**: A set of chip-seq peaks obtained by immunoprecipitating the mouse transcription factor CEBPA in liver tissues (Smith et al, 2010).
+2. **Genomic occurrences**: k-mer occurrences counted in the whole mouse genome.
+3. **Random regions**: regions picked up at random in the mouse genome, with the same number and sizes as the CEBPA peaks. 
+
+The goal of this practical is to detect over-represented k-mers in the CEBPA peaks, in order to predict putative transcription factor binding motifs. 
+
+We will approach the problem by drawing plots comparing the frequencies of k-mers in the sequences of interest (CEBPA peaks) and in the other sequence types, respectively. We will then progressively refine the statistics in order to assess the statistical significance of the k-mer over-representation. 
+
+1. Exploration k-mer occurrences in CEBPA peaks and genomic regions.
+
+    a. Load the count table for 6-mer occurrences in CEBPA peaks. 
+    b. Count the sum of occurrences, and the sum of frequencies.
+    c. Plot an histogram with the distribution of k-mer occurrences. 
+    d. Do the same with genomic occurrences. 
+
+2. Exploration k-mer occurrences in random regions. 
+
+    a. Each student should pick up a random number $i$ between 1 and 8, with the R function sample().
+    b. Load the count table for 6-mer occurrences in the $i^{th}$ repetition of random regions.  
+    c. Count the sum of occurrences, and the sum of frequencies.
+    d. Plot an histogram with the distribution of k-mer occurrences. 
+
+3. Compare k-mer occurrences between CEBPA peaks and genomic regions. 
+
+    a. Draw an XY plot of k-mer occurrences in CEBPA peaks versus random regions. 
+    b. Compute some comparison statistics to detect over-representated k-mers in CEBPA peaks relative to rangom regions.
+    
+
+4. MA plots
+
+    a. Compute the ratio between k-mer occurrences found in peaks and your random regions, resp. 
+    b. Compute the average of occurrences between peaks and your random regions.
+    c. Plot a graph comparing the occurrence ratio with the average occurrence number.
+    c. Compute the log2-ratio of occurrences, and draw a graph equivalent to the MA-plot.
+    
+5. Compute the p-value of k-mer over-representation.
+
+    a. With a Poisson distribution
+    b. With a binomial distribution. 
+
+6. Homework
+
+    b. Based  on genomic occurrencs, compute the occurrences that would be expected by chance in peaks of the same size as CEBPA peaks.
+    a. Analyse over-represented words, and compare them with the mouse CEBPA motif annotated in the JASPAR database ([http://jaspar.genereg.net/](http://jaspar.genereg.net/)).
+
+* * * * * 
+
+## Datasets
+
+K-mer  occurrences in CEBPA peaks from Smith et al (2010) in the mouse genome (*Mus musculus*).
+
+### 6-mers
+
+| Data type | k | repeat | Table |
+|-----------|---|--------|-------|
+| CEBPA peaks | 6 | | [CEBPA_mm9_SWEMBL_R0.12_6nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_6nt-noov-2str.tab) |
+| genomic occurrences | 6 | full genome | [mm10_genome_6nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_6nt-noov-2str.tab) |
+| Random regions | 6 | 01 | [random-genome-fragments_mm10_repeat01_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_6nt-noov-2str.tab) |
+| Random regions | 6 | 02 | [random-genome-fragments_mm10_repeat02_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat02_6nt-noov-2str.tab) |
+| Random regions | 6 | 03 | [random-genome-fragments_mm10_repeat03_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat03_6nt-noov-2str.tab) |
+| Random regions | 6 | 04 | [random-genome-fragments_mm10_repeat04_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat04_6nt-noov-2str.tab) |
+| Random regions | 6 | 05 | [random-genome-fragments_mm10_repeat05_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat05_6nt-noov-2str.tab) |
+| Random regions | 6 | 06 | [random-genome-fragments_mm10_repeat06_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat06_6nt-noov-2str.tab) |
+| Random regions | 6 | 07 | [random-genome-fragments_mm10_repeat07_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat07_6nt-noov-2str.tab) |
+| Random regions | 6 | 08 | [random-genome-fragments_mm10_repeat08_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat08_6nt-noov-2str.tab) |
+
+### 7-mers
+
+| Data type | k | repeat | Table |
+|-----------|---|--------|-------|
+| CEBPA peaks | 7 | | [CEBPA_mm9_SWEMBL_R0.12_7nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_7nt-noov-2str.tab) |
+| genomic occurrences | 7 | full genome | [mm10_genome_7nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_7nt-noov-2str.tab) |
+| Random regions | 7 | 01 | [random-genome-fragments_mm10_repeat01_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_7nt-noov-2str.tab) |
+| Random regions | 7 | 02 | [random-genome-fragments_mm10_repeat02_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat02_7nt-noov-2str.tab) |
+| Random regions | 7 | 03 | [random-genome-fragments_mm10_repeat03_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat03_7nt-noov-2str.tab) |
+| Random regions | 7 | 04 | [random-genome-fragments_mm10_repeat04_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat04_7nt-noov-2str.tab) |
+| Random regions | 7 | 05 | [random-genome-fragments_mm10_repeat05_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat05_7nt-noov-2str.tab) |
+| Random regions | 7 | 07 | [random-genome-fragments_mm10_repeat07_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat07_7nt-noov-2str.tab) |
+| Random regions | 7 | 07 | [random-genome-fragments_mm10_repeat07_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat07_7nt-noov-2str.tab) |
+| Random regions | 7 | 08 | [random-genome-fragments_mm10_repeat08_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat08_7nt-noov-2str.tab) |
+
+### 8-mers
+
+| Data type | k | repeat | Table |
+|-----------|---|--------|-------|
+| CEBPA peaks | 8 | | [CEBPA_mm9_SWEMBL_R0.12_8nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_8nt-noov-2str.tab) |
+| genomic occurrences | 8 | full genome | [mm10_genome_8nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_8nt-noov-2str.tab) |
+| Random regions | 8 | 01 | [random-genome-fragments_mm10_repeat01_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_8nt-noov-2str.tab) |
+| Random regions | 8 | 02 | [random-genome-fragments_mm10_repeat02_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat02_8nt-noov-2str.tab) |
+| Random regions | 8 | 03 | [random-genome-fragments_mm10_repeat03_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat03_8nt-noov-2str.tab) |
+| Random regions | 8 | 04 | [random-genome-fragments_mm10_repeat04_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat04_8nt-noov-2str.tab) |
+| Random regions | 8 | 05 | [random-genome-fragments_mm10_repeat05_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat05_8nt-noov-2str.tab) |
+| Random regions | 8 | 08 | [random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab) |
+| Random regions | 8 | 08 | [random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab) |
+| Random regions | 8 | 08 | [random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab) |
+
+* * * * * 
+
+
+## Solutions
+
+- [Rmd source file](kmer_occurrences_chip-seq_peaks_solutions_JvH.Rmd)
+- [html report](kmer_occurrences_chip-seq_peaks_solutions_JvH.html)
+- [pdf report](kmer_occurrences_chip-seq_peaks_solutions_JvH.pdf)
+
+* * * * * 
+

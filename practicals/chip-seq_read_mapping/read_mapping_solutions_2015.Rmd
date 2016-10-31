@@ -1,0 +1,98 @@
+---
+title: "K-mer matching probabilities"
+author: "Jacques van Helden"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    highlight: tango
+    theme: united
+    toc: yes
+    toc_depth: 3
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+css: ../../html/course.css
+---
+
+## Parameters
+
+```{r knitr setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE, comment=''}
+## Define the knitr options
+library(knitr)
+knitr::opts_chunk$set(echo=FALSE, eval=TRUE, cache=FALSE, message=FALSE, warning=FALSE, comment = "")
+```
+
+```{r parameters}
+## Nucleotide matching probability 
+## (assuming equiprobability and independence !)
+p <- 1/4  ## prior residue probability
+G <- 3e9 ## Genome size
+k <- 26  ## Read length
+```
+
+
+## Concepts
+
+### Bernoulli process
+
+A Bernoulli process is defined as a succession of trials, where 
+
+1. each trial can result in two possible (and exclusive) outomes: success or failure;
+2. successive trials are independent from each oter;
+2. the probability of success ($p$) is constant. 
+
+
+
+
+## Probability to observe a succession of $k-1$ matches  followed by 1 mismatch
+
+The geometric distribution describes the probability to observe $k-1$ successes followed by 1 failure, in a Bernoulli process. 
+
+```{r geometric distribution}
+x <- 1:30
+dens.geo <- p^(x-1) * (1-p)
+plot(x, dens.geo, type="h", lwd=3, col="blue",
+     main="Geometric distribution",
+     xlab="Read length", ylab="P(k-1 matches then 1 mm)")
+
+```
+
+### Etape XX
+
+### Etape XX
+
+### Etape XX
+
+### Etape XX
+
+### Etape XX
+
+ 
+ 
+ ```{r choose}
+plot(0:k, choose(k=0:k, n=k), lwd=3, col="green", type="h",
+main="Choose", xlab="k", ylab="Number of combinations")
+```
+
+## Etape 6: probability to observer exactly $x$ matches and $k-x$ mismatches, at any position
+
+$P(X=x) = C^x_k \cdot p^x \cdot (1-p)^{k-x}$
+
+```{r binomial}
+X <- 0:26
+
+p.matches.eq.x <- dbinom(x=X, prob = p, size = k)
+
+plot(X, p.matches.eq.x, type="h", lwd=3, col="cyan",
+     
+     main="Binomial density", xlab="Number of matches", ylab="P(X=x)")
+
+exp.x <- k*p
+abline(v=exp.x, col="darkgreen")
+
+## A more general definition of the expectation: the sum of values weighted by their priorprobability
+exp.x <- sum(X*p.matches.eq.x)
+
+```
+

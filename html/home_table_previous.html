@@ -1,0 +1,377 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="course.css" media="screen,projection" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Analyse statistique des données génomiques  (AMU SBBCU23L - ASG1)</title>
+  </head>
+  <body>
+
+    <h1>Analyse statistique des données génomiques<br>(AMU SBBCU23L - ASG1)</h1>
+
+    <a name='teachers'></a>
+    <h3>Enseignants</h3>
+    
+    <ol>
+      <li>Jacques van Helden (JvH)</li>
+      <li>Denis Puthier (DP)</li>
+    </ol>
+
+
+    <a name='teachers'></a>
+    <h3>Année</h3>
+    
+    <p>2015-2016</p>
+
+    <a name='teachers'></a>
+    <h3>Public</h3>
+    
+    <ul>
+      <li>2ème année du Master en Bioinformatique, biochimie structurale et génomique (BBSG).</li>
+<!--      <li>Ecole Doctorale Sciences de la Vie et de la Santé (EDSVS).</li>-->
+    </ul>
+
+
+    
+    <hr><a name='programme'></a>
+    
+    <h2>Schedule of the course 2015</h2>
+    
+    <table>
+      
+      <tr  valign='top'>
+	<th>#</th>
+	<th>Date</th>
+	<th width="150">Topics</th>
+	<th width="250">Slides</th>
+	<th width="300">Practicals</th>
+      </tr>
+      
+      <tr  valign='top'>
+	<td>1</td>
+	<td>24/10</td>
+	<td>
+	  <b>Analysis of ChIP-seq data</b>
+	</td>
+	<td>
+	  <a href="../practicals/chip-seq/chipSeq.pdf">
+	    <ol>
+	      <li>The ChIP-seq method</li>
+	      <li>Quality control</li>
+	      <li>Read mapping</li>
+	      <li>Peak calling</li>
+	      <li>Annotating peaks</li>
+	    </ol>
+	  </a>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../practicals/chip-seq/mapping_tutorial.html">Read Mapping</a></li>
+	    <li><a href="../practicals/chip-seq/mapping_tutorial.html#peaks">Peak calling</a></li>
+	    <li><a href="../practicals/affynorm_td/index.html">Annotation</a></li>
+	  </ol>
+	</td>
+      </tr>
+
+
+
+      <tr  valign='top'>
+	<td>2</td>
+	<td>24/10</td>
+	<td>
+	  <ol>
+	    <li><b>Read mapping probabilities</b> (binomial)</li>
+	    <li><b>Gene enrichment probabilities</b> (hypergeometric)</li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../pdf_files/05.theoretical_distrib.pdf">Theoretical distributions</a></li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../practicals/chip-seq_read_mapping/read_mapping_statistics.html">
+		Probabilities of read mapping with
+		substitutions.</a> (resolved on the white board)</li>
+	    <li>GREAT statistics (resolved on the white board)</li>
+	  </ol>
+	</td>
+      </tr>
+
+
+      <tr  valign='top'>
+	<td>3</td>
+	<td>03/11</td>
+	<td>
+	  <b>Occurrence statistics: read mapping, peak calling, functional enrichment</b>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../pdf_files/05.theoretical_distrib.pdf">Theoretical distributions</a></li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../practicals/occurrence_statistics/occurrence_statistics.html">Occurrence statistics (intro)</a></li>
+	    <li><b>Read mapping statistics</b>
+	      <ul>
+		<li><a href="../practicals/chip-seq_read_mapping/read_mapping_statistics.html">Exercise</a></li>
+		<li>Solutions implemented in an <a download href="../practicals/chip-seq_read_mapping/read_mapping_solutions.Rmd">Rmd</a> document</li>
+		<li>Results 
+		  [<a href="../practicals/chip-seq_read_mapping/read_mapping_solutions.html">html</a>]
+		  [<a href="../practicals/chip-seq_read_mapping/read_mapping_solutions.pdf">pdf</a>]
+		</li>
+	      </ul>
+
+	    <li><a href="../practicals/go_statistics_td/go_statistics_td.html">Functional enrichment statistics</a>
+	      <br>Personal work</li>
+	    <li><b>Peak calling statistics</b>
+	      <br>Devoir maison<br>(<font color="red">rapport à rendre le 17/11/2014</font>)
+	      <ul>
+		<li>Exercise [<a href="../practicals/chip-seq_peak_calling/peak_calling_statistics.html">html</a>]</li>
+		<li>Source code [<a href="../practicals/chip-seq_peak_calling/peak-calling_solution_JvH.Rmd" download>Rmd</a>]</li>
+		<li>Results
+		  [<a href="../practicals/chip-seq_peak_calling/peak-calling_solution_JvH.html">html</a>]
+		  [<a href="../practicals/chip-seq_peak_calling/peak-calling_solution_JvH.pdf">pdf</a>]
+		</li>
+		  
+		</li>
+	      </ul>
+	    </li>
+	  </ol>
+	</td>
+      </tr>
+
+      <tr  valign='top'>
+	<td>4</td>
+	<td>10/11</td>
+	<td>
+	  <b>Microarray analysis</b>
+	</td>
+	<td>
+	  <ol>
+	    <!--	    <li><a href="../pdf_files/06.03.00.hypothesis_testing.pdf">Hypothesis_testing.pdf</a></li>
+	    <li><a href="../pdf_files/06.01.sampling_estimation.pdf">Sampling_estimation.pdf</a></li>
+	    <li><a href="../pdf_files/06.03.01.conformity_tests.pdf">Conformity_tests.pdf</a></li>
+	    <li><a href="../pdf_files/06.03.02.homogeneity_tests.pdf">Homogeneity_tests.pdf</a></li>
+	    <li><a href="../pdf_files/06.03.03.significance_tests.pdf">Significance_tests.pdf</a></li>
+	    <li><a href="../pdf_files/06.03.04.goodness_of_fit.pdf">Goodness_of_fit.pdf</a></li>
+	    -->
+	    <li><a href="../pdf_files/07.00.multiv_intro.pdf">Introduction to multivariate analysis</a></li>
+	    <li><a href="../pdf_files/07.01.multiv_study_cases.pdf">Transcriptome microarrays: study cases</a></li>
+	    <li><a href="../pdf_files/07.04.differential_expression.pdf">Differential_expression.pdf</a></li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li>
+		<!-- <a href="../practicals/affy_selection_td/index.html">-->
+		Microarray data: selecting differentially expressed
+		genes with R or TmeV 
+		[<a href="../practicals/affy_selection_td/affy_selection_td.html">html</a>]
+		[<a href="../practicals/affy_selection_td/affy_selection_td.Rmd" download>Rmd</a>]
+		[<a href="../practicals/affy_selection_td/affy_selection_td.pdf">pdf</a>]
+	    </li>
+	    <li><a target="main" href="../practicals/sampling_distrib.html">Sampling distributions</a></li>
+	  </ol>
+	</td>
+      </tr>
+
+      <tr  valign='top'>
+	<td>5</td>
+	<td>12/11</td>
+	<td>
+	  <b>The multiple ways to correct multiple testing</b>
+	  <ol>
+	    <li>Bonferoni</li>
+	    <li>E-value</li>
+	    <li>FWER</li>
+	    <li>Benjamini-Hochberg</li>
+	    <li>q-value</li>
+	  </ol>
+	  <b>Clustering (unsupervised classification)</b>
+	  <ol>
+	    <li>(dis)similarity metrics</li>
+	    <li>hierarchical clustering</li>
+	    <li>k-means clustering</li>
+	    <li>bootstrap.</li>
+	  </ol>
+
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../pdf_files/06.04.multitesting_corrections.pdf">Multiple testing corrections slides</a></li>
+	    <li><a href="../pdf_files/08.metrics.pdf">metrics.pdf</a></li>
+	    <li><a href="../pdf_files/09.clustering.pdf">clustering.pdf</a></li>
+	    <li><a href="../practicals/unsup_classif_slides/unsup_classification.pdf">Clustering (DP)</a></li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li>Multiple testing corrections practical
+	      [<a href="../practicals/multiple_testing_td/multiple_testing_corrections.html">html</a>]
+	      [<a href="../practicals/multiple_testing_td/multiple_testing_corrections.Rmd" download>Rmd</a>]
+<!-- I have a bug with the knit generation of the pdf	      [<a href="../practicals/multiple_testing_td/multiple_testing_corrections.pdf">pdf</a>]-->
+	    </li>
+	    <li><a href="../practicals/unsup_classification_sim_td/index.html">Handling clustering methods (artificial datasets)</a></li>
+	    <li><a href="../practicals/unsup_classification_td/index.html">Microarray data analysis: clustering.</a></li>
+	  </ol>
+
+	</td>
+      </tr>
+
+
+      <tr  valign='top'>
+	<td>6</td>
+	<td>24/11</td>
+	<td>
+	  <b>Analysis of RNA-seq data</b>
+	</td>
+	<td>
+	  <a href="../practicals/rnaseq/rnaseq.pdf">	  <ol>
+	      <li>RNA-seq technology</li>
+	      <li>Splice-aware aligners</li>
+	      <li>Transcript model inference</li>	    
+	      <li>Normalization</li>
+	      <li>Differential expression</li>
+	    </ol>
+	  </a>
+	<td><ol>
+	    <li><a href="../practicals/rnaseq_td/rnaseq_td.html">RNA-seq read mapping</a></li>
+	    <li><a href="../practicals/rnaseq_diff/rnaseq_diff.html">The negative binomial</a></li>
+	    <li><a href="../practicals/rnaseq_diff/rnaseq_diff.html">RNA-seq differential expression with DESeq</a></li>
+
+	  </ol>
+	</td>
+      </tr>
+
+
+
+      <tr  valign='top'>
+	<td>7</td>
+	<td>26/11</td>
+	<td>
+	  <b>Supervised classification</b>
+	  <ol>
+	    <li>Training vs testing sets</li>
+	    <li>Mehods: LDA, SVM, KNN</li>
+	    <li>Validation: k-fold, leave-one-out</li>
+	    <li>Variable selection</li>
+	    <li>How to avoid over-fitting ?</li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../pdf_files/07.03.correlation_analysis.pdf">Correlation analysis</a></li>
+	    <li><a href="../pdf_files/07.00.multiv_intro.pdf">Introduction to multivariate analysis</a></li>
+	    <li><a href="../pdf_files/10.visualization.pdf">Visualisation</a> (to see an example of PCA)</li>
+	    <li><a href="../pdf_files/11.discriminant_analysis.pdf">Discriminant analysis</a></li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li>Supervised classification 
+	      <ul>
+		<li>
+		  Source code [<a href="../practicals/supervised_classification_td/supervised_classification_td.Rmd" download>Rmd</a>]
+		</li>
+		<li>Results
+		  [<a href="../practicals/supervised_classification_td/supervised_classification_td.html">html</a>]
+		  [<a href="../practicals/supervised_classification_td/supervised_classification_td.pdf">pdf</a>]
+		</li>
+	      </ul>
+	    </li>
+	  </ol>
+	</td>
+      </tr>
+      
+
+
+
+      <!--	    <td>
+		    Read mapping
+		    <ol>
+		      <li>Impact of read length on mappability</li>
+		      <li>Impact of substitutions</li>
+		    </ol>
+		    Theoretical concepts
+		    <ol>
+		      <li>Exact match probabilities</li>
+		      <li>Matching probability for the x first letters of a pattern</li>
+		      <li>Matching probability with substitutions (equiprobable models)</li>
+		      <li>Markov models</li>
+		    </ol>
+      </td>
+      <td></td>
+      <td></td>
+</tr>
+
+-->     
+
+
+<!--
+      <tr  valign='top'>
+	<td>8</td>
+	<td>Exam</td>
+	<td>
+	  
+	</td>
+	<td></td>
+	<td></td>
+      </tr>
+-->
+
+
+      <!--	  
+		  <p><b>Microarrays: selecting differentially expressed genes</b> (continued).
+		    <ol start="2">
+		      <li>Non-parametric test of mean equality: Wilcoxon rank-sum test</li>
+		      <li>SAM</li>
+		      <li>Rank product</li>
+		      <li>Multiple groups: ANOVA</li>
+		    </ol>
+		  </p>
+
+      <p><b>The multiple ways to correct multiple testing</b>
+	<ol>
+	  <li>Bonferoni</li>
+	  <li>E-value</li>
+	  <li>FWER</li>
+	  <li>Benjamini-Hochberg</li>
+	  <li>q-value</li>
+	</ol>
+      </p>
+
+      <p><b>Clustering</b>
+	<ol>
+	  <li>(dis)similarity metrics</li>
+	  <li>hierarchical clustering</li>
+	  <li>k-means clustering</li>
+	  <li>bootstrap.</li>
+	</ol>
+</td>
+<td>
+  <ol>
+    <li><a href="../pdf_files/06.04.multitesting_corrections.pdf">Multiple testing corrections slides</a></li>
+    <li><a href="../pdf_files/08.metrics.pdf">08.metrics.pdf</a></li>
+    <li><a href="../pdf_files/09.clustering.pdf">09.clustering.pdf</a></li>
+    <li><a href="../practicals/unsup_classif_slides/unsup_classification.pdf">Clustering (DP)</a></li>
+  </ol>
+</td>
+<td>
+  <ol>
+    <li><a target="main" href="../practicals/multiple_testing_td/multiple_testing_corrections.html">Multiple testing corrections practical</a></li>
+    <li><a href="../practicals/unsup_classification_sim_td/index.html">Handling clustering methods (artificial datasets)</a></li>
+    <li><a href="../practicals/unsup_classification_td/index.html">Microarray data analysis: unsupervised clustering.</a></li>
+  </ol>
+
+</td>
+</tr>
+>>>>>>> 37bf0c0ac237e32034ba1401fea8d14c78458b55
+-->
+    </table>
+
+    <hr>
+  </body>
+</html>
+

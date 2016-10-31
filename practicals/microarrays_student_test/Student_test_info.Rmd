@@ -1,0 +1,115 @@
+---
+title: "Student test help page"
+author: "Jacques van Helden"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+bibliography: ../../bibliography/ASG1_references.bib
+---
+
+* * * * * * * * 
+
+## Basics about Student and Welch's t test
+
+Welch's test is a variant of the classical Student test. 
+Both Student and Welch test aim at testing the equality between two means (***mean equality test***).
+
+In the context of microarray data, we will apply a mean equality test for each gene separately, in order to detect so-called ***differentially expressed genes***.
+
+For a given gene $g$, the ***null hypothesis*** is that the mean level of expression of group 1 equals that of group 2. 
+
+$$H_0: \mu_{g,1} = \mu_{g,2}$$
+
+In this formula, $\mu_{g,1}$ and $\mu_{g,2}$ represent the **respective mean expression values for a given gene $g$ in two populations** (for example, all existing patients suffering from T-ALL versus all patients suffering from pre-B ALL). Of course, we do not dispose of measurements for all the patients suffering from these two types of ALL in the world (the population). We only dispose of two sets of samples, covering 36 (T-ALL) and 44 (pre-B ALL) patients, respectively. On the basis of these samples, we will estimate how likely it is that genes $g$ is generally expressed at similar levels in the populations from which the samples were drawn.
+
+The essential difference between **Student** and **Welch** is that the proper Student test relies on the assumption that the two sampled populations have the **same variance** (***homoscedasticity***), whereas Welch's test is designed to treat populations with **unequal variances** (***heteroscedasticity***).
+
+When detecting differentially expressed genes, **we can generally not assume equal variance**. Indeed, a typical case would be that a gene of interest is expressed at very low level in the first group, and high level in the second group. The inter-individual fluctuations in expression values are expected to be larger when the gene is expressed at a high level than when it is poorly expressed. It is thus generally recommended to use Welch rather than Student test when analyzing microarray expression profiles.
+
+### Conditions of applicability
+
+**BEWARE**: Student and Welch tests **assume data normality**. Affymetrix microarray intensities are far from the normal distribution, even after log transformation. However, **t-test is robust to non-normality if there is a sufficient number of samples per group**. In the subsequent exercise, we will apply Welch test to detect genes differentially expressed between cancer types represented by ~40 samples each. We are thus in **reasonably good conditions** to run a Welch test. Nevertehless, in a next section we will also apply a non-parametric test (Wilcoxon), which does not rely on an assumption of normality.
+
+### Welch *t* statistics
+
+Welch's t-test defines the $t$ statistic by the following formula.
+
+$$t_{W}=\frac{\bar{x}_{i,1} - \bar{x}_{i,2}}{\sqrt{\frac {s^2_{i,1}}{n_1} + \frac{s^2_{i,2}}{n_2}}}$$
+
+Where:
+
+* $\bar{x_i}$ is the sample mean,
+* $s^2_{i}$ the sample variance,
+* $n_{i}$ the sample size.
+
+* * * * * * * *
+
+## Sampling issues: why *n-1* and not simply *n* ?
+
+
+For a finite population, the ***population parameters*** are computed as follows.
+
+| Parameter | Formula |
+|-----------|---------|
+| Population mean | $\mu = \frac{1}{N}\sum_{i=1}^{N} x_i$ |
+| Population variance | $\sigma^2 = \frac{1}{N}\sum_{i=1}^{N} (x_i - \mu)^2$ |
+| Population standard deviation | $\sigma = \sqrt{\sigma^2}$ |
+
+Where $x_i$ is the $i^{th}$ measurement, and $N$ the population size.
+
+However, in most practical situations we are not in state to measure $x_i$ for all the individuals of the population, so we have to ***estimate*** the population parameters ($\mu$, $\sigma^2$) from a ***sample*** (beware, the meaning of sample differs between statistics and biology). 
+
+The ***sample parameters*** are computed in the same way, but with observations restricted to a subset of the population. 
+
+| Parameter | Formula |
+|-----------|---------|
+| Sample mean | $m = \frac{1}{n}\sum_{i=1}^{n} x_i$ |
+| Sample variance | $s^2 = \frac{1}{n}\sum_{i=1}^{n} (x_i - \bar{x})^2$ |
+| Sample standard deviation | $s = \sqrt{s^2}$ |
+
+where $n$ is the sample size (number of sampled individuals), and $\bar{x}$ the sample mean. 
+
+The sample mean is an ***unbiased estimator*** of the population mean. Of course, each time we select a sample we should expect  some random fluctuations, but if we perform an infinite number of sampling trials, and compute the mean of each of these samples, the mean of all these different sample means tends towards the actual mean of the population. 
+
+On the contrary, the sample variance is a ***biased estimator*** of the population variance. On the average, the sample variance under-estimates the population variance, but this can be fixed by multiplying it by a simple correcting factor. 
+
+| Parameter | Formula |
+|-----------|---------|
+| Sample-based estimate of the population mean | $\hat{\mu} = \bar{x}$ |
+| Sample-based estimate of the population variance | $\hat{\sigma}^2 = \frac{n}{n-1}s^2 = \frac{1}{n-1}\sum_{i=1}^{n} (x_i - \bar{x})^2$ |
+| Sample-based estimate of the population standard deviation | $\hat{\sigma} = \sqrt{\hat{s}^2}$ |
+
+In these formulae, population parameters are denoted by Greek symbols, sample parameters by the equivalent Roman symbols, and the "hat" symbol $\hat{}$ means "***estimation of***". 
+
+* * * * * * * * 
+
+## Summary table: symbols and formulas
+
+- Greek symbols ($\mu$, $\sigma$) denote population-wide statistics, and roman symbols ($\bar{x}$, $s$) sample-based statistics.
+- The "hat" ($\hat{ }$) symbol is used to denote sample-based estimates of population parameters.
+
+| Symbol       | Description   |
+|--------------|---------------|
+| $\mu_{i,1},  \mu_{i,2}$ | Mean of expression values for the gene $i$ in the whole populations 1 and 2, respectively (in our case, the popultations correspond to all the blood samples that could possibly be taken from patients suffering from cancer of type 1 and 2). |
+| $\sigma_{i,1}, \sigma_{i,2}$ | Standard deviation of expression values for the gene $i$ in the whole populations 1 and 2, respectively. |
+| $n_1$, $n_2$ | "Sample sizes" in the statistical sense, i.e. number of observations for the groups 1 and 2, respectively. |
+| $\bar{x}_{i,1}, \bar{x}_{i,2}$ | Mean of expression values for the gene $i$ in samples of the groups 1 and 2, respectively. |
+| $s^2_{i,1}, s^2_{i,2}$ | Variance of expression values for the gene $i$ in samples of the groups 1 and 2, respectively. |
+| $s_{i,1}, s_{i,2}$ | Standard deviations of expression values for the gene $i$ in samples of the groups 1 and 2, respectively. |
+| $\hat{\sigma}_p = \sqrt{\frac{n_1 s_1^2 + n_2 s_2^2}{n_1+n_2-2}}$ | Pooled standard deviation, used as estimator for the standard deviation of two groups altogether, when their variances are assumed equal. |
+| $d = \hat{\delta} = \hat{\mu}_2 - \hat{\mu}_1  = \bar{x}_2 - \bar{x}_1$ | $d$ = Effect size (difference between sample means), used as estimator of the difference between population means $\delta$. |
+| $\hat{\sigma}_\delta = \hat{\sigma}_p \sqrt{\left(\frac{1}{n_1}+ \frac{1}{n_2}\right)}$  | Standard error about the difference between means of two groups whose variances are assumed equal (Student). |
+| $t_{S} = \frac{\hat{\delta}}{\hat{\sigma}_\delta} =  \frac{\bar{x}_{i,2} - \bar{x}_{i,1}}{\sqrt{\frac{n_1 s_{i,1}^2 + n_2 s_{i,2}^2}{n_1+n_2-2} \left(\frac{1}{n_1}+ \frac{1}{n_2}\right)}}$ | Student $t$ statistics |
+| $t_{W}=\frac{\bar{x}_{i,1} - \bar{x}_{i,2}}{\sqrt{\frac {s^2_{i,1}}{n_1} + \frac{s^2_{i,2}}{n_2}}}$ | Welch $t$ statistics |
+| | |
+

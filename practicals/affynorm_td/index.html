@@ -1,0 +1,1081 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+    <title>  R language: A quick tutorial</title>
+    <script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushR.js"></script>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    <script type="text/javascript">
+      SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+      SyntaxHighlighter.all();
+    </script>
+  </head>
+
+  <body>
+
+    <script language="JavaScript" type="text/javascript">
+      <!--
+	  function sizeTbl2(h,i) {
+	  var tbl = document.getElementById(i);
+	  tbl.style.display = h;
+	  }
+	  // -->
+    </script> 
+
+
+    
+    
+    <h1 align="center">Handling and normalizing affymetrix data with bioconductor</h1>
+
+
+    <h2>Affymetrix microarray data normalization and quality assessment</h2>
+
+    <p>Denis Puthier and Jacques van Helden</p>
+    
+    <p>This tutorial is just a brief tour of the language capabilities and
+      is intented to give some clues to begin with the R programming
+      language. For a more detailled overview
+      see <a
+	     href="http://cran.r-project.org/doc/contrib/Paradis-rdebuts_en.pdf"> R
+	for beginners</a> (E. Paradis) </p>
+    
+    <a name='contents'></a>
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#bioc">Bioconductor</a></li>
+      <li><a href="#install">Installing bioconductor</a></li>
+      <li><a href="#S4">S4 objects</a></li>
+      <li><a href="#boer">The dataset from Den Boer (2009)</a></li>
+      <li><a href="#read">Reading Affymetrix data</a></li>
+      <li><a href="#pheno">Loading phenotypic data</a></li>
+      <li><a href="#graphics">Affy library: graphics</a></li>
+      <li><a href="#qc">Quality control of raw data</a></li>
+      <li><a href="#pa">Present/absent calls</a></li>
+      <li><a href="#norm">Data normalization</a></li>
+      <li><a href="#exprs">The ExpressionSet object</a></li>
+      <li><a href="#normres">Checking the normalization results</a></li>
+      <li><a href="#normres">Probe annotations</a></li>
+      <li><a href="#write">Writing data onto disk</a></li>
+      <li><a href="#references">References</a></li>
+    </ol>
+    <hr>
+
+    <a name="bioc"></a>
+    <h3>Bioconductor</h3>
+
+    <p>From Wikipedia:</p>
+    
+    <quote>
+      <p>Bioconductor is a free, open source and open development software
+	project for the analysis and comprehension of genomic data generated
+	by wet lab experiments in molecular biology.</p>
+      
+      <p>Most Bioconductor components are distributed as R packages,
+	which are add-on modules for R. Initially most of the Bioconductor
+	software packages focused on the analysis of single channel Affymetrix
+	and two or more channel cDNA/Oligo microarrays. As the project has
+	matured, the functional scope of the software packages broadened to
+	include the analysis of all types of genomic data, such as SAGE, X-seq
+	data (RNA-Seq, ChIP-Seq, ...), or SNP data.</p>
+      
+      <p>The broad goals of the projects are to:</p>
+      <ul>
+	<li>Provide widespread access to a broad range of powerful statistical
+	  and graphical methods for the analysis of genomic data.</li>
+	<li>Facilitate the inclusion of biological metadata in the analysis of
+	  genomic data, e.g. annotation data from UCSC or GO database.</li>
+	<li>Provide a common software platform that enables the rapid
+	  development and deployment of plug-able, scalable, and interoperable
+	  software.</li>
+	<li>Further scientific understanding by producing high-quality
+	  documentation and reproducible research.</li>
+      </ul>
+    </quote>
+    
+    
+    <div class="exo">
+      What is reproducible research ? How can R contributes to reproductibility ? 
+    </div>
+    
+    <p>Some area covered by the Bioconductor project with some representative packages:</p>
+    
+    <ul>
+      <li>Affymetrix GeneChip analysis: Affy, simpleaffy</li>
+      <li>Affymetrix exon arrays: xmapcore, xps</li>
+      <li>Probe Metadata: Annotate, hgu133aprobe,  hgu95av2probe, ABPkgBuilder</li>
+      <li>Microarray data filtering: Genefilter </li>
+      <li>Statistical analysis of microarrays: SAMR, siggenes, multtest, DEDS, pickgene </li>
+      <li>Tiling arrays: AffyTiling, tilingArray</li>
+      <li>CGH array analysis: CGHbase, snapCGH</li>
+      <li>NGS quality control/filtering: ShortRead</li>
+      <li>RNA-Seq: easyRNASeq, DESeq </li>
+      <li>ChIP-Seq: chipseq</li>
+      <li>High level plotting functions: geneplotter</li>
+      <li>Functionnal enrichment analysis: GO, Gostats, goCluster, geneplotter</li>
+      <li>Genome coordinates: GenomicFeatures, genomeIntervals, GenomeGraphs, GenomicRanges</li>
+      <li>Graphs: graph, Rgraphviz, biocGraph</li>
+      <li>Flow cytometry: flowCore, flowViZ</li>
+      <li>Variant calling: VariantTools</li>
+      <li>Proteomics: MassSpecWavelet</li>
+      <li>Image analysis: EBImage</li>
+    </ul>
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+    <a name="install"></a>
+    <h2>Installing Bioconductor</h2>
+
+    <p>To install bioconductor you need to retrieve the biocLite function
+      from <a href="www.bioconductor.org/">BioC</a> web site. We will also
+      check that some annotation packages for affymetrix geneChips are
+      available on your computer. To use the command below you need to start
+      R (type <i>R</i> within a terminal)</p>
+    
+<pre  class="brush:r;">
+## Load the biocLite script from the Web
+source("http://bioconductor.org/biocLite.R")
+
+## Check if the affy library has already been installed in R. 
+## If not, install the basic Bioconductor packages + affy
+if(!require(affy)) {
+   biocLite();
+   biocLite("affy")
+}
+
+## Check if the geneplotter library has already been installed. 
+## If not, install it. If yes, the require() function will simlpy load it.
+if(!require(geneplotter)) { biocLite("geneplotter") }
+</pre>
+
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="S4"></a>
+<h3>S4 objects</h3>
+
+    <p>We have seen several classes of objects so far (vector, factor,
+      matrix, data.frame...). In R, one can also create custom classes of
+      objects in order to store and interrogate more complex objects.</p>
+
+    <p>Let say one need to store an experiment related to two-color
+      microarrays. Then we have to store values from red and green channel
+      for both foreground and background signal. We could also be interested
+      in storing the symbols of the genes measured, the kind of microarray
+      platform used, a description of the experiment (...). The interesting
+      point is that only one instance from such a class would store all
+      informations related to the experiment making it easier to manipulate
+      and share.</p>
+
+    <p>Let us design such a class, we will call
+      it <i>microarrayBatch</i>. We will use the setClass function that will
+      allow to store the class definition.</p>
+
+<pre class="brush:r;">
+#microarrayBatch
+#"representation" corresponds to all attributes of the object
+#"prototype" corresponds to default values
+
+setClass("microarrayBatch",
+    representation(
+        R="matrix",
+        G="matrix",
+        Rb="matrix",
+        Gb="matrix",
+        phenotype="matrix",
+        genes="character",
+        description="character"),
+        prototype=list(
+        R=matrix(nr=0,nc=0),
+        G=matrix(nr=0,nc=0),
+        Rb=matrix(nr=0,nc=0),
+        Gb=matrix(nr=0,nc=0),
+        phenotype=matrix(nr=0,nc=0),
+        description=new("character")
+    )
+)
+</pre> 
+
+<p>Now that the classes is defined, we can create an instance of this
+class (an object). Inside R, this object is viewed as an S4 object of
+class "microarrayBatch". As any classical S4 object it contains a set
+of slots whose names can be accessed with the <tt>slotNames</tt>
+function.</p>
+
+
+<pre class="brush:r;">
+myMA <- new("microarrayBatch")
+isS4(myMA)
+is(myMA)
+slotNames(myMA)
+</pre> 
+  
+<p>The type of object stored in each slot can be accessed using
+the <tt>getClassDef</tt> function.</p>
+
+<pre class="brush:r;">
+getClassDef("microarrayBatch")
+</pre> 
+  
+<p>Let us store an artificial data set with two microarrays, each
+containing 10 genes.</p>
+  
+<pre class="brush:r;">
+myMA@R<-matrix(rnorm(20),nc=2)
+myMA@G<-matrix(rnorm(20),nc=2)
+myMA@Rb<-matrix(rnorm(20),nc=2)
+myMA@Gb<-matrix(rnorm(20),nc=2)
+myMA@description <- "an artificial experiment"
+myMA
+</pre> 
+  
+<p>As every S4 objects, each slot can be accessed using the @
+operator:</p>
+
+<pre class="brush:r;">
+myMA@R
+myMA@G
+</pre> 
+
+<p>We can link functions (called methods) to this object. For instance
+we can define a method <tt>getGreen()</tt> for the class
+microarrayBatch. This will retrieve the data stored in slot G (red
+channel of the two-color microarray). </p>
+ 
+<pre class="brush:r;">
+## Define a function getGreen(), that retrieves the data stored in 
+## slot G (green channel).
+if(!isGeneric("getGreen"))
+        setGeneric("getGreen", function(object)
+                standardGeneric("getGreen")
+        )
+
+setMethod("getGreen",signature("microarrayBatch"),
+	function(object){
+	return(object@G)
+})
+</pre> 
+  
+
+Now let's call this function 
+
+<pre class="brush:r;">
+getGreen(myMA)
+</pre>
+
+<p>We can check that the function returns, as expected, the content of
+the slot G of our microarrayBatch object.</p>
+
+<pre class="brush:r;">
+getGreen(myMA) == myMA@G
+</pre> 
+
+<p>As shown in this example we can easily define new object and
+methods within R. This S4 formalism is used throughout bioconductor
+project.</p>
+
+<a name="boer"></a>
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<h2>The dataset from Den Boer (2009)</h2>
+
+    <p>Here we will use a subset of the GSE13425 experiment which which
+      can be retrieved from
+      the <a
+	     href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE13425">Gene
+	Expression Omnibus</a> (GEO) public database. In this experiment,
+      the authors were interested in the molecular classification of acute
+      lymphoblastic leukemia (ALL) characterized by an abnormal clonal
+      proliferation, within the bone marrow, of lymphoid progenitors
+      blocked at a precise stage of their differentiation.</p>
+    
+    <p>Data were produced using Affymetrix geneChips (Affymetrix Human
+      Genome U133A Array, HGU133A). Informations related to this
+      platform are available on GEO website under
+      identifier <a href="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=GPL96">GPL96</a>.</p>
+    
+    <div class="exo">
+      <ul>
+	<li>Go to the GEO website to get information about the experiment 
+	  <a target="_blank" href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE13425">GSE13425</a>.</li> 
+	<li>What kind of tumor types were analyzed ?</li>
+	<li>What does HGU133A stand for ?</li>
+      </ul>
+    </div>
+    <p></p>
+
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+    <a name="read" ></a>
+    <h2>Reading Affymetrix data</h2>
+    <p></p>
+    <h3>Retrieving data</h3>
+    <div class="protocol">
+      <ul>
+	<li>Open a terminal</li>
+	<li>Create a directory GSE13425.</li>
+	<li>Move to this directory.</li>
+	<li>Download the subset of the affymetrix raw files :<a href='data/GSE13425_sub.tar'> GSE13425_sub.tar</a>
+	<li>Uncompress the files</li>
+	<li>Download data related to sample phenotypes <a href="http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/practicals/affynorm_td/data/phenoData_sub.txt">phenoData_sub.txt</a>.</li>
+	<li>Have a look at the phenoData_sub.txt file.</li>
+      </ul>
+    </div>
+    <p></p>
+    
+    <a href="javascript:sizeTbl2('block','sol_wget')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_wget')">Hide solution</a>
+    
+    <div id="sol_wget"  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+      
+  <pre class="brush:r;">
+cd
+mkdir GSE13425
+cd GSE13425
+wget http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/practicals/affynorm_td/data/GSE13425_sub.tar
+tar xvf GSE13425_sub.tar
+gunzip *gz
+wget  http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/practicals/affynorm_td/data/phenoData_sub.txt
+less phenoData_sub.txt # q to quit
+  </pre>
+</div>
+
+
+    <p><b>Note:</b> we won't perform pre-processing of the full dataset due
+      to memory and time issues.</p>
+    
+
+
+    <h3>Loading data into R</h3>
+    <p></p>
+    <div class="protocol">
+      <ul>
+	<li>Launch  R</li>
+	<li>Load the affy library</li>
+	<pre class="brush:r;">library(affy)</pre>
+	<li>Using the ReadAffy function, assign the result of
+	  the <tt>ReadAffy</tt> function to an object named <i>affy.s13</i>
+	  (Note: the object name is arbitrary, we choose this name to indicate
+	  that this object contains an object of type "AffyBatch", containing
+	  the intensity values for 13 selected samples of the DenBoer
+	  dataset).</li>
+	<li>print the <i>affy.s13</i> object.</li>
+      </ul>
+    </div>
+
+
+    <a href="javascript:sizeTbl2('block','sol_read')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_read')">Hide solution</a>
+
+    <div id="sol_read"  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+  
+  <pre class="brush:r;">
+library(affy)
+setwd("~/GSE13425")
+affy.s13 <- ReadAffy(verbose=TRUE)
+affy.s13
+</pre>
+    </div>
+
+    <div class="exo">
+      <ul>
+	<li>What is the class of this object ?</li>
+	<li>What slots does this object contain ?</li>
+	<li>How many probes does the microarray contain ?</li>
+	<li>Ask for help about the corresponding class</li>
+	<li>What does the assayData slot contain ?</li>
+	<li>Have a look at the method associated to this class</li>
+	<li>What does the exprs method returns ? What are the dimensions ?</li>
+	<li>Does the expression matrix contains as many rows as the number of
+	  cells on the array ?</li>
+      </ul>
+    </div>
+    <p></p>
+
+    <a href="javascript:sizeTbl2('block','sol_affy')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_affy')">Hide solution</a>
+
+    <div id="sol_affy"  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+      
+<pre class="brush:r;">
+is(affy.s13)
+slotNames(affy.s13)
+affy.s13@nrow*affy.s13@ncol
+
+## Get help message about the AffyBatch class
+?"AffyBatch"
+
+## Note: 
+## - The assayData contains the expression data (in the form of an
+##   environment object).
+## - The exprs method returns expression data.
+
+## Check the dimensions of the expression matrix
+dim(exprs(affy.s13)) ## one row per probe, one column per sample
+
+## Compare the dimensions of the array with the number of expresssion values
+nrow(affy.s13)
+ncol(affy.s13)
+nrow(affy.s13)*ncol(affy.s13) == nrow(exprs(affy.s13))
+
+## Display the first 10 rows of the expression matrix
+head(exprs(affy.s13))
+
+## Display the last 10 rows of the expression matrix
+tail(exprs(affy.s13))
+</pre>
+</div>
+<p></p>
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="pheno"></a>
+<h2>Loading phenotypic data</h2>
+
+    <p>By default the ReadAffy function does not load phenotypic
+      data. They can be load using the <tt>read.AnnotatedDataFrame</tt>
+      function that will return an object of
+      class <tt>AnnotatedDataFrame</tt>. </p>
+
+    <div class="exo">
+      Given that the <tt>phenoData</tt> slot of affy.s13 (our instance of class
+      AffyBatch) is also an <tt>AnnotatedDataFrame</tt> assign the result
+      of <tt>read.AnnotatedDataFrame</tt> to our <i>affy.s13</i> object.
+    </div>
+
+    <a href="javascript:sizeTbl2('block','sol_pheno')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_pheno')">Hide solution</a>
+
+    <div id="sol_pheno"  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+      
+  
+<pre class="brush:r;">
+pheno <- read.AnnotatedDataFrame("phenoData_sub.txt")
+affy.s13@phenoData <- pheno
+phenoData(affy.s13)
+head(pData(affy.s13))
+p <- pData(affy.s13)
+
+## Open the phenodata with a user-friendly editor 
+fix(p)
+</pre> 
+    </div>
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+    <p></p>
+    <h2>Indexing an affyBatch object</h2>
+    <p></p>
+
+    <p>The indexing operator '[' (which in fact is a function...), is also
+      re-defined in the source code of the <tt>affy</tt> library. The code
+      stipulates that the indexing function will always return an AffyBatch
+      object. In the following example when selecting two microarrays, we
+      also select both the expression values and the corresponding
+      phenotypic data </p>
+
+   
+<pre class="brush:r;">
+affy.s2<-affy.s13[,1:2]
+pData(affy.s2)
+</pre> 
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+    <p></p>
+    <a name="graphics"></a> 
+    <h2>Affy library: graphics</h2>
+    <p></p>
+    <h3>The image function</h3>
+    <p></p>
+    <div class="exo">
+      <ul> 
+	<li>Generate a pseudo image of the first and second arrays using the <tt>image</tt> function.</li>
+      </ul>
+    </div>
+
+    <a href="javascript:sizeTbl2('block','sol_image')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_image')">Hide solution</a>
+
+    <div id="sol_image"  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+      
+      
+<pre class="brush:r;">
+image(affy.s13[,1])
+image(affy.s13[,2])
+</pre> 
+</div>
+
+    <h3>The barplot.ProbeSet() function</h3>
+
+    <p>The probeSet names can be accessed through the <tt>geneNames</tt>
+      function. </p>
+
+
+<pre  class="brush:r;">
+gn <- geneNames(affy.s13)
+is(gn)
+gn[1:10]
+</pre> 
+
+    <p><b>Note:</b> the method <tt>geneNames()</tt> returns probeset
+      identifiers rather than actual "gene names".</p>
+
+    <!-- DENIS: pourrais-tu ajouter ici une section expliquant comment
+	 obtenir les probesets à partir d'un vrai nom de gène, par exemmple
+	 STAT1 ? Attirer l'attention que dans certains cas un gène peut
+	 correspondre à un seul probeset (par exemple CD9) et dans certains cas
+	 à plusieurs (par exemple STAT1). -->
+
+    <p>Given one or several probeSet IDs, the <tt>probeset</tt> method
+      allows one to extract the corresponding probe expression values.</p>
+
+<pre class="brush:r;">
+probeset(affy.s13,"221798_x_at") # warning, this returns a list !
+</pre>
+
+<div class="exo">
+  <ul>
+    <li>Use the function <tt>barplot.ProbeSet()</tt> to visualize the
+      intensity values for the perfect macth probes (<i><b>PM</b></i>) and
+      mismatch probes (<i><b>MM</b></i>) of the probeSet with identifier
+      "200000-s_at".</li>
+    <li>Do the same for the probesets "221798_x_at" and
+      "209380_s_at".</li>
+    <li>What can we conclude about the PM and MM values for these
+      probesets ?</li>
+  </ul>
+</div>
+
+
+<a href="javascript:sizeTbl2('block','sol_bar')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_bar')">Hide solution</a>
+
+<div id="sol_bar"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+  
+  
+<pre class="brush:r;">
+ps <- probeset(affy.s13, "200000_s_at")
+barplot.ProbeSet(ps[[1]])  # Note: ps is a list !
+## Press return until all samples have been shown
+
+## Display PM/MM pairs for another probeset
+barplot.ProbeSet(probeset(affy.s13, "221798_x_at")[[1]])
+
+## Display PM/MM pairs for another probeset
+barplot.ProbeSet(probeset(affy.s13, "209380_s_at")[[1]])
+</pre> 
+
+<h4>Interpretation</h4>
+
+  <p>The object ps[51]] contains the intensity values for all the probes
+    of the selected probeset (the probeset with ID "221798_x_at" in this
+    case), and for each sample of the series (13 samples in our case).</p>
+  
+  <p>The barplot displays the PM (red bars) and MM (blue bars) values
+    for the 11 probe pairs of this probeset. Each time we press returns,
+    the program displays the next sample of the series.  </p>
+  
+  <p>Some observations:
+    <ol>
+      <li>The first probeset on ("200000_s_at", corresponding to the
+	gene PRPF8) is a typical case of “Present” call: PM values are
+	almost always higher than MM values. The differences between
+	PM and MM are thus indicative of the signal, relative to the
+	background (noise). However, the intensity values differ
+	between the 11 probes that correspond to different fragments
+	of sampled gene. We will thus need a way to summarize these
+	values in order to estimate the level of expression of the
+	gene as a whole. </li>
+      <li>The second probeset ("221798_x_at") also seems expressed,
+	but there is soe inconsistency between the different probes
+	sampled for this gene: the 4 first probe pairs are
+	systematically very low for both PM and MM, whereas the probe
+	pairs 5 to 11 are associated to higher values. We should thus
+	decide whether these undetected probes have to be taken in
+	consideration or not when computing a summary value for the
+	gene. </li>
+      <li>The last probeset ("209380_s_at") is typical of another
+	problem: the PM and MM have more or less the same values,
+	suggesting that the gene is not detectable above the
+	background level. Even worse: there is an apparent problem
+	with the 8<sup>th</sup> probe pair, which systematicaly shows
+	higher values for the mismatch probe than for the perfect
+	match probe. This opens another problem: how should we treat
+	the genes for which the PM values (supposed to indicate mRNA
+	concentrations) are lower than the MM values (indicating the
+	background)? Taking the simple difference would lead to an
+	obvious problem, since we would have negative values for a
+	variable supposed to represent mRNA concentrations! </li>
+    </ol>
+  </p>
+
+</div>
+
+
+    <p></p>
+    <a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+    <a name="qc"></a>
+    <h2>Quality control of raw data</h2>
+    <p></p>
+    <h3>Descriptive statistics</h3>
+
+    <div class="exo">
+      <ul>
+	<li>Create an object named affyLog2, which will contain the expression
+	  values transformed in logarithmic scale (base 2).</li>
+	<li>Display the distribution of the first array using
+	  the <tt>hist</tt> function (use the affyLog object).</li>
+	<li>Use the <tt>plotDensity</tt> function to display microarray
+	  distributions (use the affyLog object).</li>
+	<li>Use the <tt>boxplot</tt> function to display microarray
+	  distributions (use the affyLog object and pch="." as argument).</li>
+      </ul>
+    </div>
+    
+    <a href="javascript:sizeTbl2('block','sol_dist')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_dist')">Hide solution</a>
+
+    <div id="sol_dist"  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+  
+  
+<pre class="brush:r;">
+## Perform a log2 transformation of expression values for the 13 samples
+affyLog2 <- log2(exprs(affy.s13))
+dim(affyLog2)
+
+## plot the histogram of raw expression values for the first sample
+hist(exprs(affy.s13)[,1], breaks=200)
+
+## plot the histogram of log2-transformed expression values 
+## for the first sample.
+hist(affyLog2[,1], br=100, col=rainbow(100))
+
+## Plot polygon frequencies for all the samples
+plotDensity(affyLog2)
+
+## Draw box plots for the 13 samples
+boxplot(affyLog2, pch=".",las=2, cex.axis=0.5)
+</pre> 
+
+<h4>Interpretation</h4>
+
+<ol>
+  <li>The first histogram showed the largely asymmetrical distribution of
+    raw expression values.</li>
+  
+  <li>The logarithmic transformation is a classical way to normalize
+    data. The histogram of log-transformed values gives us a better
+    perception of the distribution, because it emphasizes the lower
+    values. We however notice that this log-transformed distribution
+    is still far from "normal" (i.e. the Gaussian curve): the
+    histogram is strongly asymmetrical. The bulk of the distribution
+    is comprized between 5 and 8, but it shows a long tail on the
+    right size, extending to ~13.  </li>
+
+  <li>The plot obtained with <tt>plotDensity</tt> reveals another
+    typical problem: samples differ by the global range of their
+    distribution: some samples have a shifted or wider distribution
+    than other samples. One reason for normalizing expression data
+    will be to ensure consistency between these distributions. </li>
+
+  <li>The box plots provide us with a synthetic vision of the
+    distributions across samples. The thick bar indicates the mean
+    value for a given sample, and the rectangle marks the limits of
+    the first and third quartiles. The dotted lines delimited by
+    horizontal bars indicate a confidence interval. Values falling
+    outside of this interval are considered as "outliers", i.e. they
+    are unlikey to result from the null model. In this case outilers
+    indicate genes expressed at a particularly high level. Note that
+    the level of expression is not a very interesting criterion <i>per
+    se</i>: the goal of this experiment is to detect genes
+    differentially expressed between different cancer types,
+    irrespective of the fact that these genes are expressed at high,
+    intermediate or moderate levels. .</li>
+  
+</ol>
+
+    </div>
+
+
+    <h3>AffyRNAdeg</h3>
+
+    <p>The box plots and histograms generated above indicate the
+      global distribution of intensity values for all probes. A
+      well-known pittfall of Affymetrix technology is
+      the <i>degradation</i> effect: for a given gene, the intensity
+      tend to decrease from the distalmost (3') to the less distal
+      (5') probes. The affy library implements a specific quality
+      control criteria, enabling to plot the changes in mean
+      intensities from 5' to 3' probes (<tt>AffyRNAdeg</tt>
+      function).</p>
+
+<pre class="brush:r;">
+degradation <-  AffyRNAdeg(affy.s13)
+?AffyRNAdeg
+plotAffyRNAdeg(degradation, panel.first=grid())
+</pre> 
+
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<p></p>
+<a name="pa"></a> 
+<h2>Present/absent calls</h2>
+
+    <p>It is most generally important to select a set of genes that
+      are above the background in at least a given number of
+      samples. The affymetrix reference method allows one to compute
+      for each probeSet a Absent/Marginal/Present call
+      (A/M/P). However, this method is based on the comparison of
+      signals emitted by PM and MM (that tend to follow the PM
+      signal). This function is implemented in <tt>mas5calls</tt>
+      function (as it was originally part of the MAS5 normalization
+      algorithm).</p>
+
+
+<pre class="brush:r;">
+## Compute the A/M/P calls
+ap <- mas5calls(affy.s13)
+is(ap)
+
+## Retrieve the A/M/P values from ap (we don't need the other attributes).
+## These values are accessible via the same function exprs() used above
+## to get expression values from the affy object.
+ap <- exprs(ap)
+
+## Compute a cross-table indicating the number of A, M and P calls for
+## each sample.
+ap.table <- apply(ap,2,table)
+print(ap.table)
+
+## Compute the relative frequencies of A, M and P calls per sample
+ap.freq.table <- ap.table / apply(ap.table, 2, sum)
+print(ap.freq.table)
+
+## Draw a barplot indicating the relative frequencies of A, M and P calls per sample.
+barplot(ap.table/nrow(ap),las=2, cex.names=0.55, main="% of A/M/P calls")
+
+## Let us add a legend besides the barplots
+barplot(ap.table/nrow(ap),las=2, cex.names=0.55, main="% of A/M/P calls", legend=rownames(ap.table), xlim=c(1,18))
+</pre>
+
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="norm"></a>
+<p></p>
+<h2>Data normalization</h2>
+
+    <p>Numerous methods have been proposed for affymetrix data
+      normalization (mas5, PLIER, Li-Wong, rma, gcrma,...). These methods
+      rely on elaborate treatment, including inter-sample normalization. A
+      detailed description and comparison of these methods is out of scope
+      for his course. For this practical, we will use the (<tt>rma()</tt>)
+      function. Note that RMA normalization includes a log2 transformation
+      of the raw data.</p>
+
+
+<pre class="brush:r;">
+eset <- rma(affy.s13)
+</pre> 
+
+<div class="exo">
+<ul>
+<li>What object is returned by rma ?</li>
+<li>Which slots does the object contain ?</li>
+<li>Ask for some help about the class of this object .</li>
+<li>What are the slot contained within this object ?</li>
+<li>Use the <tt>smoothScatter</tt> function (library geneplotter) to compare normalized values from the first and second microarray.</li>
+</ul>
+</div>
+
+  
+<a href="javascript:sizeTbl2('block','sol_eset')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_eset')">Hide solution</a>
+
+<div id="sol_eset"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+  
+  
+<pre class="brush:r;">
+is(eset)
+?"ExpressionSet"
+
+## Draw a scatter plot to compare expression values between samples 1 and 2
+plot(exprs(eset)[,1], exprs(eset)[,2], col="gray")
+grid() ## Add a grid
+abline(a=0, b=1) ## Mark the diagonal
+
+## Draw a smoothed scatter plot to compare expression values between samples 1 and 2
+library(geneplotter)
+smoothScatter(exprs(eset)[,1], exprs(eset)[,2])
+</pre> 
+</div>
+<p></p>
+
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="exprs"></a>
+<h2>The ExpressionSet object</h2>
+
+    <p>The ExpressionSet class is central to BioC as lots of packages
+      converge to produce ExpressionSet instances. This simple object is
+      intended to store normalized data from various technologies.
+    </p>
+    
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="normres"></a>
+<h2>Checking the normalization results</h2>
+<h3>Relative Log Expression (RLE)</h3>
+
+<p>One can use classical diagram to visualize the normalization
+  results. Another solution to check the normalization of an
+  expression matrix is to use the Relative Log Expression (RLE)
+  plot.</p>
+
+<pre class="brush:r;">
+## Compare the expression values before and after normalization
+x11(width=8, height=10) ## Open a graphical window with specific dimensions
+par(mfrow=c(2,1)) ## Share this window between two plots
+boxplot(log2(exprs(affy.s13)), pch=".", las=2, cex.axis=0.5, main="Before normalization (log2-transformed) - Probe level")
+grid()
+boxplot(exprs(eset), pch=".", las=2, cex.axis=0.5, main="RMA-normalized - Probeset level")
+grid()
+
+## Plot the density distributions before and after normalization
+plotDensity(log2(exprs(affy.s13)), main="Before normalization (log2-transformed) - Probe level", xlim=c(0,16)); grid()
+plotDensity(exprs(eset), main="RMA-normalized - Probeset level", xlim=c(0,16)); grid()
+
+par(mfrow=c(1,1)) ## Restore single plot per page
+
+## Compute a median for each row (probe)
+m <- rowMedians(exprs(eset))
+
+## Centring: substract the median value of each probe
+rle <- sweep(exprs(eset),1, m, "-")
+
+## Plot a box of the probe-wise centred values
+x11(width=8, height=8)
+boxplot(rle, pch=".", las=2, cex.axis=0.5)
+</pre> 
+</div>
+
+<div class="exo">
+<ul>
+<li>What does the RLE plot assess ?</li>
+</ul>
+</div>
+
+<a href="javascript:sizeTbl2('block','sol_rle')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_rle')">Hide solution</a>
+
+<div id="sol_rle"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<p>For each array, each probe is compared to its corresponding median
+  signal. As expression values for most of the genes should be
+  unchanged, the vast majority of values should be closed to zero in
+  each column.</p>
+</div>
+<p></p>
+
+
+
+<h3>MA plot diagram</h3>
+
+<p>One popular diagram in dna chip analysis is the M versus A plot (MA
+plot). In this diagram:</p>
+<ul>
+  <p><b><i>M</i></b> is the log intensity ratio calculated for any gene.</p>
+  <p><b><i>A</i></b> is the average log intensity which corresponds to
+    an estimate of the gene expression level. </p>
+</ul>
+
+<p>Would data be perfectly normalized, M value should not depend on A
+  values. To represent the MA plot we will first compute values for a
+  pseudo-microarray that will be the reference. This pseudo-microarray
+  will be highly representative of the series as it will contain
+  the median expression values for each gene.</p>
+
+  
+<pre class="brush:r;">
+ref<-rowMedians(exprs(eset))
+</pre> 
+
+<p></p>
+<div class="exo">
+<li>Calculate A<sub>1..n</sub> and M<sub>1..n</sub> for sample 1 versus <i>ref</i> given that for each gene g with intensities I<sub>g,1</sub> et I<sub>g,ref</sub> M and A can be computed as follows:</li>
+A=(I<sub>g,1</sub>+I<sub>g,ref</sub>)/2<br />
+M=I<sub>g,1</sub>&#8722;I<sub>g,ref</sub>
+<li>Using the <tt>abline</tt> function (h argument) add the line M=1, M=-1 and M=0.</li>
+<li>Using the text function display the names of probesets for which the absolute value of the ratio is above 4.</li>
+</ul>
+</div>
+<p></p>
+
+
+<p></p>
+
+<a href="javascript:sizeTbl2('block','sol_ma')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_ma')">Hide solution</a>
+
+<div id="sol_ma"  style="overflow:hidden;display:none">
+<h4>Solution</h4>
+<pre class="brush:r;">
+A <-  (exprs(eset)[,1] + ref)/2
+M <-  exprs(eset)[,1] - ref
+plot(A,M,pch=16,col=rainbow(1,alpha=0.15,start=0.7), panel.first=grid())
+
+## Note: on some systems, the alpha parameter is not supported. If you
+## face this problem, type the following.
+plot(A,M, pch=1, col="darkgray", panel.first=grid())
+
+## Label the IDs of up- and down-regulated genes
+text(A[abs(M) > 4],  M[abs(M) > 4], featureNames(eset)[abs(M) > 4], cex=0.4,pos=4)
+abline(h=0)
+abline(h=1)
+abline(h=-1)
+
+## Draw a local regression line
+lines(lowess(A,M),col="green",lwd=3) # one can also add the lowess curve
+</pre>
+</div>
+<p></p>
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="annot"></a>
+<h2>Probe annotations</h2>
+
+<p>As you have probably noticed, the gene names are neither available
+in the affyBatch object nor in the eset object. Each affymetrix
+microarray has its own annotation library that can be used to link
+probesets to genes Symbol and retrieve additional information about
+genes. Here we need to load the <tt>hgu133a.db</tt> library. If it is
+not previously install, use the <tt>biocLite</tt> function.</p>
+
+<p></p>
+<pre class="brush:r;">
+source("http://www.bioconductor.org/biocLite.R")
+if(!require(hgu133a.db))      biocLite("hgu133a.db")
+</pre> 
+
+<p></p>
+<p>This library give access to a set of annotation sources that can be listed using the <tt>hgu133a</tt> function.</p>
+<p></p>
+
+<pre class="brush:r;">
+library(hgu133a.db)
+hgu133a()
+</pre> 
+  
+
+<p>The following commands can be used to retrieve gene Symbols for the hgu133a geneChip.</p>
+
+   
+<pre class="brush:r;">
+## Beware: the funciton geneNames returns probe IDs, and NOT gene names
+gn<-geneNames(affy.s13)
+head(gn)
+gn[1]
+
+##  What biologists call "gene names" is called  "gene symbols" in Bioconductor.
+mget(gn[1:4],env=hgu133aSYMBOL)
+
+
+## Collect a vector with the correspondences between probeset IDs 
+## and gene symbols (names).
+probesets.to.genes <- unlist(mget(gn,env=hgu133aSYMBOL))
+head(probesets.to.genes)
+
+## Let us try to identify the probesets associated to a given gene of interest, for example STAT1
+probesets.to.genes.selected <- grep("STAT1", probesets.to.genes, val=TRUE)
+print(probesets.to.genes.selected)
+
+## Interpretation: the grep returned a vector where values are the 
+## matching gene symbols (names), and entry names are the probeset IDs. 
+probesets.selected <- names(probesets.to.genes.selected)
+probesets.selected ## Print the result
+
+## We notice that STAT1 is represented by several probesets on the 
+## hgu133a gene chip. Some other genes (the majority) are represented 
+## by a single probeset.
+names(grep("PAX6", probesets.to.genes, val=TRUE))
+
+## Count the number of probesets for each gene symbol (name) 
+## on the hgu133a mircoarray.
+probesets.per.gene <- table(probesets.to.genes)
+head(probesets.per.gene, n=30)
+
+## Show the most represented gens
+head(sort(probesets.per.gene, decreasing=TRUE), n=30)
+
+## Plot an histogram with the number of probesets per gene
+hist(probesets.per.gene, breaks=seq(from=0.5, to=13.5, by=1))
+</pre>
+
+
+<p></p>
+<div class="exo">
+<li>Create a new object, m, that will contain the normalized
+  expression matrix.</li>
+<li>Change the row names (<tt>rownames</tt> function) of m so that
+  they will contain both the probe names and gene symbols (use the
+  paste <tt>function</tt> with "|" as separator).  </li>
+</div>
+
+<p></p>
+
+<a href="javascript:sizeTbl2('block','sol_rn')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_rn')">Hide solution</a>
+
+<div id="sol_rn"  style="overflow:hidden;display:none">
+<h4>Solution</h4>
+<pre class="brush:r;">
+## Store expression values in a matrix
+expr.matrix <- exprs(eset)
+
+## Redefine row names as a concatenation of gene names and probeset IDs 
+rownames(expr.matrix) <- paste(probesets.to.genes, gn, sep="|")
+</pre>
+</div>
+<p></p>
+
+
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="writing"></a>
+<h2>Writing data onto disk</h2>
+
+<p>R objects can be saved using the <tt>save</tt> function (then
+  subsequently load using the load <tt>function</tt>). For a
+  tab-delimited file output one may use the <tt>write.table</tt>
+  function.</p>
+   
+<pre class="brush:r;">
+## Save the R object "eset" as a whole
+save(eset,file="eset.Rdata")
+
+## Save the expression matrix in a tab-delimited file, that can
+## further be opened with a spreadsheet (Excel, OpenOffice calc, ...).
+write.table(expr.matrix,"GSE3254_norm.txt",sep="\t",col.names=NA, quote=F)
+</pre> 
+
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="references"></a>
+
+<h2>Additional exercices</h2>
+<p>Using boxplot and densities, compare the effect on raw pm data of quantile normalization vs median centering, median-centering and scaling, and median-centering and scaling with mad.</p>
+
+<h2>References</h2>
+
+<ol>Den Boer et al. A subtype of childhood acute lymphoblastic
+  leukaemia with poor treatment outcome: a genome-wide classification
+  study. Lancet Oncol (2009) vol. 10 (2) pp. 125-34.
+</ol>
+
+<hr>
+</body>
+</html>

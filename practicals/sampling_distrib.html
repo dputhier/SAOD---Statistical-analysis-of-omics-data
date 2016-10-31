@@ -1,0 +1,109 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="../html/course.css" media="screen,projection" />
+<title>Statistics for Bioinformatics - Practicals - Sampling Distributions</title>
+</head>
+<body>
+
+<h1 align=center>Statistics for Bioinformatics<br>Practicals - Sampling Distributions</h1>
+
+
+</ul><h2>Introduction</h2>
+
+<!--
+<h2>Theory</h2>
+
+<p>This tutorial is an application of concepts seen in the following
+chapters of the course:
+<ol>
+</ol>
+-->
+
+<h2>Prerequisite</h2>
+
+
+<!--
+<ul>
+<li>This tutorial assumes you already executed the
+script <tt>config.R</tt> as described in the <a
+href="http://pedagogix-tagc.univ-mrs.fr/statistics_bioinformatics/R-files/configuration.html#R">configuration page</a>.
+</ul>
+-->
+
+<h2>Tutorial</h2>
+
+<pre>
+
+## Load the configuration script
+source('http://pedagogix-tagc.univ-mrs.fr/courses/statistics_bioinformatics/R-files/config.R')
+
+## Generate a set of random numbers
+p <- 100 ## Number of columns in the table
+r <- 10000 ## Number of repetitions
+x <- matrix(rnorm(r*p), nrow=r, ncol=p)
+dim(x) ## Dimensions of the data table
+x[1:10, 1:15] ## Display a subset of the matrix (10 rows, 15 columns in the top left of the matrix)
+
+## Check the general distribution of the 10000 samples (altogether)
+
+## Draw an histogram
+hist(x, breaks=100)
+
+## Draw an histogram and store the distribution in a variable called x.distrib 
+x.distrib <- hist(x, breaks=100)
+names(x.distrib)
+x.distrib$breaks ## class boundaries
+
+## Plot a frequency polygon
+plot(x.distrib$mids, x.distrib$density, type="l",col="blue",panel.first=grid(col="black"),ylim=c(0,2), lwd=2,xlab="x", ylab="density")
+
+## Plot the theoretical distribution as a dotted line
+lines(x.distrib$mids, dnorm(x.distrib$mids),type="l", col="red",lty="dashed",lwd=2)
+
+## Calculate the means for r=10000 samples of size n=3
+my.colors <- c("darkgreen", "darkblue", "darkviolet", "violet", "purple", "brown")
+i <- 0
+for (n in c(3,10,100)) {
+  
+  i <- i+1
+
+  ## Select the n first columns of the matrix
+  sample <- x[,1:n] ## Select n columns of the matrix
+  print(sample[1:10, ]) ## display the first 10 rows of the sample
+  
+  ## Calculate the mean for each row of the sub-matrix (for each one of the r=10000 samples)
+  ## You can call help(apply) to understand how the function apply() works
+  sample.means <- apply(sample, 1, mean) ## The second argument (1) indicates that we apply the operation (mean) on each row
+  ## print(sample.means)
+  
+  
+  ## Calculate the distribution of sample means
+  sample.mean.distrib <- hist(sample.means, breaks=100, plot=F)
+  ##  print(sample.mean.distrib)
+  
+  ## Plot the sample mean distribution over the sample distribution
+  lines(sample.mean.distrib$mids, sample.mean.distrib$density, type="l",col=my.colors[i],lwd=2)
+
+  ## Plot the theoretical distribution as a dotted line
+  lines(x.distrib$mids, dnorm(x.distrib$mids, sd=1/sqrt(n)),type="l", col="red",lty="dashed",lwd=2)
+
+}
+
+</pre>
+
+<h2>Exercises</h2>
+
+<ol>
+  <li>Adapt the script above to show the sampling distribution of the
+    mean of <i>n</i> numbers drawn from a uniform distribution. Start
+    with small values of <i>n</i> and progressively increase the
+    sample size by a factor of 2 (1, 2, 4, 8, ..., 1024) .</li>
+</ol>
+
+<!--
+</ul><h2>Additional information</h2><ul>
+-->
+
+<hr>
+</body>
+</html>

@@ -1,0 +1,178 @@
+; oligo-analysis  -v 1 -l 4 -return occ,freq -noov -2str -i data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat05.fasta -o data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat05_4nt-noov-2str.tab
+; Citation: van Helden et al. (1998). J Mol Biol 281(5), 827-42. 
+; Program version              	1.169
+; Slow counting mode           
+; Oligomer length              	4
+; Input file                   	data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat05.fasta
+; Input format                 	fasta
+; Output file                  	data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat05_4nt-noov-2str.tab
+; Discard overlapping matches
+; Counted on both strands
+; 	grouped by pairs of reverse complements
+; Background model             	Bernoulli
+; Background estimation method 	
+; Sequence type                	DNA
+; Nb of sequences              	689
+; Sum of sequence lengths      	192449
+; discarded residues           	5061	 (other letters than ACGT)
+; discarded occurrences        	5007	 (contain discarded residues)
+; nb possible positions        	185375
+; total oligo occurrences      	185375
+; total overlapping occurrences	6919
+; total non overlapping occ    	178456
+; alphabet size                	4
+; nb possible oligomers        	136
+; oligomers tested for significance	0
+;
+; column headers
+;	1	seq            	oligomer sequence
+;	2	identifier     	oligomer identifier
+;	3	obs_freq       	observed relative frequency
+;	4	occ            	observed occurrences
+;	5	ovl_occ        	number of overlapping occurrences (discarded from the count)
+;	6	forbocc        	forbidden positions (to avoid self-overlap)
+#seq	identifier	obs_freq	occ	ovl_occ	forbocc
+aaaa	aaaa|tttt	0.0153364801079	2843	1484	8433
+aaac	aaac|gttt	0.0112474713419	2085	0	6196
+aaag	aaag|cttt	0.0139662845583	2589	0	7725
+aaat	aaat|attt	0.0158381658800	2936	116	8740
+aaca	aaca|tgtt	0.0123479433581	2289	64	6818
+aacc	aacc|ggtt	0.0068024275118	1261	0	3759
+aacg	aacg|cgtt	0.0010627107215	197	9	584
+aact	aact|agtt	0.0096291301416	1785	0	5299
+aaga	aaga|tctt	0.0135347269049	2509	71	7483
+aagc	aagc|gctt	0.0074875252866	1388	57	4140
+aagg	aagg|cctt	0.0106810519218	1980	0	5902
+aagt	aagt|actt	0.0095374241403	1768	0	5271
+aata	aata|tatt	0.0119919082940	2223	162	6620
+aatc	aatc|gatt	0.0070128118678	1300	0	3856
+aatg	aatg|catt	0.0112474713419	2085	0	6223
+aatt	aatt|aatt	0.0059554956170	1104	0	6576
+acaa	acaa|ttgt	0.0114956169926	2131	60	6334
+acac	acac|gtgt	0.0090788941335	1683	401	5018
+acag	acag|ctgt	0.0118786244100	2202	0	6556
+acat	acat|atgt	0.0108374915711	2009	70	5989
+acca	acca|tggt	0.0081024949427	1502	47	4472
+accc	accc|gggt	0.0061712744437	1144	0	3417
+accg	accg|cggt	0.0009817936615	182	5	542
+acct	acct|aggt	0.0077302764666	1433	0	4253
+acga	acga|tcgt	0.0010950775455	203	1	608
+acgc	acgc|gcgt	0.0009494268375	176	3	518
+acgg	acgg|ccgt	0.0010519217802	195	0	578
+acgt	acgt|acgt	0.0006041807148	112	0	666
+acta	acta|tagt	0.0066729602158	1237	37	3690
+actc	actc|gagt	0.0071476736345	1325	0	3939
+actg	actg|cagt	0.0093809844909	1739	0	5186
+agaa	agaa|ttct	0.0155091031693	2875	73	8572
+agac	agac|gtct	0.0080000000000	1483	0	4418
+agag	agag|ctct	0.0123155765341	2283	260	6802
+agat	agat|atct	0.0098934592043	1834	60	5461
+agca	agca|tgct	0.0104868509777	1944	55	5810
+agcc	agcc|ggct	0.0073472690492	1362	0	4046
+agcg	agcg|cgct	0.0010788941335	200	6	600
+agct	agct|agct	0.0048712070128	903	0	5384
+agga	agga|tcct	0.0116628455833	2162	82	6456
+aggc	aggc|gcct	0.0074066082266	1373	54	4092
+aggg	aggg|ccct	0.0090519217802	1678	0	5007
+agta	agta|tact	0.0073472690492	1362	56	4063
+agtc	agtc|gact	0.0067538772758	1252	0	3747
+agtg	agtg|cact	0.0089440323668	1658	0	4928
+ataa	ataa|ttat	0.0109453809845	2029	152	6034
+atac	atac|gtat	0.0068455832771	1269	31	3771
+atag	atag|ctat	0.0076601483479	1420	46	4225
+atat	atat|atat	0.0061604855024	1142	181	6814
+atca	atca|tgat	0.0085718138908	1589	83	4714
+atcc	atcc|ggat	0.0068941335131	1278	33	3816
+atcg	atcg|cgat	0.0008361429535	155	6	458
+atga	atga|tcat	0.0097100472016	1800	100	5352
+atgc	atgc|gcat	0.0068509777478	1270	95	3790
+atgg	atgg|ccat	0.0091975724882	1705	57	5087
+atta	atta|taat	0.0087606203641	1624	164	4832
+attc	attc|gaat	0.0084423465947	1565	60	4638
+attg	attg|caat	0.0080053944707	1484	35	4413
+caaa	caaa|tttg	0.0136318273769	2527	0	7521
+caac	caac|gttg	0.0063277140931	1173	30	3490
+caag	caag|cttg	0.0091706001349	1700	0	5074
+caca	caca|tgtg	0.0128712070128	2386	462	7096
+cacc	cacc|ggtg	0.0065542818611	1215	34	3609
+cacg	cacg|cgtg	0.0014025623736	260	17	771
+caga	caga|tctg	0.0130654079568	2422	0	7223
+cagc	cagc|gctg	0.0082535401214	1530	103	4547
+cagg	cagg|cctg	0.0107026298045	1984	0	5916
+cata	cata|tatg	0.0084531355361	1567	70	4667
+catc	catc|gatg	0.0080809170600	1498	33	4467
+catg	catg|catg	0.0049790964262	923	0	5512
+ccaa	ccaa|ttgg	0.0085610249494	1587	0	4735
+ccac	ccac|gtgg	0.0078057990560	1447	44	4305
+ccag	ccag|ctgg	0.0104490896831	1937	0	5766
+ccca	ccca|tggg	0.0099635873230	1847	0	5499
+cccc	cccc|gggg	0.0050330411328	933	317	2774
+cccg	cccg|cggg	0.0012353337829	229	4	681
+ccga	ccga|tcgg	0.0011436277815	212	0	632
+ccgc	ccgc|gcgg	0.0009548213082	177	6	531
+ccgg	ccgg|ccgg	0.0005178691841	96	0	572
+ccta	ccta|tagg	0.0056857720836	1054	40	3138
+cctc	cctc|gagg	0.0089008766015	1650	75	4908
+cgaa	cgaa|ttcg	0.0011436277815	212	5	626
+cgac	cgac|gtcg	0.0006958867161	129	1	387
+cgag	cgag|ctcg	0.0012946729602	240	9	715
+cgca	cgca|tgcg	0.0009925826028	184	6	546
+cgcc	cgcc|ggcg	0.0009871881322	183	5	546
+cgcg	cgcg|cgcg	0.0001888064734	35	1	210
+cgga	cgga|tccg	0.0010087660148	187	8	557
+cggc	cggc|gccg	0.0008361429535	155	11	458
+cgta	cgta|tacg	0.0007875927175	146	8	436
+cgtc	cgtc|gacg	0.0008469318948	157	5	469
+ctaa	ctaa|ttag	0.0076547538773	1419	0	4217
+ctac	ctac|gtag	0.0055886716116	1036	6	3086
+ctag	ctag|ctag	0.0030101146325	558	0	3310
+ctca	ctca|tgag	0.0105084288604	1948	0	5790
+ctcc	ctcc|ggag	0.0092838840189	1721	88	5122
+ctga	ctga|tcag	0.0106972353338	1983	0	5887
+ctgc	ctgc|gcag	0.0083344571814	1545	118	4611
+ctta	ctta|taag	0.0075306810519	1396	35	4153
+cttc	cttc|gaag	0.0107349966285	1990	63	5935
+gaaa	gaaa|tttc	0.0136803776129	2536	0	7551
+gaac	gaac|gttc	0.0066513823331	1233	0	3675
+gaca	gaca|tgtc	0.0083290627107	1544	0	4597
+gacc	gacc|ggtc	0.0048388401888	897	0	2667
+gaga	gaga|tctc	0.0105569790964	1957	263	5816
+gagc	gagc|gctc	0.0066783546864	1238	44	3687
+gata	gata|tatc	0.0066244099798	1228	24	3655
+gatc	gatc|gatc	0.0025839514498	479	0	2852
+gcaa	gcaa|ttgc	0.0070937289278	1315	54	3915
+gcac	gcac|gtgc	0.0053351314902	989	31	2950
+gcca	gcca|tggc	0.0072717464599	1348	50	4014
+gccc	gccc|gggc	0.0046716115981	866	13	2576
+gcga	gcga|tcgc	0.0008253540121	153	0	455
+gcgc	gcgc|gcgc	0.0003722184761	69	2	412
+gcta	gcta|tagc	0.0051732973702	959	59	2857
+ggaa	ggaa|ttcc	0.0110694538098	2052	0	6124
+ggac	ggac|gtcc	0.0052811867835	979	0	2920
+ggca	ggca|tgcc	0.0074066082266	1373	0	4095
+ggcc	ggcc|ggcc	0.0025569790964	474	0	2820
+ggga	ggga|tccc	0.0093324342549	1730	0	5152
+ggta	ggta|tacc	0.0047687120701	884	22	2636
+gtaa	gtaa|ttac	0.0066082265678	1225	0	3643
+gtac	gtac|gtac	0.0019474039110	361	0	2148
+gtca	gtca|tgac	0.0068347943358	1267	0	3768
+gtga	gtga|tcac	0.0077194875253	1431	0	4257
+gtta	gtta|taac	0.0057235333783	1061	25	3146
+taaa	taaa|ttta	0.0134861766689	2500	170	7443
+taca	taca|tgta	0.0094349291976	1749	55	5202
+taga	taga|tcta	0.0085987862441	1594	56	4750
+tata	tata|tata	0.0053027646662	983	171	5864
+tcaa	tcaa|ttga	0.0096830748483	1795	0	5348
+tcca	tcca|tgga	0.0106594740391	1976	0	5904
+tcga	tcga|tcga	0.0004962913014	92	0	552
+tgaa	tgaa|ttca	0.0119649359407	2218	0	6596
+tgca	tgca|tgca	0.0050168577208	930	0	5538
+ttaa	ttaa|ttaa	0.0058206338503	1079	0	6404
+; Host name	caminante.local
+; Job started	2015-11-03.141326
+; Job done	2015-11-03.141327
+; Seconds	1.52
+;	user	1.52
+;	system	0.01
+;	cuser	0
+;	csystem	0

@@ -1,0 +1,211 @@
+---
+title: "Selecting differentially expressed genes (DEG) with microarrays"
+author: "Jacques van Helden and Denis Puthier"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    highlight: tango
+    theme: united
+    toc: yes
+    toc_depth: 3
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+css: ../../html/course.css
+---
+
+## Objectives
+
+In this tutorial, we will load microarray data from DenBoer et al. (2009), and perform statistical tests to select differentially expressed genes (DEG).
+
+Through this tutorial, we we learn to do the following operations in R: 
+
+* define file paths by concatenating different parts of them (base URL, base directory, sub-directories)
+* create a directory on our computer to keep a local copy of the files
+* download a files from a Web site
+* load the content of these files into an R data structure called "data.frame", which enables to handle tables with named rows and columns
+* inspect the content of the data tables
+
+##  Configuration
+
+Before running the analyses, we will load some configuration script, which will define the source directory, and create a default output directory for the results.
+
+```{r results='hide'}
+## Specify the base URL for the course
+base.url <- "http://pedagogix-tagc.univ-mrs.fr/courses/statistics_bioinformatics"
+
+## Load the general configuration file
+source(file.path(base.url, 'R-files', 'config.R'))
+
+## Set working directory to the results directory
+setwd(dir.results)
+```
+
+
+## Downoading the dataset from DenBoer, 2009
+
+Define the location of the data from DenBoer, relative to the base URL.
+
+```{r}
+url.denboer <- file.path(base.url, 'data', 'gene_expression','denboer_2009')
+```
+
+
+We define a path on our own computed, where the data will be downloaded.
+
+
+```{r}
+## Define the path of the local copy of the data
+dir.denboer <- file.path(dir.results, "denboer_2009_analysis")
+dir.denboer.data <- file.path(dir.denboer,"data")
+dir.create(dir.denboer.data,showWarnings=FALSE, recursive=TRUE)
+
+
+## Print the location of the future local copy of the expression table
+print("A copy of the data will be stored in local directory.")
+print(dir.denboer.data)
+```
+
+
+We will now download the expression table, which contains one row per gene and one column per sample.
+
+<div class="attention">
+**BEWARE**: the whole file makes 20Mb. Depending on the bandwidth of your internet access, it can take a few seconds to several minutes to be downloaded from the Web site and loaded in R.
+</div>
+
+<div class="tips">
+Note that it is not necessary to keep a local copy of the data tables. <span class="program">R</span> allows you to directly read files from a Web site. However, since the file is big, we propose here to download it only once and keep a local copy, which can then be re-used if we need to reload it for the next sessions of the course. This costs us 22Mb of storage space, but minimize the transfer time. 
+</div>
+
+
+```{r results='hide'}
+## Download the expression table only f required 
+## (if the file is already in the result dir, avoid transferring multiple times)
+for (file in c("GSE13425_Norm_Whole.txt", "phenoData_GSE13425.tab")) {
+  local.file <- file.path(dir.denboer.data, file)
+  if (file.exists(local.file)) {
+    print (paste("Skipping download of file", file, " (Local copy already exists)."))
+  } else {
+    ## Define the URL of the data file on Web server of this course
+    file.url <- file.path(url.denboer, file) 
+    ## Download the file
+    download.file(file.url, local.file, method="wget", quiet = TRUE)
+  }
+}
+```
+
+## Loading the expression table
+
+We now dispose of a local copy of the expression table, we can load it in <span class="program">R</span>, in a variable called <span class="option">expr.matrix</span>. We use the command <span class="command">read.table()</span>, which will load the table in a data structure of the class <span class="option">data.frame()</span>.
+
+```{r}
+## Load the expression table in a data.frame calles "expr.matrix"
+file.expr.matrix <- file.path(dir.denboer.data, "GSE13425_Norm_Whole.txt")
+expr.matrix <- read.table(file.expr.matrix, sep = "\t", head = T, row = 1)
+
+## Let us theck the dimensions of the expression table.
+dim(expr.matrix)
+```
+
+The <span class="command">dim()</span> command prints the dimensions of a table. It displays "22283   190", indicating that the expression matrix contains 22,283 rows (genes) and 190 colums (samples).
+
+We can display the first 5 columns of the 10 top rows, in order to check the content
+
+```{r}
+print(expr.matrix[1:10,1:5])
+```
+
+Load the "phenotype" table, which provides a description of each sample (one row per sample, one column per description field).
+```{r}
+pheno <- read.table(file.path(dir.denboer.data, "phenoData_GSE13425.tab"), 
+                    sep='\t', head=TRUE, row=1)
+dim(pheno)
+```
+
+We will use some convenient <span class="program">R</span> commands (<span class="command">names()</span>,  <span class="command">rownames</span>, <span class="command">head()</span>) to inspect the content of the pheno table.
+
+```{r}
+## Print column names of the phenotype table
+names(pheno)
+
+## Print the names of the first 20 rows 
+rownames(pheno)[0:20]
+```
+
+Print the values of the field Sample.title of pheno Since there are 190 values, we print a random sample of 20 of them, just to get an idea of what they look like.
+
+```{r}
+print(sample(pheno$Sample.title,size=20))
+
+```
+
+
+We can also cound the number of samples per cancer type, sorted by decreasing order.
+For this, we use the command <span class="command">table()</span.
+
+```{r}
+print(data.frame("n"=sort(table(pheno$Sample.title),decreasing=T)))
+```
+
+## Defining abbreviations for cancer type
+
+We will now define an abbreviated name for each cancer subtype, which will be used in the subsequent exercises, eachb time we need to display the cancer type on a plot.
+
+We store pairs of name - abbreviation in a simple vector, since  <span class="program">R</span> allows to associate a label to each entry of the vector. In our case, each entry of the vector will contain the abbreviation (Bch, Bc, ...) and the vector labels will indicate the complete description of the corresponding cancer type.
+
+```{r}
+## Defined the abbreviations for each ALL type
+group.abbrev <- c(
+  'BCR-ABL + hyperdiploidy'='Bch',
+  'BCR-ABL'='Bc',
+  'E2A-rearranged (E)'='BE',
+  'E2A-rearranged (E-sub)'='BEs',
+  'E2A-rearranged (EP)'='BEp',
+  'MLL'='BM',
+  'T-ALL'='T',
+  'TEL-AML1 + hyperdiploidy'='Bth',
+  'TEL-AML1'='Bt',
+  'hyperdiploid'='Bh',
+  'pre-B ALL'='pB'
+)
+
+## Check the content
+print(group.abbrev)
+
+```
+
+We will now define two other vectors, indicating:
+* the cancer type (values of the vector) associated to each sample (labels  of the vector);
+* the abbreviation of the cancer type (values) for each sample (labels).
+
+```{r}
+## Define a vector indicating the subtype of each sample
+sample.subtypes <- as.vector(pheno$Sample.title)
+names(sample.subtypes) <- names(expr.matrix)
+head (sample.subtypes) ## Check first lines of the result
+tail (sample.subtypes) ## Check last lines of the result
+
+## Define a vector with the abbreviated subtype for each sample
+sample.labels <- group.abbrev[sample.subtypes]
+names(sample.labels) <- names(expr.matrix)
+head(sample.labels) 
+tail(sample.labels) 
+```
+
+## Summary
+
+This part of the tutorial is now completed. 
+
+We loaded two data strucutres: 
+* <span class="option">expr.matrix</span>: an expression table, containing the expression values for 22.283 genes (rows) in 190 cancer samples (columns).
+* <span class="option">pheno</span>: a phenotype table, providing a description of the samples.
+
+Based on this initial data, we defined some additional vectors that will be used for display purpose: 
+* <span class="option">group.abbrev</span>: a vector with abbreviations (values) for each cancer type (labels)
+* <span class="option">sample.subtypes</span>: a vector with the cancer subtype (values) for each sample (labels)
+* <span class="option">sample.labels</span>: a vector with the abbreviated cancer subtype (values) for each sample (labels)
+
+
+
+

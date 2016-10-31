@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="html/course.css" media="screen,projection" />
+    <title>M2 BBSG - Analyse statistique des données génomiques</title>
+</head>
+<frameset cols="180,*" framespacing=0 border=0>
+<frame src="html/toc.html" name="toc">
+<frame src="html/home.html" name="main">
+</frameset>
+
+<noframes>
+<body>
+<hr width=6>
+Your browser cannot handle frames.
+You can access the course by connecting the 
+<a href="toc.html">no frames version</a>.  
+<hrl width=6>
+</body>
+</noframes>

@@ -1,0 +1,74 @@
+; oligo-analysis  -v 1 -l 3 -return occ,freq -noov -2str -i data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat07.fasta -o data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat07_3nt-noov-2str.tab
+; Citation: van Helden et al. (1998). J Mol Biol 281(5), 827-42. 
+; Program version              	1.169
+; Slow counting mode           
+; Oligomer length              	3
+; Input file                   	data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat07.fasta
+; Input format                 	fasta
+; Output file                  	data/kmer_occurrences/random_fragments_mm10//random-genome-fragments_mm10_repeat07_3nt-noov-2str.tab
+; Discard overlapping matches
+; Counted on both strands
+; 	grouped by pairs of reverse complements
+; Background model             	Bernoulli
+; Background estimation method 	
+; Sequence type                	DNA
+; Nb of sequences              	689
+; Sum of sequence lengths      	192449
+; discarded residues           	5868	 (other letters than ACGT)
+; discarded occurrences        	5828	 (contain discarded residues)
+; nb possible positions        	185243
+; total oligo occurrences      	185243
+; total overlapping occurrences	17672
+; total non overlapping occ    	167571
+; alphabet size                	4
+; nb possible oligomers        	32
+; oligomers tested for significance	0
+;
+; column headers
+;	1	seq            	oligomer sequence
+;	2	id             	oligomer identifier
+;	3	obs_freq       	observed relative frequency
+;	4	occ            	observed occurrences
+;	5	ovl_occ        	number of overlapping occurrences (discarded from the count)
+;	6	forbocc        	forbidden positions (to avoid self-overlap)
+#seq	id	obs_freq	occ	ovl_occ	forbocc
+aaa	aaa|ttt	0.0452864615667	8389	4022	16657
+aac	aac|gtt	0.0304842828069	5647	0	11246
+aag	aag|ctt	0.0419772946886	7776	0	15482
+aat	aat|att	0.0376316513984	6971	1177	13859
+aca	aca|tgt	0.0412215306381	7636	920	15166
+acc	acc|ggt	0.0232397445518	4305	0	8566
+acg	acg|cgt	0.0036654556447	679	125	1352
+act	act|agt	0.0326975918118	6057	0	12042
+aga	aga|tct	0.0440502475127	8160	846	16235
+agc	agc|gct	0.0238605507361	4420	830	8773
+agg	agg|cct	0.0367409294818	6806	0	13532
+ata	ata|tat	0.0290375344817	5379	2236	10678
+atc	atc|gat	0.0243248057956	4506	487	8959
+atg	atg|cat	0.0326004221482	6039	883	12014
+caa	caa|ttg	0.0370270401581	6859	0	13647
+cac	cac|gtg	0.0285516861636	5289	651	10499
+cag	cag|ctg	0.0425225244679	7877	0	15671
+cca	cca|tgg	0.0365789800424	6776	0	13492
+ccc	ccc|ggg	0.0200601372252	3716	1146	7371
+ccg	ccg|cgg	0.0033739466539	625	93	1246
+cga	cga|tcg	0.0033955399124	629	100	1248
+cgc	cgc|gcg	0.0028665050771	531	80	1058
+cta	cta|tag	0.0240278984901	4451	560	8846
+ctc	ctc|gag	0.0312292502281	5785	653	11506
+gaa	gaa|ttc	0.0406007244538	7521	0	14967
+gac	gac|gtc	0.0209346641978	3878	0	7698
+gca	gca|tgc	0.0235744400598	4367	849	8676
+gcc	gcc|ggc	0.0188401181151	3490	493	6932
+gga	gga|tcc	0.0324978541699	6020	0	11977
+gta	gta|tac	0.0209076726246	3873	386	7711
+taa	taa|tta	0.0325896255189	6037	1135	12012
+tca	tca|tga	0.0382038727509	7077	0	14073
+; Host name	caminante.local
+; Job started	2015-11-03.141358
+; Job done	2015-11-03.141400
+; Seconds	1.4
+;	user	1.4
+;	system	0.01
+;	cuser	0
+;	csystem	0

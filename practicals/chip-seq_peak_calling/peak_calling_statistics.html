@@ -1,0 +1,262 @@
+<html>
+
+  <head>
+<style type="text/css">
+.knitr.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+},
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0em 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.rimage.left {
+  text-align: left;
+}
+.rimage.right {
+  text-align: right;
+}
+.rimage.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+    <link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+    <title>Statistics for bioinformatics - Exercises - Peak calling statistics</title>
+  </head>
+  <script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+  <script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+  <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+  <script type="text/javascript">
+    SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+    SyntaxHighlighter.all();
+  </script>
+
+
+  <body>
+
+
+    <h1>Statistics for bioinformatics - Exercises - Peak calling statistics</h1>
+
+    <hr><h2>Objectives</h2>
+
+    <p>During this practical, we will develop
+      in <span class="program">R</span> a simplified version of
+      the <span class="program">MACS</span> peak calling algorithm,
+      and test it on a relatively small dataset (ChIP-seq data for the
+      FNR transcription factor in the genome of the
+      Bacteria <span class="organism">Escherichia coli</span>).</p>
+
+    <p>Beware: the resulting script will certainly not be as good as
+      existing peak calling algorithms. The essential goal of this
+      tutorial is to get a deeper insight into the statistics behind
+      peak calling, by implementing ourselves a simplified version of
+      the statistical test. </p>
+
+    <hr><h2>Data sets</h2>
+
+    <p>For each sample (FNR ChIP-seq and genomic input) we provide bed
+      files indicating the number of reads mapped in non-overlapping
+      windows of 200bp, or 50bp, respectively (two files per
+      sample).</p>
+
+
+    <table>
+      <tr>
+	<td>FNR ChIP-seq sample (test)</td>
+	<td>
+	  <li><a href="../../data/chipseq/Escherichia_coli_FNR_vs_input/FNR_ChIP-seq_Anaerobic_A_GSM1010219_reads_per_200bp.bedg">FNR_ChIP-seq_Anaerobic_A_GSM1010219_reads_per_200bp.bedg</li>
+	  <li><a href="../../data/chipseq/Escherichia_coli_FNR_vs_input/FNR_ChIP-seq_Anaerobic_A_GSM1010219_reads_per_50bp.bedg">FNR_ChIP-seq_Anaerobic_A_GSM1010219_reads_per_50bp.bedg</li>
+	</td>
+      </tr>
+
+      <tr>
+	<td>Genomic input (control)</td>
+	<td>
+	  <li><a href="../../data/chipseq/Escherichia_coli_FNR_vs_input/Escherichia_coli_K_12_MG1655_input_reads_per_200bp.bedg">Escherichia_coli_K_12_MG1655_input_reads_per_200bp.bedg</li>
+	  <li><a href="../../data/chipseq/Escherichia_coli_FNR_vs_input/Escherichia_coli_K_12_MG1655_input_reads_per_50bp.bedg">Escherichia_coli_K_12_MG1655_input_reads_per_50bp.bedg</li>
+	</td>
+      </tr>
+
+    </table>
+
+    <p>These files are in <a target="_blank" href="http://genome.ucsc.edu/goldenPath/help/bedgraph.html">bedGraph format</a>.</p>
+
+    <div class="tips">
+      <p><b>Remember:</b> the bed convention uses zero-based coordinates, with semi-open intervals. Thus, the coordinates <tt>0  50</tt> correspond to
+	<ul>
+	  <li>the semi-open interval <tt>[0:50[</tt> in zero-based coordinatesl</li>
+	  <li>i.e. the closed interval <tt>[0:49]</tt> in zero-based coordinates;</li>
+	  <li>i.e. the closed interval <tt>[1:50]</tt> in one-based (human understandable) coordinates.</li>
+	</ul>
+      </p>
+    </div>
+
+
+    <h3>How was this dataset generated?</h3>
+
+    <p>This section is optional. It explains the tricks we used to
+      generate a data set for this exercise.</p>
+
+    <p>We obtained the original datasets (mapped reads for the ChIP-seq
+      and input samples) by following <b>Morgane Thomas-Chollier's</b>
+      tutorial <a target="_blank"
+      href="http://www.biologie.ens.fr/~mthomas/other/chip-seq-training/">Hands-on
+      introduction to ChIP-seq analysis</a>.</p>
+
+    <p>We then used <span class="command">bedtools</span> to count the
+      number of reads per bins, i.e. non-overlapping windows of fixed
+      size (200bp per window) covering the full genome
+      of <span class="organism">Escherichia coli</span>.</p>
+
+    <p>The protocol to count reads per bin is the following:
+      <ol>
+      	<li>Generate a bed file defining the bin limits (one row per bin)</li>
+      	<li>Convert the mapped reads from sam to bed file, sorted by chromosomal position</li>
+	      <li>Use <span class="program">bedtools</span> to compute the intersection between each bin and the read file (i.e. count the reads falling onto each bin)</li>
+      </ol>
+    </p>
+
+    <h4>Generating windows of equal size along the reference genome</h4>
+
+    <pre class="brush:bash;">
+bedtools makewindows -g Escherichia_coli_K_12_MG1655_genome.txt -w 200 \
+      > Escherichia_coli_K_12_MG1655_windows_200bp.bed
+    </pre>
+
+    <p>The file <span class="file">genome.txt</span> is expected to be
+      a 2-columns file indicating the ID and length of each
+      chromosome. In the case of <span class="organism">Escherichia
+	coli</span>, the file contains a single line:</p>
+
+    <pre>gi|49175990|ref|NC_000913.2|    4639675</pre>
+
+    <h4>Converting bam to sorted bed</h4>
+
+    <p>To compute the intersection between two sets of genomic regions
+      (<span class="program">bedtools intersect</span>), bedtools
+      requires two bed files sorted by chromosome and by chromosomal
+      position.</p>
+
+    <pre class="brush:bash;">
+## We first need ton convert sam to bed format.
+## For this I use an intermediate BAM format (I foudn a tool sam2bed but it does not seem to work)
+
+## Convert mapped reads of FNR ChIP-seq library
+samtools view -bS SRR576933.sam | bedtools bamtobed | sort -n -k 2 > SRR576933_sorted.bed
+
+## Convert mapped reads of control library
+samtools view -bS SRR576938.sam | bedtools bamtobed | sort -n -k 2 > SRR576938_sorted.bed
+</pre>
+
+    <h4>Counting the reads per bin</h4>
+
+    <pre class="brush:bash;">
+## Count the number of reads per window in the FNR ChIP-seq library
+bedtools intersect -a Escherichia_coli_K_12_MG1655_windows_200bp.bed \
+      -b SRR576933_sorted.bed \
+      -c -sorted \
+      >  FNR_ChIP-seq_Anaerobic_A_GSM1010219_reads_per_200bp.bedg
+
+## Count the number of reads per window in the control library
+bedtools intersect -a Escherichia_coli_K_12_MG1655_windows_200bp.bed \
+      -b SRR576938_sorted.bed \
+      -c -sorted \
+      >  Escherichia_coli_K_12_MG1655_input_reads_per_200bp.bedg
+    </pre>
+
+    <hr><h2>Questions</h2>
+
+    <div class="exo">
+      <ol>
+	<li>Download the two bed files describing read maps.</li>
+	<li>Load these two tables in <span class="program">R</span>.</li>
+	<li>Count the total reads for the FNR and input libraries, respectively.</li>
+	<li>Normalize the input library in order to obtain the same sum as the test (FNR) library.</li>
+	<li>Compare the distributions of counts per reads (normalized for the input) in the ChIP-seq and input samples.
+	  <ul class="tips">Use the R function <span class="option">hist()</span>, and collect the result in a variable to inspect it later.</ul>
+	</li>
+	<li>For each bin, compute the following statistics, and collect them in a table (one row per bin, one column per statistics):
+	  <p class="tips"><b>Note</b>: each of these statistics can be computed with a single operation -- in R, you should avoid loops whenever possible.</p>
+	  <ol type="a">
+            <li>Number of reads in the test (FNR ChIP-seq)</li>
+            <li>Number of reads in the input</li>
+            <li>Normalized number of reads in the input (norm.input)/</li>
+            <li>Reads per base in the input</li>
+            <li>Fold enrichment (ratio between test and normalized input)</li>
+            <li>Log-fold enrichment (log<sub>10</sub> of the fold enrichment)</li>
+            <li>P-value of the test reads, using a Poisson distribution with local lambda estimate (explain your model).</li>
+            <li>P-value of the test reads, using a binomial distribution (explain your model).</li>
+            <li>P-value of the test reads, using a hypergeometric distribution (explain your model).</li>
+	  </ol>
+	</li>
+	<li>Draw some dot plots to compare the different statistics (fold enrichment, log-fold, p-values with the different  models).</li>
+	<li><b>Discuss the results.</b></li>
+      </ol>
+    </div>
+
+    <hr><h2>References</h2>
+
+    <ol>
+      <li><p>MACS method descripion:
+	  <br>Zhang, Y., Liu, T., Meyer, C.A., Eeckhoute, J., Johnson,
+	  D.S., Bernstein, B.E., Nussbaum, C., Myers, R.M., Brown, M.,
+	  Li, W., et al. (2008) Model-based analysis of ChIP-Seq
+	  (MACS). Genome Biol, 9, R137.
+      </p></li>
+
+      <li><p>To generate the data, we followed
+	  <b>Morgane Thomas-Chollier's</b> tutorial <a target="_blank"
+	  href="http://www.biologie.ens.fr/~mthomas/other/chip-seq-training/">Hands-on
+	  introduction to ChIP-seq analysis</a>, and then applied some
+	  tricks to count reads in fixed-width windows over the whole
+	  genome of <i>Escherichia coli</i>.
+      </p></li>
+    </ol>
+
+    <hr>
+  </body>
+</html>

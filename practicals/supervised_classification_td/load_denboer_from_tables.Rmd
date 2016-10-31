@@ -1,0 +1,196 @@
+---
+title: "Load DenBoer2009 from tab-delimited files"
+author: "Jacques van Helden"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    highlight: tango
+    theme: united
+    toc: yes
+    toc_depth: 3
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+css: ../../html/course.css
+---
+
+## Introduction / Warning
+
+This document contains the previous way to load expression profiles from Den Boer 2009, by reading tab-delimited files on the Web server of the course. This procedure is not required anymore since I developed the package denboer2009, which provides all the required data. 
+
+
+I keep this archive of the previous protocol for the sake of tractability. 
+
+## R configuration
+
+<div class="protocol">
+* Open a terminal
+* Start R
+</div>
+
+We first need to define the URL of the course (<tt>dir.base</tt>), from which we will download some pieces of <span class="program">R</span> code and the data sets to analyze.
+
+``` {r}
+## Specify the URL of the base for the course
+dir.base <- 'http://pedagogix-tagc.univ-mrs.fr/courses/statistics_bioinformatics'
+dir.base.ASG1 <- 'http://pedagogix-tagc.univ-mrs.fr/courses/ASG1'
+
+```
+
+The following command loads a general configuration file, specifying
+the input directories (data, <span class="program">R</span> utilities) and creating output
+directories on your computer (<tt>dir.results</tt>,
+<tt>dir.figures</tt>)..
+
+``` {r}
+## Load the general configuration file
+source(file.path(dir.base, 'R-files', 'config.R'))
+
+setwd(dir.results)
+print(paste("Result directory", dir.results))
+```
+
+
+
+```{r}
+## Check the requirement for some packages
+pkg <- "qvalue"
+if (!suppressPackageStartupMessages(require(pkg, quietly=TRUE, character.only = TRUE))) {
+  source("http://bioconductor.org/biocLite.R")
+  biocLite();
+  biocLite(pkg)
+}
+```
+
+
+## Goal of this tutorial
+
+In this tutorial, we will put in practice some fundamental concepts of supervised classification.
+
+1. Distinction between unsupervised (clustering) and supervised classification.
+2. Steps of an analysis: training, testing and prediction.
+3. Evaluation of the classification: cross-validation (<span class="concept">CV</span>), leave-one-out (<span class="concept">LOO</span>).
+4. The problem of over-dimensionality and the risk of overfitting
+5. Feature selection methods
+
+## Study case
+
+For the practical, we will use a cohort comprized of 190 samples from patients suffering from Acute Lymphoblastic Leukemia (**ALL**) from DenBoer (2009). The raw data has previously been retrieved from the Gene Expression Omnibus (**GEO**) database ([http://www.ncbi.nlm.nih.gov/geo/](http://www.ncbi.nlm.nih.gov/geo/)).
+
+### Data loading
+
+We can now load the profile table and check its dimensions. Beware: this expression matrix weights 20Mb. The download can thus take time, depending on your internet connection.
+
+``` {r}
+## Define the location of data directory and file containing expression profiles
+dir.denboer <- file.path(dir.base, 'data', 'gene_expression','denboer_2009')
+file.expr.table <- file.path(dir.denboer, 'GSE13425_Norm_Whole.tab')
+
+## Load the dataset from denboer2009
+
+expr.matrix <- read.table(file.expr.table, sep = "\t", head = T, row = 1)
+print(dim(expr.matrix))
+## Should give this: 22283   190
+
+
+```
+
+Once the whole data set has been loaded, the data frame "expr.matrix"
+should contain 22,283 rows (genes) and 190 columns (samples).
+
+We can now load the sample descriptions ("phenoData").
+
+``` {r}
+## Load the table describing each sample 
+## (one row per sample, one column per description field).
+pheno <- read.table(file.path(dir.denboer, 'phenoData_GSE13425.tab'), sep='\t', head=TRUE, row=1)
+
+dim(pheno)
+## [1] 190   4
+
+## We can check the content of the phenoData table by
+## consulting its column names.
+names(pheno)
+```
+
+
+The column *Sample.title* indicates the cancer subtype corresponding to each sample. 
+
+Remark: the "pheno" variable contains the information defined as "phenotypic" for general analysis of microarrays. However, in the case of DenBoer data set, the different classes of ALL are characterized by genotypic characteristics (the mutation that caused the leukemia) rather than by phenotypic traits.
+
+We can count the number of samples per subtype, and display them by decreasing group size.
+ 
+``` {r}
+## Print the number of samples per cancer type
+print(data.frame("n"=sort(table(pheno$Sample.title),decreasing=T)))
+```
+
+For the sake of visualization, we will define short labels corresponding to each ALL subtype, and assign these short labels to the samples.
+
+``` {r}
+## Define an abbreviated name for each canceer subtype 
+## (will be used later visualization on the plots)
+group.labels <- c(
+      'BCR-ABL + hyperdiploidy'='Bch',
+      'BCR-ABL'='Bc',
+      'E2A-rearranged (E)'='BE',
+      'E2A-rearranged (E-sub)'='BEs',
+      'E2A-rearranged (EP)'='BEp',
+      'MLL'='BM',
+      'T-ALL'='T',
+      'TEL-AML1 + hyperdiploidy'='Bth',
+      'TEL-AML1'='Bt',
+      'hyperdiploid'='Bh',
+      'pre-B ALL'='Bo'
+                   )
+## Beware ! The conversion to vector is important to preserve the 
+## correspondence between sample names. 
+## Indeed, the expression matrix is a data.frame, where each column 
+## is a factor. If not converted to a vector, group labels will be 
+## assigned by index number rather than by name match.
+sample.subtypes <- as.vector(pheno$Sample.title)
+sample.labels <- group.labels[sample.subtypes]
+names(sample.labels) <- names(expr.matrix)
+## Add a column with sample labels to the "pheno" data frame
+pheno$sample.labels <- sample.labels
+
+
+
+## Check the label for a random selection of 10 samples. 
+## Each run should give a different result
+sample(sample.labels, size=10)
+```
+
+We can also define group-specific colors and assign them to samples.
+
+``` {r}
+## Define group-specific colors
+group.colors <- c(
+                    'BCR-ABL + hyperdiploidy'='cyan',
+                    'BCR-ABL'='black',
+                    'E2A-rearranged (E)'='darkgray',
+                    'E2A-rearranged (E-sub)'='green',
+                    'E2A-rearranged (EP)'='orange',
+                    'MLL'='#444400',
+                    'T-ALL'='violet',
+                    'TEL-AML1 + hyperdiploidy'='#000066',
+                    'TEL-AML1'='darkgreen',
+                    'hyperdiploid'='red',
+                    'pre-B ALL'='blue'
+                    )
+
+## Assign group-specific colors to patients
+sample.colors <- group.colors[as.vector(pheno$Sample.title)]
+names(sample.colors) <- names(expr.matrix)
+
+## Add a column with sample colors to the "pheno" data frame
+pheno$sample.colors <- sample.colors
+
+
+## Show some random examples of color assignations
+print(as.data.frame(sample(sample.colors,size=10)))
+```
+
+
+

@@ -1,0 +1,102 @@
+<html>
+
+  <head>
+    <link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+    <title>Statistics for bioinformatics - Exercises - Read mapping statistics</title>
+  </head>
+
+  <body>
+
+    <h1>Statistics for bioinformatics - Exercises - Read mapping statistics</h1>
+
+    <hr><a name="objectives"></a>
+    <a href="#contents"><font size="-2">[back to contents]</font></a>
+    <hr><h2>Objectives</h2>
+
+    <p>We will compute the expected number of random matches when
+      mapping a library of <i>N</i> reads of length <i>k</i> onto a
+      genome of size <i>G</i>, as a function of the number of accepted
+      mismatches <i>m</i>. For the sake of simplicity, we will assume
+      that this genome is composed of identically and independently
+      distributed (<span class="concept">i.i.d.</span>)
+      nucleotides.</p>
+
+    <p>In a first time, we will consider the probability of matching
+      one particular read against one particular genomic
+      position. More precisely, if we extract a genomic sequence of
+      length <i>k</i> starting at an arbitrary position of a given
+      chromosome, what would be the probability of this particular
+      k-mer to match this particular read?</p>
+
+    <p>For this exercise, we will rely on the simplifying assumption
+      that nucleotides are equiprobable and distributed independently
+      along genomic sequences.</p>
+
+    <p>We will progressively approach the solution by resolving
+      successive problems, from the simplest case (perfect match
+      probability) to the actual case of interest (probability of
+      match with at most <i>m</i> mismatches). </p>
+
+    <hr><a name="questions"></a>
+    <a href="#contents"><font size="-2">[back to contents]</font></a>
+    <h2>Questions</h2>
+
+    <div class="exo">
+      <p>Compute the probability for the following matching criteria: </p>
+      <ol type="a">
+
+	<li>Perfect match between the read sequence and the
+	  oligonucleotide of the length <i>k</i> (k-mer) found at a
+	  given position <i>[i:(i+k-1)]</i> of the genome.</li>
+	<li>Single mismatch at the end: <i>k-1</i> matches followed by
+	  one mismatch.</li>
+	<li>Not a single matching residue over the whole length of the
+	  read.</li>
+	<li>Exactly one mismatch, which can be at any position of the
+	  read.</li>
+	<li>A most one mismatch, which can be at any position of the
+	  read.</li>
+	<li>Match of the <i>x=30</i> first nucleotides, irrespective
+	  of what follows.</li>
+	<li>Match of the <i>x=30</i> first nucleotides, followed by a
+	  mismatch (irrespective of what follows).</li>
+	<li>Match of the <i>x=30</i> first nucleotides, followed
+	  by <i>m=k-x=5</i> mismatches.</li>
+	<li>Exactly <i>x</i> matching nucleotides
+	  (exactly <i>m=k-x</i> mismatches), irrespective of their
+	  positions.</li>
+	<li>At least <i>x=30</i> matching nucleotides (at
+	  most <i>m=k-x=5</i> mismatches).</li>
+	<li>For each of these matching types, compute the number of
+	  matches expected by chance
+	  (<span class="concept">e-value</span>) when the mapping is
+	  done on the whole genome, for a single read.</li>
+	<li>For each of these, compute the e-value for the whole
+	  library.</li>
+	<li>Draw a plot showing the number of expected matches
+	  (full-library, genome-wide) as a function of the accepted
+	  mismatches.</li>
+      </ol>
+    </div>
+
+
+    <hr><a name="objectives"></a>
+    <a href="#contents"><font size="-2">[back to contents]</font></a>
+    <h2>Solutions</h2>
+
+    <p>We prepared the solution
+      under <span class="program"><a target="_blank"
+      href="http://www.rstudio.com/">RStudio</a></span>, as
+      an <a target="_blank" href="http://rmarkdown.rstudio.com/">R
+      markdown</a> document, which was then exported to HTML and pdf
+      formats.</p>
+
+    <ul>
+      <li><a href="read_mapping_solutions.Rmd" download>read_mapping_solutions.Rmd</a> (open with RStudio to reproduce the analysis)</li>
+      <li><a href="read_mapping_solutions.html">read_mapping_solutions.html</a> (generated from the Rmd)</li>
+      <li><a href="read_mapping_solutions.pdf">read_mapping_solutions.pdf</a> (generated from the Rmd)</li>
+    </ul>
+
+<hr>
+</body>
+</html>

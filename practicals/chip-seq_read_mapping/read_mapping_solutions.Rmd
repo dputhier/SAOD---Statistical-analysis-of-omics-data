@@ -1,0 +1,265 @@
+---
+title: "ASG1 - TP Read mapping for ChIP-seq data - 2014-11-03 - solutions"
+author: "Jacques van Helden and Denis Puthier"
+date: '`r Sys.Date()`'
+output:
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+  html_document:
+    highlight: tango
+    theme: united
+    toc: yes
+    toc_depth: 3
+css: ../../html/course.css
+---
+
+```{r knitr setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE}
+## Define the knitr options
+library(knitr)
+knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=FALSE, message=TRUE, warning=TRUE, comment = "")
+```
+Author: Jacques van Helden
+
+
+## Objectives
+
+In a first time, we will consider the probability of matching one particular read against one particular genomic position. More precisely, if we extract a genomic sequence of length k starting at an arbitrary position of a given chromosome, what would be the probability of this particular k-mer to match this particular read?
+
+For this exercise, we will rely on the simplifying assumption that nucleotides are equiprobable and distributed independently along genomic sequences.
+
+We will progressively approach the solution by resolving successive problems, from the simplest case (perfect match probability) to the actual case of interest (probability of match with at most m mismatches). 
+
+## Questions
+
+<div class="exo">
+Compute the probability for the following matching criteria:
+
+1. Perfect match between the read sequence and the oligonucleotide of the length k (k-mer) found at a given position [i:(i+k-1)] of the genome.
+2. Single mismatch at the end: k-1 matches followed by one mismatch.
+3. Not a single matching residue over the whole length of the read.
+4. Exactly one mismatch, which can be at any position of the read.
+5. At most one mismatch, which can be at any position of the read.
+6. Match of the x=30 first nucleotides, irrespective of what follows.
+7. Match of the x=30 first nucleotides, followed by a mismatch (irrespective of what follows).
+8. Match of the x=30 first nucleotides, followed by m=k-x=5 mismatches.
+9. Exactly x matching nucleotides (exactly m=k-x mismatches), irrespective of their positions.
+10. At least x=30 matching nucleotides (at most m=k-x=5 mismatches).
+11. For each of these matching types, compute the number of matches expected by chance (e-value) when the mapping is done on the whole genome, for a single read.
+12. For each of these, compute the e-value for the whole library.
+13. Draw a plot showing the number of expected matches (full-library, genome-wide) as a function of the accepted mismatches.
+</div>
+
+## Solutions
+
+For each step of thje exercise, we present the **R** code to perform the computation (shaded rounded boxes) followed by the results and figures. 
+
+```{r}
+################################################################
+## Define the parameters of the problem
+k <- 35     ## Read length
+G <- 3e+9   ## Genome size (on a single strand)
+p <- 1/4    ## Prior probability to match a residue (assuming equiprobable nucleotides)
+N <- 50e6   ## Library size, i.e. number of reads to be mapped
+```
+
+
+### 1. Perfect match at a given genomic position
+
+If we assume equiprobable nucleotides, the prior probability for a nucleotide of the read to match a genomic nucleotide is $p = 1/4$.
+
+Since we also assume that the nucleotides succeed each other independently, we can compute the joined probability of 35 matching nucleotide as the product of the probabilities of nucleotide matches.  
+
+$$P_1 = p^k$$
+
+```{r}
+## Create a vector to store the probabilities
+proba <- vector()
+
+## Compute the probability of perfect match, and store it in the "proba" vector
+proba["perfect.match"] <- p^k
+print(proba)
+```
+
+### 2.    Single mismatch at the end: k-1 matches followed by one mismatch.
+
+$$P_2 = p^{k-1} (1-p)$$
+
+```{r proba_last_mismatch}
+
+## Compute the probability of observing k-1 matches followed by a single mismatch
+proba["last.mm"] <- p^(k-1) *(1-p)
+print(proba)
+```
+
+We can now generalize the case, and compute the same probability for any sequence length ($x$) from 1 to 30. 
+The resulting formula corresponds to the ***geometric distribution***. 
+
+```{r geometric_density, fig.width=7, fig_height=5}
+## Generalize the case: compute the geometric density for any value of x
+x <- 1:30
+dens.geo <- p^(x-1) * (1-p)
+plot(x, dens.geo, 
+     type="h", # Histogram type of line is appropriate for discrete distributions
+     lwd=3, col="blue",
+     main="Geometric distribution",
+     xlab="Read length", ylab="P(k-1 matches then 1 mm)")
+```
+
+We can easily ask **R** to print the Y values on a logarithmic scale, in order to better distinguish the small probabilities. 
+
+```{r geometric_density_logY, fig.width=7, fig_height=5}
+## Print the same distibution with a logarithmic scale
+plot(x-1/2, dens.geo, log="y",
+     type="s", # Histogram type of line is appropriate for discrete distributions
+     lwd=3, col="blue",
+     main="Geometric distribution",
+     xlab="Number of trials", 
+     ylab="P(k-1 successes then 1 failure)",
+     panel.first=grid(lty="solid", col="gray")
+     )
+abline(h=1, col="black")
+```
+
+### 3. Not a single matching residue over the whole length of the read.
+
+$$P_3 = (1-p)^k$$
+
+```{r proba_full_mismatch}
+proba["full.mm"] <- (1-p)^k
+print(as.data.frame(proba))
+
+```
+
+### 4. Exactly one mismatch, which can be at any position of the read.
+
+$$P_4 = k \cdot p^{k-1} (1-p)$$
+
+```{r}
+## Probability to obtain exactly one mismatch, at any position of the k-mer
+proba["one.mm"] <- proba["last.mm"] *k
+print(as.data.frame(proba))
+```
+
+### 5.  At most one mismatch, which can be at any position of the read.
+
+$$P_5 = p^k + k \cdot p^{k-1} (1-p)$$
+
+```{r}
+proba["at.most.one.mm"] <- proba["one.mm"] + proba["perfect.match"] 
+print(as.data.frame(proba))
+```
+
+### 6.    Match of the x=30 first nucleotides, irrespective of what follows.
+
+$$P_6 = p^x$$
+
+```{r}
+x <- 30
+proba["x.first.matches"] <- p^x
+print(as.data.frame(proba))
+```
+
+### 7.    Match of the x=30 first nucleotides, followed by a mismatch (irrespective of what follows).
+
+$$P_7 = p^x (1-p)$$
+
+```{r}
+x <- 30
+proba["x.matches.then.one.mm"] <- p^x * (1-p)
+print(as.data.frame(proba))
+```
+
+### 8.    Match of the x=30 first nucleotides, followed by m=k-x=5 mismatches.
+
+$$P_8 = p^x (1-p)^{k-x}$$
+
+```{r}
+x <- 30
+proba["x.matches.then.all.mm"] <- p^x * (1-p)^(k-x)
+print(as.data.frame(proba))
+```
+
+### 9.    Exactly x matching nucleotides (exactly m=k-x mismatches), irrespective of their positions.
+
+$$P_9 = C_k^x p^x (1-p)^{k-x}$$
+
+
+```{r}
+x <- 30
+proba["x.matches.exactly"] <- choose(n=k, k=x) * p^x * (1-p)^(k-x)
+print(as.data.frame(proba))
+```
+
+***This is the binomial density !***
+
+We can check this by using the *R* function *dbinom()*
+
+```{r}
+proba["dbinom"] <- dbinom(x=x, size=k, prob=p)
+print(as.data.frame(proba))
+```
+
+We will now plot the binomial density function for all possible values of $x$, from $0$ to $k$.
+
+```{r fig.width=7, fig.height=5}
+x.values <- 0:k
+print(x.values)
+y.values <- dbinom(x=x.values, size=k, prob=p)
+print(y.values)
+plot(x.values,y.values, type="h", col="blue", lwd=2, 
+     xlab="x",
+     ylab="dbinom(x,k,p)",
+     main="Binomial density function")
+grid()
+```
+
+### 10.    At least x=30 matching nucleotides (at most m=k-x=5 mismatches).
+
+$$P_{10} = \sum_{i=x}^{k}  C_k^i p^i (1-p)^{k-i}$$
+
+
+```{r}
+x <- 30
+proba["x.matches.at.least"] <- pbinom(q=x-1, size=k, prob=p, lower.tail=FALSE)
+print(as.data.frame(proba))
+```
+
+
+### 11.   For each of these matching types, compute the number of matches expected by chance (e-value) when the mapping is done on the whole genome, for a single read.
+
+$$ E_{11} = 2G \cdot P$$
+
+Note: we should introduce a small correction for the last $k-1$ position of  each chromosome, where the mapping cannot be done. For this we need to know the number of chromosomes.
+
+```{r}
+result.table <- as.data.frame(proba)
+result.table$exp.per.read <- proba *2*G
+
+print(result.table)
+```
+
+
+### 12.    For each of these, compute the e-value for the whole library.
+
+```{r}
+result.table$exp.per.library <- proba*2*G*N
+print(result.table)
+```
+
+
+We can also print a nicely formatted table with the xtable function. Note that we define a column-specific format with the option *digits*.
+
+```{r table1, comment=NA, results='asis'}
+library(xtable)
+my.xtable = xtable(result.table, digits=c(0,-2,-2,4), include.rownames = TRUE)
+print(my.xtable, type="html")
+```
+
+
+### 13. Draw a plot showing the number of expected matches (full-library, genome-wide) as a function of the accepted mismatches.
+
+
+
+## Summary: equations of the binomial distribution

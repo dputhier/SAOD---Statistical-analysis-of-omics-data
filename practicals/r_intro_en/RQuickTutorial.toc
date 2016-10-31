@@ -1,0 +1,30 @@
+\contentsline {section}{\numberline {1}Basic aspects of the language.}{2}{section.1}
+\contentsline {section}{\numberline {2}Syntax for calling Functions.}{3}{section.2}
+\contentsline {section}{\numberline {3}Modes. Functions for creating vectors.}{5}{section.3}
+\contentsline {subsection}{\numberline {3.1}Modes}{5}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Functions and operators for creating vectors.}{5}{subsection.3.2}
+\contentsline {paragraph}{The function {\texttt {c}}}{5}{section*.2}
+\contentsline {paragraph}{The operator ":"}{6}{section*.3}
+\contentsline {paragraph}{Functions {\texttt {rep}}, {\texttt {seq}}}{6}{section*.4}
+\contentsline {paragraph}{Functions to generate random number}{7}{section*.5}
+\contentsline {section}{\numberline {4}Vector manipulation.}{7}{section.4}
+\contentsline {subsection}{\numberline {4.1}Indexing vectors}{7}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Replacing parts of a vector}{8}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Vectorization}{9}{subsection.4.3}
+\contentsline {section}{\numberline {5}Objects of class: {\texttt {factor}}, {\texttt {Matrix}}, {\texttt {data.frame}} and {\texttt {list}}.}{9}{section.5}
+\contentsline {subsection}{\numberline {5.1}factor}{9}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}Matrix}{10}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}data.frame}{11}{subsection.5.3}
+\contentsline {subsection}{\numberline {5.4}list}{11}{subsection.5.4}
+\contentsline {subsection}{\numberline {5.5}The "Apply" family of functions}{12}{subsection.5.5}
+\contentsline {subsection}{\numberline {5.6}The {\texttt {tapply}} function}{12}{subsection.5.6}
+\contentsline {subsection}{\numberline {5.7}Graphics with R}{13}{subsection.5.7}
+\contentsline {subsection}{\numberline {5.8}Graphics}{13}{subsection.5.8}
+\contentsline {subsection}{\numberline {5.9}A simple example using two colour microarray data processed with basic R functions.}{13}{subsection.5.9}
+\contentsline {paragraph}{Loading and visualizing the data}{13}{section*.6}
+\contentsline {paragraph}{MA plot}{14}{section*.7}
+\contentsline {subsection}{\numberline {5.10}S4 objects in R}{15}{subsection.5.10}
+\contentsline {section}{\numberline {6}Bioconductor}{17}{section.6}
+\contentsline {subsection}{\numberline {6.1}Example: 2 color Arrays}{18}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}Example: Affy Data normalization}{18}{subsection.6.2}
+\contentsline {section}{\numberline {7}Further readings}{18}{section.7}

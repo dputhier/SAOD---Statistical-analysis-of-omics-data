@@ -1,0 +1,559 @@
+<html>
+<head>
+   	<title>RNA-seq practical session</title>
+		<link rel="stylesheet" type="text/css" href="../base.css" media="screen,projection" />
+    	<link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+   	<script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    	<script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>        
+    	<script type="text/javascript" src="../syntaxhighlight/shBrushR.js"></script>
+    	<link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    	<link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    	<script type="text/javascript">
+      	SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+      	SyntaxHighlighter.all();
+    	</script>
+    
+</head>
+  
+  <body>
+    
+    <script language="JavaScript" type="text/javascript">
+      <!--
+	  function sizeTbl2(h,i) {
+	  var tbl = document.getElementById(i);
+	  tbl.style.display = h;
+	  }
+	  // -->
+    </script> 
+
+    <h1>RNA-Seq analysis: practical session using Tuxedo suite</h1>
+ 
+<p>The "Tuxedo Suite" is mainly composed of Bowtie, Tophat, Cufflinks, CuffDiff. It has been developed in order to ease read mapping, discovery of splice junction and novel gene structure and differential expression analysis. In the practical session we will use this suite to analyse two samples obtained from study "SRP000698" available in the 
+SRA database</p>
+
+
+<h2>Content</h2>
+<ul>
+<li><a href="#dataset">The SRP000698 dataset: Genome-wide analysis of allelic expression imbalance in human primary cells by high-throughput transcriptome resequencing.</a></li>
+<li><a href="#qc">Quality control of high throughput sequencing data</a></li>
+<li><a href="#trim">Read trimming</a></li>
+<li><a href="#tophat">Mapping read with TopHat</a></li>
+<li><a href="#samtools">Samtools: sorting and indexing the BAM file.</a></li>
+<li><a href="#cuffdiff">Expression level estimate with cuffdiff</a></li>
+<li><a href="#R">Comparing expression levels in R</a></li>
+<li><a href="#R">Discovering novel genes</a></li>
+<li><a href="#reference">References</a></li>
+</ul>
+
+
+
+<a name="dataset"></a>
+<hr><h2>The SRP000698 dataset: Genome-wide analysis of allelic expression imbalance in human primary cells by high-throughput transcriptome resequencing</h2>
+<p> In this article  the authors have used RNA-Seq technology to compare the transcriptome of actived and resting T-Cells. Using this technology they were also able to monitor allele-specific expression (ASE), that is, specific expression arising from maternally and paternally derived alleles. In this tutorial we will mainly concentrate on mapping read to the genome and compute gene expression levels with the Tuxedo suite.</p>
+
+
+<h3>Getting more informations about the experiment</h3>
+<div class='protocol'>
+   <ul>
+	    <li>The SRA Sequence Read Archive (SRA) web site can be accessed <a href='http://trace.ncbi.nlm.nih.gov/Traces/sra/'> here </a>. </li>
+	    <li>The SRA Run browser (<i>Tools</i> section) can be used to search for a SRA object <i>Search >SRA Objects</i></li>
+	</ul>
+   </div>
+
+<div class='exo'>
+      <p>
+	<ol>
+            <li>Get informations about the SRA study "SRP000698"</li>
+            <li>What is the study about ?</li>
+            <li>What platform was used ?</li>
+            <li>How many reads were produced ?</li>
+             <li>How many samples were analyzed ? </li>
+            <li>Get informations about experiments "SRX011549" and "SRX011550" (SRA Objects)</li>
+            <li>Which of these two samples is untreated or treated ? </i>
+            <li>How many runs were performed per samples ?</li>
+            <li>Is this experiment single-end or paire-end sequencing ? What are the sizes of the reads ? </li>
+            <li>How many reads are available per run on average ? Calculate it roughly. </li>
+            <li>Select one run. What is the sequence of the first read ?</li>
+            <li>what is the quality of this read ? </li>
+	</ol>
+    </div>
+
+<p></p>
+
+
+
+<h3>Obtaining the data</h3>
+    <p> Analysis of the whole dataset would be time consuming and would require access to a computing server. To make the analysis feasible on a desktop computer, data were previously retrieved from SRA, fastq-transformed using SRA toolkit (fastq-dump) and mapped to the human genome (version hg19). A subset of reads that aligned onto chromosome 10 was extracted and will be used for this tutorial.</p>
+
+<div class='exo'>
+<ol>
+	<li>Open a terminal.</li>
+	<li>Change the current working directory to <i>/filer/shares/MC-CIS-ASG1/</i>.</li>
+	<li>Create a new directory and give it your login as a name.</li>
+	<li>Go into this directory and create directories named <i>fastq</i>, <i>progs</i>,  <i>index</i>, <i>tophat_results</i> <i>annotations</i>and <i>cufflinks_results</i>.</li>
+	<li>Go in the <i>fastq</i> directory and retrieve the datasets below.</li>
+	<li>Uncompress the datasets.</li>
+	<li>Look at the first lines of the <i>SRR027888.SRR027890_chr10_1.fastq</i> file to check the fastq format.</li>
+</ol>
+</div>
+
+
+<table>
+
+	<tr>
+	  <th>File name</th>
+	  <th>Experiment</th>
+          <th>Description</th>
+	</tr>
+
+	<tr>
+	  <td><a href="ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027888.SRR027890_chr10_1.fastq.gz">SRR027888.SRR027890_chr10_1.fastq.gz </a></td>
+	  <td>SRX011549</td>
+          <td>Right end read</td>
+	</tr>
+	
+        <tr>
+          <td><a href="ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027888.SRR027890_chr10_2.fastq.gz">SRR027888.SRR027890_chr10_2.fastq.gz</a></td>
+          <td>SRX011549</td>
+          <td>Left end read</td>
+        </tr>
+
+        <tr>
+          <td><a href="ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027889.SRR027891_chr10_1.fastq.gz"> SRR027889.SRR027891_chr10_1.fastq.gz</a></td>
+          <td>SRX011550</td>
+          <td>Right end read</td>
+        </tr>
+        
+        <tr>
+          <td><a href="ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027889.SRR027891_chr10_2.fastq.gz">SRR027889.SRR027891_chr10_2.fastq.gz</a></td>
+          <td>SRX011550</td>
+          <td>Left end read</td>
+        </tr>
+
+      </table>
+
+<a href="javascript:sizeTbl2('block','sol_mk')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_mk')">Hide solution</a>
+
+<div id=sol_mk  style="overflow:hidden;display:none">
+	<h4>Solution</h4>
+   <pre class="brush:bash;">	
+## Changing working directory
+WORKINGDIR=/filer/shares/MC-CIS-ASG1/
+cd ${WORKINGDIR}
+
+## Creating sub-directories
+mkdir -p ${USER}
+ls -trl
+cd ${USER}
+mkdir -p fastq progs index tophat_results annotations cuffdiff_results
+cd fastq
+
+## Retrieving data
+wget ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027888.SRR027890_chr10_1.fastq.gz
+wget ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027888.SRR027890_chr10_2.fastq.gz
+wget ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027889.SRR027891_chr10_1.fastq.gz
+wget ftp://tagc.univ-mrs.fr/public/Tagc/Denis/SRP000698/SRR027889.SRR027891_chr10_2.fastq.gz
+
+## Uncompressing data
+gunzip *gz
+
+## Checking fastq file format
+less SRR027888.SRR027890_chr10_1.fastq # q to quit
+   </pre>
+</div>
+    
+
+<a name="qc"></a>
+<hr><h2>Quality control of high throughput sequencing data</h2>
+<p><a href="http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc"> FastQC </a> aims to provide a simple way to do some quality control checks on raw sequence data coming from high throughput sequencing pipelines. It provides a modular set of analyses which you can use to give a quick impression of whether your data has any problems of which you should be aware before doing any further analysis. </p>
+
+<div class='protocol'>
+      <ol>
+        <li>Download the <a href="http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc"> FastQC </a> program and install it inside the progs directory. </li>
+<pre class="brush:bash;">
+## Changing working directory to 'progs'
+cd ${WORKINGDIR}${USER}"/progs"   
+
+## Retrieving the FastQC program    
+wget http://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.10.1.zip
+
+## Uncompressing the file
+unzip fastqc_v0.10.1.zip
+
+## make the fastqc file executable
+chmod u+x FastQC/fastqc
+</pre>
+           
+<li>Launch the FastQC program and check quality of <i>SRR027888.SRR027890_chr10_1.fastq</i> fastq file.</li>
+      </ol>
+<pre class="brush:bash;">
+FastQC/fastqc
+</pre>    
+</div>
+
+
+<div class='exo'>
+      <p>
+        <ol>
+            <li>Carefully inspect all the statistics. What do you think of the overall quality of the dataset ?</li>
+        </ol>
+</div>
+
+<a name="trim"></a>
+<hr><h2>Read trimming</h2>
+<p>Read trimming is a pre-processing step in which input read ends are cutted (most generally the right end). Here, reads were previously trimmed. However one should keep in mind that this step is crucial when working with bowtie/tophat. Indeed as bowtie does not perform "hard-clipping" (that is clip sequence NOT present in the reference) it may be unable to align a large fraction of the dataset when poor quality ends are kept. Several software may be used to perform sequence trimming: </p>. 
+
+<ul>
+<li><a href="http://hannonlab.cshl.edu/fastx_toolkit/">FASTX-Toolkit</a></li>
+<li><a href="https://github.com/najoshi/sickle">sickle</a></li>
+<li><a href="http://bioconductor.org/packages/2.11/bioc/html/ShortRead.html">the ShortRead Bioconductor package</a></li>
+</ul>
+
+<p><b>NB:Note that we won't perform read trimming in this practical as reads were already trimmed. </b></p>
+
+
+
+<a name="tophat"></a>
+<hr><h2>Mapping read with TopHat</h2>
+TopHat is a fast splice junction mapper for RNA-Seq reads. It aligns RNA-Seq reads to mammalian-sized genomes using the ultra high-throughput short read aligner Bowtie, and then analyzes the mapping results to identify splice junctions between exons. 
+
+<h3>Indexing the reference</h3>
+<p>Here  we will align reads to the chromosome 10 of the human genome (version hg19). We thus need to index the corresponding sequence to speed up the read mapping process. Sequence for chromosome 10 can be obtained from the <a href="http://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/">ftp site</a> of the <a target='_blank' href="https://genome.ucsc.edu">UCSC</a>.</p>
+
+<pre class="brush:bash;">
+## indexing the reference
+cd ${WORKINGDIR}${USER}"/index/"
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/chr10.fa.gz
+gunzip chr10.fa.gz
+bowtie2-build chr10.fa chr10.hs
+</pre>
+
+
+<h3>Getting annotation (gtf file)</h3>
+
+<p>Tophat should be able (when using reads of sufficient length) to perform spliced-alignments. However, the limits of exonic regions of the genome could be hard to define without any additional information. To ease the mapping of spliced-reads we will provide tophat with a GTF file containing all informations related to transcript coordinates. GTF files can be retrieved, for instance, from the UCSC (using the table browser) or from the illumina <a href="http://support.illumina.com/sequencing/sequencing_software/igenome.html">iGenome web site</a>. Here we will retrieve from the following link  a subset of the full set of human transcript in gtf format using the <i>wget</i> command. Place it into the <i>annotations</i> directory:</p>
+<p><a href="http://pedagogix-tagc.univ-mrs.fr/courses/data/annotations/hg19_chr10.gtf.gz">http://pedagogix-tagc.univ-mrs.fr/courses/data/annotations/hg19_chr10.gtf.gz</a></p>
+
+<pre class="brush:bash;">	
+## Changing working directory 
+cd ${WORKINGDIR}${USER}"/annotations"
+
+## retrieve the gtf file
+wget wget http://pedagogix-tagc.univ-mrs.fr/courses/data/annotations/hg19_chr10.gtf.gz
+
+## uncompress the gtf file
+gunzip hg19_chr10.gtf.gz
+
+## Check file content
+less hg19_chr10.gtf # press q to quit
+</pre>
+</div>
+  
+
+<h3>Mapping</h3>
+
+<p>Now we can align reads with tophat 
+<div class='exo'>
+
+<ol>
+<li>Change directory to the <i>tophat_results</i> directory.</li> 
+<li>Create a new directory SRR027888.SRR027890 and go to this directory.</li>
+<li>Use the <tt>tophat</tt> command to align left and right reads onto chromosome 10. Use default parameters except the following:</li>
+      <ol> 
+         <li>Set<i> --library-type</i> argument to <i>fr-unstranded</i>.</li>
+        <li>Set <i>max-multihits parameter</i> (<i>-g</i>) and <i>transcriptome-max-hits</i> (<i>-x</i>) to 1 and to eliminate multireads.</li>
+        <li>Set <i>SRR027888.SRR027890_chr10_1.fastq</i> as the first RNA-Seq FASTQ file and <i>SRR027888.SRR027890_chr10_2.fastq</i> as the second RNA-Seq FASTQ file.</li>
+        <li>Set <i> <i>chr10.hs</i> </i>as a reference genome.</li>
+        <li>Set <i>Mean Inner Distance</i> (-r) between mate pairs to 300 (obtained based on protocol section of the article).</li>
+        <li>Set <i>Std. Dev for Distance between Mate Pairs</i> to 30 .</li>       
+		<li>Set the output directory (-o) to the current directory.</li>
+		<li>Use the -G argument to provide tophat with the downloaded gtf file.</li>
+        <li> Execute.</li>
+        
+     </ol>
+</ol>
+</div>
+
+
+
+
+<br>
+<a href="javascript:sizeTbl2('block','sol_tophat')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_tophat')">Hide solution</a>
+
+<div id=sol_tophat  style="overflow:hidden;display:none">
+	<h4>Solution </h4>
+   <pre class="brush:bash;">	
+## Changing working directory to tophat_results
+cd ${WORKINGDIR}${USER}"/tophat_results"
+
+## Creating a directory for storing tophat results for SRR027888/SRR027890 runs.
+mkdir -p SRR027888.SRR027890
+cd SRR027888.SRR027890
+
+## Launching tophat
+## -p for the number of core (adapt to your need and computer)
+tophat2 -p 2 -g 1 -x 1 --mate-inner-dist 300 -G ../../annotations/hg19_chr10.gtf --mate-std-dev 30 -o ./  ../../index/chr10.hs ../../fastq/SRR027888.SRR027890_chr10_1.fastq ../../fastq/SRR027888.SRR027890_chr10_2.fastq
+
+## listing the corresponding results
+ls
+</pre>
+</div>
+
+
+<a name="samtools"></a>
+<hr><h2>Samtools: sorting and indexing the BAM file.</h2>
+
+
+<p><a href="http://samtools.sourceforge.net/SAM1.pdf">SAM</a> (Sequence Alignment/Map) format is a generic format for storing large nucleotide sequence alignments. The BAM files are compressed version of the SAM files. The <a href="http://samtools.sourceforge.net/">samtools</a> program provide various utilities for manipulating alignments in the SAM format, including sorting, merging and indexing (...).</p>
+
+
+<p>In order to visualize the results in a genome browser, BAM file need to be sorted (according to chromosome and genomic coordinate). We must then index the subsequent file to speed up the queries when inspecting a particular region of the genome.</p>
+
+<div class='exo'>
+      <p>
+        <ol>
+		<li>Rename the <i>accepted_hits.bam</i> file to <i>CD4_activated.bam</i></li>
+		<li>Use <tt>samtools view</tt> to visualize the content of the compressed BAM file (<i>CD4_activated.bam</i>).</li>
+		<li>Index the sorted bam file using <i>samtools</i>.</li>
+        </ol>
+</div>
+
+<br>
+
+<a href="javascript:sizeTbl2('block','sol_sam')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_sam')">Hide solution</a>
+
+<div id=sol_sam  style="overflow:hidden;display:none">
+<h4>Solution </h4>
+
+<pre class="brush:bash;">	
+## Changing name
+mv accepted_hits.bam CD4_activated.bam
+## Viewing the alignment results
+samtools view  CD4_activated.bam | less # q to quit
+
+## Indexing the bam file
+samtools index  CD4_activated.bam
+</pre>
+</div>
+
+
+<hr><h2>Viewing the results with Integrated Genome Browser (IGV).</h2>
+<p> The <a href="http://www.broadinstitute.org/igv/home">Integrative Genomics Viewer</a> (IGV) is a high-performance visualization tool for interactive exploration of large, integrated genomic datasets. It supports a wide variety of data types, including array-based and next-generation sequence data, and genomic annotations.</p>
+
+<div class='protocol'>
+      <ol> 
+        <li>Create an IGV account <a href="http://www.broadinstitute.org/software/igv/?q=registration">here</a></li> 
+        <li>Download IGV and launch it with 750 MB or 1.2 Gb depending of your machine</li>
+        <li>Select hg19 genome and chromosome 10</li>
+        <li>Use <i>File > Load from file</i> and browse to the <i>bam</i> file.</li>  
+        <li>Zoom in to visualize reads mapped onto the genome (chr10).</li>
+        <li>Load the junctions.bed, insertions.bed and deletions.bed into IGV  (<i>File > Load from file</i>).
+     </ol>
+</div>
+
+
+
+<div class="exo">
+Now perform the same analysis (read mapping and FPKM computation) for the SRR027889.SRR027891 run.
+</div>
+
+
+
+<a href="javascript:sizeTbl2('block','sol_s2')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_s2')">Hide solution</a>
+
+<div id=sol_s2  style="overflow:hidden;display:none">
+	<h4>Solution </h4>
+
+<pre class="brush:bash;">
+## Changing working directory to tophat_results
+cd ${WORKINGDIR}${USER}"/tophat_results"
+
+## Creating a directory for storing tophat results for SRR027889.SRR027891 runs.
+mkdir SRR027889.SRR027891
+cd SRR027889.SRR027891
+
+## Launching tophat
+tophat2 -p 2 -g 1 -x 1 -r 200  -G ../../annotations/hg19_chr10.gtf --mate-std-dev 30  -o ./  ../../index/chr10.hs ../../fastq/SRR027889.SRR027891_chr10_1.fastq ../../fastq/SRR027889.SRR027891_chr10_2.fastq
+
+## rename the bam file
+mv accepted_hits.bam CD4_control.bam
+
+## index the bam file
+samtools index CD4_control.bam
+</pre>
+</div>
+
+<a name="cuffdiff"></a>
+<hr><h2>Expression level estimate with cuffdiff</h2>
+
+<h3>Computing counts</h3>
+
+<p>Cuffdiff can be used to compute transcript expression estimates and differential analysis. It can compute both FPKM (or RPKM) gene count estimate for RNA-Seq data. One benefit of cuffdiff is that count estimates are computed at different level: gene, transcript, ORF,... One drawback is that computing may be slow when working with large datasets. For information, an alternative is to use <a href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a>.</p>
+
+
+<!--<div class='protocol'>
+      <ol> 
+        <li>GO to <a href="http://genome.ucsc.edu/">UCSC genome browser</a></li>
+        <li>From the upper menu select <i>Tables</i></li> 
+        <li>Select <i>human</i> (genome), <i>hg19</i> (assembly), <i>Gene and Genes prediction tracks</i> (group), <i>refGene</i> (Gene), <i>chr10</i> (position), GTF (output format), hg19.gtf (output file).</li>
+        <li>Click on <i>get output</i></li>
+        <li>Copy the gtf file into the annotations folder.</li>
+        <i>Use <tt>less</tt> to visualise the gtf file content.</i>
+		<i>Using the grep command (with -w argument), select only transcript located on chromosome 10 and store their coordinates in a file named hg19_chr10.gtf</i>
+     </ol>
+</div>
+
+
+<div id=sol_cuff  style="overflow:hidden;display:none">
+	<h4>Solution </h4>
+
+<pre class="brush:bash;">	
+## Changing working directory to annotation
+## The directory should contain the hg19.gtf file
+ls hg19.gtf
+
+## Visualise the content
+less hg19.gtf
+
+## Search any line that contain the word chr10
+grep -w chr10 hg19.gtf > hg19_chr10.gtf
+</pre>
+</div>
+-->
+
+<p></p>
+<p>Cuffdiff relies on a gtf file to compute gene expression. We will thus make use of the bam files together with the hg19_chr10.gtf file.</p>
+<p></p>
+
+
+<div class="exo">
+<ol>
+<li>Change directory to the <i>cuffdiff_results</i> directory.</li> 
+<li>Use the <tt>cuffdiff</tt> command to compute gene expression. Use default parameters except the following:</li>
+      <ol> 
+         <li>Set<i> --library-type</i> argument to <i>fr-unstranded</i>.</li>
+        <li> Set <i>frag-len-mean</i> to 300 and  <i>frag-len-std-dev</i> to 20.</li>
+			<li>Set the hg19_chr10.gtf file as annotation source (-G).</li>
+			<li>Set the <i>accepted_hits.bam</i> BAM file produced by TopHat as BAM input.</li>
+			<li>Use the <i>hg19_chr10.gtf</li> file as input</li>
+        <li> Execute.</li>
+        <i>Check the results in the <i>isoforms.fpkm_tracking</i> file.</i>        
+     </ol>
+</ol>
+</div>
+
+
+<a href="javascript:sizeTbl2('block','sol_cuff')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_cuff')">Hide solution</a>
+
+<div id=sol_cuff  style="overflow:hidden;display:none">
+	<h4>Solution </h4>
+
+<pre class="brush:bash;">	
+## Changing working directory to cuffdiff_results
+cd ${WORKINGDIR}${USER}"/cuffdiff_results"
+
+## starting cuffdiff
+cuffdiff --no-diff --frag-len-mean 300 --frag-len-std-dev 20 --library-type fr-unstranded -p 1 ../annotations/hg19_chr10.gtf ../tophat_results/SRR027888.SRR027890/CD4_activated.bam ../tophat_results/SRR027889.SRR027891/CD4_control.bam
+</pre>
+</div>
+
+
+<a name="R"></a>
+<hr><h2>Comparing expression levels in R</h2>
+
+<!--<div class="protocol">
+<ul>
+<li>Retrieve transcript id to gene symbol mapping from UCSC</li>
+<pre class="brush:bash;">	
+cd ${WORKINGDIR}${USER}"/annotations"
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/refGene.txt.gz
+gunzip refGene.txt.gz
+cut -f2,13 refGene.txt  | sort | uniq > transcript2Gene.txt
+head transcript2Gene.txt
+</pre>
+-->
+<li>Change directory to cuffdiff_results and start R.</li>
+<pre class="brush:bash;">	
+cd ${WORKINGDIR}${USER}"/cuffdiff_results"
+R
+</pre>
+<li>Use the R code below to compare gene expression levels.</li>
+</ul>
+
+<pre class="brush:r;">
+## First we read gene counts
+count <- read.table("genes.count_tracking" ,sep="\t", head=T,row=1)
+head(count)
+head(rownames(count))
+colnames(count)
+
+## creating an expression matrix
+count <- data.frame(count$q1_count, count$q2_count, row.names=rownames(count))
+head(count)
+
+## Values are log2 transformed 
+## (a pseudo-count is added in case one of the sample is equal or close to zero)
+count <- log2(count +1)
+
+## Checking distribution of FPKM values
+hist(as.matrix(count), main="Distribution of count values")
+boxplot(count, col=c("red","gray"), pch=16, main="Boxplot for count valaues")
+
+
+## Scatter plot comparing expression levels in sample 1 and 2
+par(xaxs='i',yaxs='i')
+plot(count, pch=20, panel.first=grid(col="darkgray"))
+identify(count[,1], count[,2],lab=rownames(count))
+
+</pre>
+</div>
+
+
+<a name="discovery"></a>
+<hr><h2>Discovering novel genes</h2>
+<p>If you have some time left, use cufflinks using the -g argument to search for unknown gene structures. Using bedtools try to identify novel genes that are at least 10kb away from known any genes.</p>
+
+<!--
+mkdir cufflinks_results-g
+cd cufflinks_results-g
+mkdir SRR027888.SRR027890
+cd SRR027888.SRR027890
+cufflinks --library-type fr-unstranded -g ../../annotations/hg19.gtf ../../tophat_results/SRR027888.SRR027890/accepted_hits.bam
+cd ..
+mkdir SRR027889.SRR027891
+cd SRR027889.SRR027891
+cufflinks --library-type fr-unstranded -p 10 -g ../../annotations/hg19.gtf ../../tophat_results/SRR027889.SRR027891/accepted_hits.bam
+cd ..
+mkdir cuffmerge
+cd cuffmerge/
+ls -1 ../cufflinks_results-g/SRR02788*/transcripts.gtf > assembly_GTF_list.txt
+cat assembly_GTF_list.txt
+cuffmerge -g ../annotations/hg19.gtf assembly_GTF_list.txt 
+cd ..
+cuffdiff -o cuffdiff-novel  cuffmerge/merged_asm/merged.gtf  tophat_results/SRR027888.SRR027890/accepted_hits.bam tophat_results/SRR027889.SRR027891/accepted_hits.bam
+//-->
+
+<a name="references" >
+<hr><h2>References</h2>
+<ol>
+<li><b>Genome-wide analysis of allelic expression imbalance in human primary cells by high-throughput transcriptome resequencing.</b> Heap GA, Yang JH, Downes K, Healy BC, Hunt KA, Bockett N, Franke L, Dubois PC, Mein CA, Dobson RJ, Albert TJ, Rodesch MJ, Clayton DG, Todd JA, van Heel DA, Plagnol V. Hum Mol Genet. 2010 Jan 1;19(1):122-34.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
+
+

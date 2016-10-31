@@ -1,0 +1,1427 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"> 
+
+<html>
+
+    <script language="JavaScript" type="text/javascript">
+      <!--
+	  function sizeTbl2(h,i) {
+	  var tbl = document.getElementById(i);
+	  tbl.style.display = h;
+	  }
+	  // -->
+    </script> 
+
+  <head>
+    <meta content="text/html; charset=utf-8"
+	  http-equiv="content-type">
+    <title>Statistics for Bioinformatics - Practicals - Supervised classification</title>
+    <link rel="stylesheet" type="text/css" href="../../html/course.css" />
+    <script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushR.js"></script>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    <script type="text/javascript">
+      SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+      SyntaxHighlighter.all();
+    </script>
+  </head>
+
+  <body>
+    <i>AMU :: M2 BBSG :: ASG1 :: 2012/2013 :: Denis Puthier & Jacques van Helden</i>
+
+    <h1 class='title'>Statistics for Bioinformatics - Practicals - Supervised classification</h1>
+
+
+    <hr>
+    <a name='contents'></a>
+    <h2>Contents</h2>
+    <ul>
+      <li><a href='#abbrev'>Abbreviations</a></li>
+      <li><a href='#r_config'>R configuration</a></li>
+      <li><a href='#goal'>Goal of this tutorial</a></li>
+      <li><a href='#study_case'>Study case</a></li>
+      <li><a href='#feature_selection'>Reducing the dimensionality of the data - feature selection</a></li>
+      <li><a href='#pca'>Principal Component Analysis (PCA)</a></li>
+      <li><a href='#lda'>Linear Discriminant Analysis (LDA)</a></li>
+      <li><a href='supervised_classification_td.R'>Complete <b>R</b> code extracted from this tutorial</a></li>
+<!--  
+      <li><a href='#'></a></li>
+      <li><a href='#'></a></li>
+      <li><a href='#'></a></li>
+      <li><a href='#intro'>Introduction</a></li>
+      <li><a href='#resources'>Resources</a></li>
+      <li><a href='#tutorial'>Tutorial</a></li>
+      <li><a href='#exo1'>Exercise 1: [TITLE1]</a></li>
+      <li><a href='#exo2'>Exercise 2: [TITLE2]</a></li>
+      <li><a href='#exo3'>Exercise 3: [TITLE3]</a></li>
+      <li><a href='#biblio'>Bibliographic references</a></li>
+-->
+    </ul>
+
+
+    <hr><a name='abbrev'></a>
+    <h2>Abbreviations</h2>
+
+    <table>
+<tr><td>ALL</td><td>acute lymphoblastic leukemia</td></tr>
+<tr><td>AML</td><td>acute myeloblastic leukemia</td></tr>
+<tr><td>DEG</td><td>differentiall expressed genes</td></tr>
+<tr><td>GEO</td><td>Gene Expression Omnibus database</td></tr>
+<tr><td>KNN</td><td>K-nearest neighbours</td></tr>
+<tr><td>LDA</td><td>linear discriminant analysis</td></tr>
+<tr><td>QDA</td><td>quadratic discriminant analysis</td></tr>
+<tr><td>PCA</td><td>principal component anlaysis</td></tr>
+    </table>
+
+
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name='r_config'></a>
+    <h2>R configuration</h2>
+
+
+<ul>
+<li>Open a terminal
+<li>Start R
+</ul>
+
+<p>We first need to define the URL of the course (<tt>dir.base</tt>),
+  from which we will download some pieces of <span class="program">R</span> code and the data sets
+  to analyze.</p>
+
+<pre class='brush:r'>
+## Specify the URL of the base for the course
+dir.base <- 'http://www.bigre.ulb.ac.be/courses/statistics_bioinformatics'
+</pre>
+
+The following command loads a general configuration file, specifying
+the input directories (data, <span class="program">R</span> utilities) and creating output
+directories on your computer (<tt>dir.results</tt>,
+<tt>dir.figures</tt>)..
+
+<pre class='brush:r'>
+## Load the general configuration file
+source(file.path(dir.base, 'R-files', 'config.R'))
+
+setwd(dir.results)
+</pre>
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name='goal'></a>
+    <h2>Goal of this tutorial</h2>
+
+In this tutorial, we will get familiar with the basic concepts of
+supervised classification.
+
+<ol>
+  <li>Distinction between unsupervised (clustering) and supervised classification
+  <li>Training, testing and prediction
+  <li>Cross-validation, leave-one-out
+  <li>Over-dimensionality
+  <li>Overfitting
+</ol>
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name='study_case'></a>
+    <h2>Study case</h2>
+
+    <p>For the practical, we will use a cohort comprized of 190
+      samples from patients suffering from Acute Lymphoblastic
+      Leukemia (<b>ALL</b>) from DenBoer (2009). The raw data has
+      previously been retrieved from the Gene Expression Omnibus
+      (<b>GEO</b>) database (<a target='_blank'
+      href='http://www.ncbi.nlm.nih.gov/geo/'>http://www.ncbi.nlm.nih.gov/geo/</a>).</p>
+
+    <h3>Data loading</h3>
+
+    <p>We can now load the profile table and check its dimensions.</p>
+
+<pre class='brush:r'>
+## Define the location of data directory and file containing expression profiles
+dir.denboer <- file.path(dir.base, 'data', 'gene_expression','denboer_2009')
+file.expr.table <- file.path(dir.denboer, 'GSE13425_Norm_Whole.txt')
+
+## Load the expression profiles (one row per gene, one column per sample).
+##
+## BEWARE, the whole file makes 20Mb. 
+## It can take a few minutes to be downloaded from the Web site and loaded in R.
+expr.matrix <- read.table(file.expr.table, sep = "\t", head = T, row = 1)
+print(dim(expr.matrix))
+## Should give this: 22283   190
+</pre>
+
+<p>Once the whole data set has been loaded, the data frame "expr.matrix"
+should contain 22,283 rows (genes) and 190 columns (samples).</p>
+
+<p>We can now load the sample descriptions ("phenoData").</p>
+
+<pre class='brush:r'>
+## Load the table describing each sample 
+## (one row per sample, one column per description field).
+pheno <- read.table(file.path(dir.denboer, 'phenoData_GSE13425.tab'), sep='\t', head=TRUE, row=1)
+dim(pheno)
+## [1] 190   4
+
+## We can check the content of the phenoData table by
+## consulting its column names.
+names(pheno)
+</pre>
+
+<pre>
+[1] "Sample.title"               "Sample.source.name.ch1"    
+[3] "Sample.characteristics.ch1" "Sample.description"        
+</pre>
+
+<p>The column <tt>Sample.title</tt> indicates the cancer subtype
+corresponding to each sample. We can count the number of samples per
+subtype, and display them by decreasing group size.</p>
+
+<pre class='brush:r'>
+## Print the values of the field Sample.title of pheno
+print(pheno$Sample.title)
+</pre>
+ 
+<p>Remark: the "pheno" variable contains the information defined as
+"phenotypic" for general analysis of microarrays. However, in the case
+of DenBoer data set, the different classes of ALL are characterized by
+genotypic characteristics (the mutation that caused the leukemia)
+rather than by phenotypic traits.</p>
+
+<pre class='brush:r'>
+## Print the number of samples per cancer type
+print(data.frame("n"=sort(table(pheno$Sample.title),decreasing=T)))
+</pre>
+
+<pre>
+                          n
+hyperdiploid             44
+pre-B ALL                44
+TEL-AML1                 43
+T-ALL                    36
+E2A-rearranged (EP)       8
+BCR-ABL                   4
+E2A-rearranged (E-sub)    4
+MLL                       4
+BCR-ABL + hyperdiploidy   1
+E2A-rearranged (E)        1
+TEL-AML1 + hyperdiploidy  1
+</pre>
+
+
+<p>For the sake of visualization, we will define short labels
+corresponding to each ALL subtype, and assign these short labels to
+the samples.</p>
+
+<pre class='brush:r'>
+## Define an abbreviated name for each canceer subtype 
+## (will be used later visualization on the plots)
+group.abbrev <- c(
+      'BCR-ABL + hyperdiploidy'='Bch',
+      'BCR-ABL'='Bc',
+      'E2A-rearranged (E)'='BE',
+      'E2A-rearranged (E-sub)'='BEs',
+      'E2A-rearranged (EP)'='BEp',
+      'MLL'='BM',
+      'T-ALL'='T',
+      'TEL-AML1 + hyperdiploidy'='Bth',
+      'TEL-AML1'='Bt',
+      'hyperdiploid'='Bh',
+      'pre-B ALL'='Bo'
+                   )
+sample.subtypes <- as.vector(pheno$Sample.title)
+sample.labels <- group.abbrev[sample.subtypes]
+names(sample.labels) <- names(expr.matrix)
+
+
+## Check the label for a random selection of 10 samples. 
+## Each run should give a different result
+sample(sample.labels, size=10)
+</pre>
+
+<pre>
+GSM338831 GSM338722 GSM338816 GSM338838 GSM338752 GSM338819 GSM338855 GSM338851 
+     "Bo"      "Bt"      "Bo"      "Bo"      "Bh"      "Bo"      "Bo"      "Bo" 
+GSM338672 GSM338693 
+      "T"       "T" 
+</pre>
+
+<p>We can also define group-specific colors and assign them to samples.</p>
+
+<pre class='brush:r'>
+## Define group-specific colors
+group.colors <- c(
+                    'BCR-ABL + hyperdiploidy'='cyan',
+                    'BCR-ABL'='black',
+                    'E2A-rearranged (E)'='darkgray',
+                    'E2A-rearranged (E-sub)'='green',
+                    'E2A-rearranged (EP)'='orange',
+                    'MLL'='#444400',
+                    'T-ALL'='violet',
+                    'TEL-AML1 + hyperdiploidy'='#000066',
+                    'TEL-AML1'='darkgreen',
+                    'hyperdiploid'='red',
+                    'pre-B ALL'='blue'
+                    )
+
+## Assign group-specific colors to patients
+sample.colors <- group.colors[as.vector(pheno$Sample.title)]
+names(sample.colors) <- names(expr.matrix)
+sample(sample.colors,size=20)
+</pre>
+
+<pre>
+  GSM338802   GSM338760   GSM338821   GSM338846   GSM338750   GSM338735 
+    "green"       "red"      "blue"      "blue"       "red" "darkgreen" 
+  GSM338724   GSM338768   GSM338776   GSM338730   GSM338753   GSM338706 
+"darkgreen"       "red"       "red" "darkgreen"       "red" "darkgreen" 
+  GSM338720   GSM338701   GSM338708   GSM338828   GSM338771   GSM338805 
+"darkgreen"    "violet" "darkgreen"      "blue"       "red"     "black" 
+  GSM338705   GSM338716 
+"darkgreen" "darkgreen" 
+</pre>
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name='feature_selection'></a>
+    <h2>Reducing the dimensionality of the data - feature selection</h2>
+
+    <p>An recurrent problem with microarray data is the large
+      dimensionality of the data space. The dataset we are analyzing
+      contains 190 samples
+      (the <span class="concept">subjects</span>), each characterized
+      by 22,283 gene expression values
+      (the <span class="concept">variables</span>).</p>
+
+    <p>The number of variables (also
+      called <span class="concept">features</span>, the genes in our
+      case) thus exceeds by far the number of objects (samples in this
+      case). This sitation is qualified
+      of <span class="concept">over-dimensionality</span>, and poses
+      serious problems for classification. </p>
+
+    <p>In unsupervised classification (clustering), the relationships
+      between objects will be affected, since a vast majority of the
+      features are likely to be uninformative, but will however
+      contribute to the computed (dis)similarity metrics (whichever
+      metrics is used). Overdimensionality will somewhat mask the
+      signal (biologically relevant relationships between gene groups)
+      with noise. In supervised classification, the effect may be even
+      worse: a program will be trained to recognize classes on the
+      basis of supriousn differences found in any combination of the
+      input variables. </p>
+
+    <p>It is thus essential, for both unsupervised and unsupervised
+      classification, to perform some <span class="concept">feature
+      selection</span> before applying the actual classification. </p>
+
+    <h3>An arbitrary pair of genes</h3>
+    
+    <p>To get some feeling about the data, we will compare the expression
+      levels of two arbitrarily genes selected (the 236th and the
+      1213th rows of the profile table).
+    </p>
+    
+
+    <pre class='brush:r'>
+## Plot the expression profiles of two arbitrarily selected genes
+g1 <- 236
+g2 <- 1213
+x <- as.vector(as.matrix(expr.matrix[g1,]))
+y <- as.vector(as.matrix(expr.matrix[g2,]))
+dev.new(width=8,height=8)
+plot(x,y,
+       col=sample.colors,
+       type="n",
+       panel.first=grid(col="black"), 
+         main="Den Boer (2009), two selected genes", 
+         xlab=paste("gene", g1), ylab=paste("gene", g2))
+text(x, y,labels=sample.labels,col=sample.colors,pch=0.5)
+legend("topright",col=group.colors, 
+         legend=names(group.colors),pch=1,cex=0.6,bg="white",bty="o")
+dev.copy2pdf(file="two_arbitrary_genes_plot.pdf", width=8, height=8)
+     </pre>
+
+    <p>Each dot corresponds to one sample. Since the genes were
+      initially selected at random, we don't expect them to be
+      particularly good at discriminating the different subtypes of
+      ALL. However, we can already see some emerging patterns: the
+      T-ALL (labelled "T") show a trends to strongly express the 236th
+      gene, and, to a lesser extent, several hyperdiploid B-cells
+      (label "Bh") show a high expression of the 1213th
+      gene. Nevertheless, it would be impossible to draw a boundary
+      that would perfectly separate two subtypes in this plot.
+    </p>
+
+
+    <h3>Variance filter</h3>
+    
+    <p>In order to reduce the dimensionality of the data set, we will
+      sort the genes according to their variance, and retain a defined
+      number of the top-ranking genes. Note that this ranking is a
+      very rudimentary way to select a subset of genes. Indeed,
+      nothing guarantees us that the genes showing the largest
+      inter-individual fluctuations of expression have anything
+      related to cancer type. In further sections, we will present
+      alternative methods of variable ordering, which will explicitly
+      take into account the inter-group variance.</p>
+
+    <p>The <span class="program">R</span> function <tt>apply()</tt>
+      can be used to apply any function to each row (or alternatively
+      each column) of a data table. We set the second argument
+      (margin) to 1, thereby indicating that the function (third
+      argument) must be applied to each row of the input table (first
+      argument).</p>
+    
+<pre class='brush:r'>
+## Compute sample-wise variance
+var.per.sample <- apply(expr.matrix, 2, var)
+head(var.per.sample)
+
+## Inspect the distribution of sample-wise variance
+dev.new(width=7,height=5)
+hist(var.per.sample, breaks=20)
+
+## Store the figure in a pdf file
+dev.copy2pdf(file=file.path(dir.figures, "denboer2009_variance_per_sample.pdf"))
+</pre>
+
+<pre>
+GSM338666 GSM338667 GSM338668 GSM338669 GSM338670 GSM338671 
+ 2.636681  2.636490  2.749702  2.436275  2.634296  2.538188 
+</pre>
+
+<pre class='brush:r'>
+## Compute gene-wise variance
+var.per.gene <- apply(expr.matrix, 1, var)
+
+## Inspect the distribution of gene-wise variance
+dev.new(width=7, height=5)
+hist(var.per.gene, breaks=100)
+dev.copy2pdf(file=file.path(dir.figures, "denboer2009_variance_per_gene.pdf"), width=7,height=5)
+</pre>
+
+    <p>We notice that gene-wise variances have a wide dispersion. the
+      histogram shows a right-skewed distribution, with a long tail
+      due to the presence of a few genes with high variance. </p>
+
+    <p>If we sort genes by decreasing variance, we can see that there
+      is a strong difference between the top and the bottom of the
+      list.</p>
+
+<pre class='brush:r'>
+## Sort genes per decreasing variance
+genes.by.decr.var <- sort(var.per.gene,decreasing=TRUE)
+
+## Print the 5 genes with highest variance
+head(genes.by.decr.var)
+</pre>
+
+<pre>
+     CD9|201005_at  IL23A|211796_s_at     CD3D|213539_at S100A8|202917_s_at   KLF4|221841_s_at 
+          6.042537           5.929345           5.696317           5.506174           5.245490 
+ HLA-DRA|208894_at 
+          5.160823 
+</pre>
+
+<pre class='brush:r'>
+## Print the 5 genes with lowest variance
+tail(genes.by.decr.var)
+</pre>
+
+<pre>
+ C7orf25|53202_at     FMO3|40665_at     SCLY|59705_at NA|AFFX-DapX-5_at  HSD17B6|37512_at NA|AFFX-LysX-5_at 
+      0.007035592       0.007000936       0.006630802       0.006543372       0.006439234       0.005077204 
+</pre>
+
+
+
+    <p>We can then select an arbitrary number of top-ranking genes in
+      the list.</p>
+
+<pre class='brush:r'>
+## Select the 30 top-ranking genes in the list sorted by variance.
+## This list of genes will be used below as training variables for
+## supervised classification.
+top.nb <- 20 ## This number can be changed for testing
+genes.selected.by.var <- names(genes.by.decr.var[1:top.nb])
+
+## Check the names of the first selected genes
+head(genes.selected.by.var, n=20) 
+</pre>
+
+<pre>
+ [1] "CD9|201005_at"       "IL23A|211796_s_at"   "CD3D|213539_at"      "S100A8|202917_s_at" 
+ [5] "KLF4|221841_s_at"    "HLA-DRA|208894_at"   "NA|216379_x_at"      "IL23A|210915_x_at"  
+ [9] "HLA-DRA|210982_s_at" "ITM2A|202746_at"     "RPS4Y1|201909_at"    "NA|209771_x_at"     
+[13] "NPY|206001_at"       "SH3BP5|201811_x_at"  "NRN1|218625_at"      "LCK|204891_s_at"    
+[17] "DDX3Y|205000_at"     "IL23A|213193_x_at"   "DEFA1|205033_s_at"   "TCF4|212386_at"     
+</pre>
+
+    <p>In the next sections, we will compare methods for selecting
+      genes on the basis of different criteria (variance, T-test,
+      ANOVA test, step-forward procedure in Linear Discriminant
+      Analysis). For this purpose, we will create a table indicating
+      the values and the rank of each gene (rows of the table)
+      according to eachs election criterion (columns).</p>
+
+<pre class='brush:r'>
+## Create a data frame to store gene values and ranks 
+## for different selection criteria.
+gene.ranks <- data.frame(var=var.per.gene)
+head(gene.ranks)
+</pre>
+
+<pre>
+                         var
+DDR1|1007_s_at   0.188580722
+RFC2|1053_at     0.060546361
+HSPA6|117_at     0.456587060
+PAX8|121_at      0.027817178
+GUCA1A|1255_g_at 0.007829279
+UBA7|1294_at     0.190982366
+</pre>
+
+<pre class='brush:r'>
+## Beware, we rank according to minus variance, because 
+## we want to associate the lowest ranks to the highest variances
+gene.ranks$var.rank <- rank(-gene.ranks$var, ties.method='random')
+head(gene.ranks)
+</pre>
+
+<pre>
+                         var var.rank
+DDR1|1007_s_at   0.188580722     5369
+RFC2|1053_at     0.060546361    10659
+HSPA6|117_at     0.456587060     1971
+PAX8|121_at      0.027817178    17936
+GUCA1A|1255_g_at 0.007829279    22265
+UBA7|1294_at     0.190982366     5306
+</pre>
+
+<pre class='brush:r'>
+## Check the rank of the 5 genes with highest and lowest variance, resp.
+gene.ranks[names(genes.by.decr.var[1:5]),]
+</pre>
+
+<pre>
+                        var var.rank
+CD9|201005_at      6.043017        1
+IL23A|211796_s_at  5.928425        2
+CD3D|213539_at     5.696326        3
+S100A8|202917_s_at 5.508163        4
+KLF4|221841_s_at   5.245057        5
+</pre>
+
+<pre class='brush:r'>
+## Print the bottom 5 genes of the variance-sorted table
+gene.ranks[names(tail(genes.by.decr.var)),]
+</pre>
+
+<pre>
+C7orf25|53202_at  0.007035592    22278
+FMO3|40665_at     0.007000936    22279
+SCLY|59705_at     0.006630802    22280
+NA|AFFX-DapX-5_at 0.006543372    22281
+HSD17B6|37512_at  0.006439234    22282
+NA|AFFX-LysX-5_at 0.005077204    22283
+</pre>
+
+
+<p>We have no specific reason to think that genes having a high
+  variance will be specially good at discriminating ALL
+  subtypes. Indeed, a high variance might <i>a priori</i> either
+  reflect cell-type specificities, or differences between samples that
+  result from any other effect (individual patient genomes,
+  transcriptome, condition, ...). For the sake of curiosity, let us
+  plot samples on a XY plot where the abcsissa represents the
+  top-raking, and the ordinate the second top-ranking gene in the
+  variance-ordered list.</p>
+
+<pre class='brush:r'>
+## Plot the expression profiles of the two genes with highest variance
+maxvar.g1 <- names(genes.by.decr.var[1])
+print(maxvar.g1)
+</pre>
+
+<pre>
+[1] "CD9|201005_at"
+</pre>
+
+<pre class='brush:r'>
+(maxvar.g2 <- names(genes.by.decr.var[2]))
+</pre>
+
+<pre>
+[1] "IL23A|211796_s_at"
+</pre>
+
+<pre class='brush:r'>
+x <- as.vector(as.matrix(expr.matrix[maxvar.g1,]))
+y <- as.vector(as.matrix(expr.matrix[maxvar.g2,]))
+dev.new(width=8, height=8)
+plot(x,y,
+       col=sample.colors,
+       type='n',
+       panel.first=grid(col='black'), 
+       main="2 genes with the highest variance", 
+       xlab=paste('gene', maxvar.g1), 
+       ylab=paste('gene', maxvar.g2))
+text(x, y,labels=sample.labels,col=sample.colors,pch=0.5)
+legend('topright',col=group.colors, 
+         legend=names(group.colors),pch=1,cex=0.7,bg='white',bty='o')
+dev.copy2pdf(file="denboer2009_2_maxvar_genes.pdf", width=8, height=8)
+</pre>
+
+    <p>Somewhat surprizingly, the plot shows that, despite the
+      roughness of our ranking criterion (variance across all cancer
+      types), the two top-ranking already discriminate several sample
+      types.
+      <ul>
+	<li>The expression level of CD9 (abcsissa of the plot) gives a
+	  pretty good separation between some cancer types with low
+	  expression levels (T and Bt), and some other types
+	  characterized by a high expression level (Bh, BEs,
+	  BEp). Cancer type Bo is however dispersed over the whole
+	  range of CD9 expression.</li>
+	<li>IL23A clearly separates the subtype "T" (high levels) from
+	  all other cancer subtypes (low levels).</li>
+      </ul>
+    </p>
+
+<h3>Selecting differentially expressed genes (DEG) as predictor variables</h3>
+
+<h4>Variable ordering by Welch t-test (2-groups test)</h4>
+
+    <p>The T-test tests the hypothesis of equality between the means
+      of two populations. We can use the Welch version of the t-test
+      (which assumes that groups can have different variances) in
+      order to select genes differentially expressed between two goups
+      of samples.</p>
+
+<ul><i>
+  H<sub>0</sub>: m<sub>1</sub> = m<sub>2</sub>
+</i></ul>
+
+
+    <p>We thus need to define two groups of samples (multi-group
+      comparisons will be treated by ANOVA). For the dataset on ALL?
+      we have several subtypes of cancer. we will perform pairwise
+      comparisons of mean for a selection of subtypes. In each case, a
+      given subtype (e.g. T-cells) will be compared to all other
+      subtypes pooled together.</p>
+
+<p>We will successvely run Welch's t-test for the main subtypes ("Bo",
+"Bh", "Bt", "T").</p>
+
+<ul><i>
+  H<sub>0</sub>(Bo): m<sub>Bo</sub> = m<sub>others</sub>
+  <br>H<sub>0</sub>(Bh):m<sub>Bh</sub> = m<sub>others</sub>
+  <br>H<sub>0</sub>(Bt):m<sub>Bt</sub> = m<sub>others</sub>
+  <br>H<sub>0</sub>(T):m<sub>T</sub> = m<sub>others</sub> 
+</i></uL>
+
+<p>In each case, apply the test in to each gene, using the function
+<tt>t.test.mult()</tt> defined in the <span class="program">R</span> utilities of this
+course.</p>
+
+<pre class='brush:r'>
+## Load a utility to apply Welch test on each row of a table
+source(file.path(dir.util, "util_student_test_multi.R"))
+
+## Define a vector indicating whether each sample 
+## belongs to the subtype of interest (e.g. "Bo") or not.
+current.group <- "Bo"
+one.group.vs.others<- sample.labels
+one.group.vs.others[sample.labels != current.group] <- "other"
+print(table(one.group.vs.others))
+</pre>
+
+<pre>
+one.group.vs.others
+   Bo other 
+   44   146 
+</pre>
+
+<pre class='brush:r'>
+## Test the mean equality between Bo subtype and all other subtypes 
+welch.one.group.vs.others <- t.test.multi(expr.matrix, one.group.vs.others)
+
+## Store the volcano plot produced by the function t.test.multi()
+dev.copy2pdf(file=file.path(dir.figures, paste(sep="", "denboer2009_welch_", current.group,"_vs_others_volcano.pdf")))
+
+</pre>
+
+<pre>
+[1] "Thu Aug 23 09:19:08 2012 - Multiple t-test started"
+[1] "Thu Aug 23 09:19:11 2012 - Multiple t-test done"
+</pre>
+
+<pre class='brush:r'>
+names(welch.one.group.vs.others)
+</pre>
+
+<pre>
+ [1] "mean.other"    "mean.Bo"       "means.diff"    "var.est.other"
+ [5] "var.est.Bo"    "sd.est.other"  "sd.est.Bo"     "st.err.diff"  
+ [9] "t.obs"         "df.welch"      "P.value"       "E.value"      
+[13] "sig"          
+</pre>
+
+<pre class='brush:r'>
+
+## Update the gene rank table
+test.name <- paste(current.group, '.vs.others.sig', sep='')
+gene.ranks[,test.name] <- welch.one.group.vs.others$sig ## Add a column with significances
+gene.ranks[,paste(test.name, ".rank", sep="")] <- rank(-welch.one.group.vs.others$sig, , ties.method='random') ## Add a column with significance ranks
+
+## Apply the Welch test for the 3 other majority groups
+for (current.group in c("Bh", "Bt", "T")) {
+    one.group.vs.others<- sample.labels
+    one.group.vs.others[sample.labels != current.group] <- "other"
+    
+    ## Test the mean equality between Bo subtype and all other subtypes 
+    welch.one.group.vs.others <- t.test.multi(expr.matrix, one.group.vs.others)
+
+    ## Store the volcano plot
+    dev.copy2pdf(file=file.path(dir.figures, paste(sep="", "denboer2009_welch_", current.group,"_vs_others_volcano.pdf")))
+
+    ## Update the gene rank table
+    test.name <- paste(current.group, '.vs.others.sig', sep='')
+    gene.ranks[,test.name] <- welch.one.group.vs.others$sig
+    gene.ranks[,paste(test.name, ".rank", sep="")] <- rank(-welch.one.group.vs.others$sig, , ties.method='random')
+}
+
+## Check the resulting gene table
+head(gene.ranks)
+head(gene.ranks[order(gene.ranks$T.vs.others.sig.rank),])
+tail(gene.ranks[order(gene.ranks$T.vs.others.sig.rank),])
+
+## Store the gene rank table in a text file (tab-separated columns)
+write.table(gene.ranks, file=file.path(dir.results, 'DenBoer_gene_ranks.tab'), sep='\t', quote=F, col.names=NA)
+</pre>
+
+<pre class='brush:r'>
+## Plot variance against significance of the Welch test for the 4 different groups
+dev.new(width=8, height=8)
+plot(gene.ranks[,c("var", "Bo.vs.others.sig", "Bh.vs.others.sig", "Bt.vs.others.sig", "T.vs.others.sig")], col="grey")
+
+## Plot ranks of variance against significance of the Welch test for the 4 different groups
+dev.new(width=8, height=8)
+plot(gene.ranks[,c("var.rank", "Bo.vs.others.sig.rank", "Bh.vs.others.sig.rank", "Bt.vs.others.sig.rank", "T.vs.others.sig.rank")], col="grey")
+dev.
+</pre>
+
+    <p>An obvious observation: the gene-wise variance and the 4
+      results of Welch tests (one cancer type against all other types)
+      return very different values, and assign gene ranks in
+      completely different ways. This is not surprizing, the variance
+      and the 4 significances indicate different properties of the
+      genes. Gene selection will thus have to be adapted to the
+      specific purpose of the classification. </p>
+    
+<!--
+<h4>ANOVA based variable ordering (multiple subtypes)</h4>
+\label{sect:anova_filter}
+
+\tbw
+-->
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name='pca'></a>
+    <h2>Principal Component Analysis</h2>
+
+    <p>Before starting the proper process of supervised
+      classification, we can apply a method called Principal Component
+      Analysis (<span class="concept">PCA</span>) to evaluate the repartition of the
+      information between the mutiple variables, and to inspect the
+      "intrinsic" structure of the data, i.e. the structure inherent
+      to the numbers in the data table, irrespective of the labels
+      (cancer subtypes) attached to the various samples.</p>
+
+
+    <h3>Purpose of PCA</h3>
+
+
+    <p>We can do the exercise of extending this 2-dimensional plot to
+      a 3-dimensional plot, where the third dimension represents the
+      expression level of a third gene. With an effort of imagination,
+      we can mentally extend this 3D plot to a 4-dimensional plot,
+      where each dimension would represent a different gene. It is
+      likely that the groups of genes will progressively become more
+      separated as the number of dimension increases. However, for the
+      sake of graphical representation, it is difficult to work with
+      more than 2 (or at most 3) dimensions.</p>
+
+    <p>The purpose of <span class="concept">Principal Component Analysis</span> (<span class="concept">PCA</span>)
+      is to capture the largest part of the variance of a data set in
+      a minimal number of dimensions.</p>
+
+    <!--
+	\tbw
+      -->
+    <h3>Applying PCA transformation with stats::prcomp()</h3>
+    
+    <p>The <span class="program">R</span> method <tt>stats::prcomp()</tt> performs a PCA
+      transformation of an input table. We can feed it with the
+      expression table, but we need to transpose it first (using
+      the <span class="program">R</span> function <tt>t()</tt>), in order to provide our
+      objects of interest (the samples) as rows, and the variables
+      (genes) as columns.</p>
+    
+    <pre class='brush:r'>
+## load the stats library to use the princomp() and prcomp() function
+library(stats) 
+
+## Perform the PCA transformation
+expr.prcomp <- prcomp(t(expr.matrix),cor=TRUE)
+
+## Analyze the content of the prcomp result: 
+## the result of the method prcomp() is an object 
+## belonging to the class "prcomp"
+class(expr.prcomp) 
+</pre>
+
+    <pre class='brush:r'>
+## Get the field names of the prcomp objects
+names(expr.prcomp) 
+
+## Get the attributes of the prcomp objects
+attributes(expr.prcomp) 
+</pre>
+
+
+    <h3>Repartition of the standard deviation along the components</h3>
+
+    <p>A first information is the repartition of the variance (or its
+      squared root, the standard deviation) between the components,
+      which can be displayed on a plot.</p>
+
+<pre class='brush:r'>
+dev.new(width=7, height=5)
+plot(expr.prcomp, main='Den Boer (2009), Variance  per component', xlab='Component')
+</pre>
+
+
+    <p>The standard deviation barplot
+      (Figure~\ref{DenBoer_pca_variance}) highlights that the first
+      component captures more or less twice as much standard deviation
+      of the whole dataset as the second one. We can measure the
+      relative importance of the standard deviations.</p>
+
+
+    <pre class='brush:r'>
+## Get the standard deviation and variance per principal component
+sd.per.pc <- expr.prcomp$sdev
+var.per.pc <- sd.per.pc^2
+
+## Display the percentage of total variance explained by each 
+sd.per.pc.percent <- sd.per.pc/sum(sd.per.pc)
+var.per.pc.percent <- var.per.pc/sum(var.per.pc)
+barplot(var.per.pc.percent[1:10], main='Den Boer (2009), Percent of variance  per component', xlab='Component', ylab='Percent variance', col='#BBDDFF')
+dev.copy2pdf(file="pca_variances.pdf", width=7, height=5)
+</pre>
+
+    <h3>Analysis of the first versus second component</h3>
+    
+    <p>We can generate a <span class="concept">biplot</span>, where
+      each sample appears as a dot, and the X and Y axes respectively
+      represent the first and second components of the PCA-transformed
+      data. The R function stats::biplot() automatically generates the
+      biplot, but the result is somewhat confusing, because the biplot
+      displays both the units (samples) and a projection of the
+      variables (genes) on the two first components.</p>
+
+<pre class='brush:r'>
+dev.new(width=8, height=8)
+biplot(expr.prcomp,var.axes=FALSE,
+         panel.first=grid(col='black'), 
+         main=paste('PCA; Den Boer (2009); ',
+           ncol(expr.matrix), 'samples *', nrow(expr.matrix), 'genes', sep=' '), 
+         xlab='First component', ylab='Second component')
+</pre>
+
+    <p>Let us now generate a custom plot, with labels and colors
+      indicating the subtype of ALL.</p>
+
+<pre class='brush:r'>
+## Plot components PC1 and PC2
+dev.new(width=8, height=8)
+plot(expr.prcomp$x[,1:2],
+       col=sample.colors,
+       type='n',
+       panel.first=grid(col='black'), 
+         main=paste('PCA; Den Boer (2009); ',
+           ncol(expr.matrix), 'samples *', nrow(expr.matrix), 'genes', sep=' '), 
+         xlab='PC1', ylab='PC2')
+text(expr.prcomp$x[,1:2],labels=sample.labels,col=sample.colors,pch=0.5)
+legend('bottomleft',col=group.colors, 
+         legend=names(group.colors),pch=1,cex=0.7,bg='white',bty='o')
+dev.copy2pdf(file="PC1_vs_PC2.pdf", width=8, height=8)
+</pre>
+
+
+    <p>The coloring and cancer-type labels highlight a very interesting
+      property of the PCA result: the two first components of the
+      PCA-transformed data perfectly separate the T-ALL samples from all the
+      other subtypes. All T-ALL cells appear in one elongated cloud on the
+      left side of the plot. The other cloud seems to contain some
+      organization as well: subtypes are partly intermingled but there are
+      obvious groupings.</p>
+    
+    
+    <h3>Analysis of the second versus third component</h3>
+    
+    <p>The following figure  shows that the second and third components
+      capture information related to the cancer subtypes: the third
+      component separates quite well TEL-AML1 (top) from hyperdiploid
+      (bottom) samples, whereas the pre-B have intermediate
+      values. The separation is however less obvious than the T-ALL
+      versus all other subtypes that we observed in the two first
+      components.</p>
+      
+<pre class='brush:r'>
+## Plot components PC2 and PC3
+plot(expr.prcomp$x[,2:3],
+       col=sample.colors,
+       type='n',
+       panel.first=grid(col='black'), 
+         main=paste('PCA; Den Boer (2009); ',
+           ncol(expr.matrix), 'samples *', nrow(expr.matrix), 'genes', sep=' '), 
+         xlab='PC2', ylab='PC3')
+text(expr.prcomp$x[,2:3],labels=sample.labels,col=sample.colors,pch=0.5)     
+legend('bottomleft',col=group.colors, 
+         legend=names(group.colors),pch=1,cex=0.7,bg='white',bty='o')
+dev.copy2pdf(file="PC2_vs_PC3.pdf", width=8, height=8)
+</pre>
+
+
+<div class='exo'>
+  <h3>Exercise</h3>
+  
+  <p>Generate plots of a few additional components (PC4, PC5,...) and
+    try to evaluate if they further separate subtypes of cancers.</p>
+  
+</div>
+
+<h3>Discussion of the PCA results</h3>
+
+    <p>In the "historical" dataset from Golub (1999), three sample
+      groups (AML, T-ALL and B-ALL) appeared almost perfectly
+      separated by a simple display of the two first components of the
+      PCA-transformed data. The dataset from DenBoer (2009) is less
+      obvious to interpret, due to the nature of the data itself:
+      firstly, all the samples come from the same cell type
+      (lymphoblasts), whereas the main separation of Golub was between
+      myeloblasts and lymphoblasts. Secondly, Den Boer and co-workers
+      defined a wider variety of subtypes. However, we see that a
+      simple PCA transformation already reveals that the raw
+      expression data is well structured. It is quite obvious that we
+      will have no difficulty to find a signature discriminating T-ALL
+      from other ALL subtypes, since T-ALL are already separated on
+      the plane of the two first components. We would however like to
+      further refine the diagnostics, by training a classifier to
+      discriminate between the other subtypes as well. </p>
+
+    <p>Note that until now we did not apply any training: PCA
+      transformation is a "blind" (unsupervised) approach, performing
+      a rotation in the variable space without using any information
+      about pre-defined classes. Since we dispose of such information
+      for the 190 samples of the training set, we can use a family of
+      other approaches, generically called <span class="concept">supervised
+      classification</span>, that will rely on class membership of the
+      training samples in order to train a classifier, which will
+      further be used to assign new samples to the same classes.</p>
+
+
+<!--
+<h3>Selecting principal components as predictor variables}
+
+\tbw
+
+-->
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name='lda'></a>
+    <h2>Linear Discriminant Analysis (LDA)</h2>
+
+<!--
+\tbw
+-->
+
+<h3>Training the classifier</h3>
+
+    <p>In a first attempt to discriminate genes from the Bo class
+      (pre-B-ALL), we will select the 20 top-raking genes in the list
+      sorted by significance of the Welch test (Bo versus others).</p>
+    
+    <pre class='brush:r'>
+## Load the library containing the linear discriminant analysis function
+library(MASS)
+
+## Redefined the variables (they may have changed during the previous processing)
+current.group <- "Bo"
+one.group.vs.others<- sample.labels
+one.group.vs.others[sample.labels != current.group] <- "other"
+print(table(one.group.vs.others))
+
+## Test the mean equality between Bo subtype and all other subtypes 
+welch.Bo.vs.others <- t.test.multi(expr.matrix, one.group.vs.others)
+
+## Print the names of the 20 top-ranking genes.
+## Note that these are not sorted !
+print(rownames(welch.Bo.vs.others[welch.Bo.vs.others$rank <= 20,]))
+
+## Sort gene names by Wekch sig
+welch.Bo.vs.others.sorted <- welch.Bo.vs.others[order(welch.Bo.vs.others$sig, decreasing=TRUE),]
+sorted.names <- rownames(welch.Bo.vs.others.sorted)
+print(sorted.names[1:20])
+
+## Print a plot with the two top-ranking genes with the Bo versus other Welch test
+g1 <- sorted.names[1]
+g2 <- sorted.names[2]
+x <- as.vector(as.matrix(expr.matrix[g1,]))
+y <- as.vector(as.matrix(expr.matrix[g2,]))
+     dev.new(width=8,height=8)
+     plot(x,y,
+     col=sample.colors,
+     type="n",
+     panel.first=grid(col="black"), 
+     main="Den Boer (2009), two selected genes", 
+     xlab=paste("gene", g1), ylab=paste("gene", g2))
+text(x, y,labels=sample.labels,col=sample.colors,pch=0.5)
+legend("topright",col=group.colors, 
+         legend=names(group.colors),pch=1,cex=0.6,bg="white",bty="o")
+
+## Print a plot with the two top-ranking genes with the Bo versus other Welch test
+g3 <- sorted.names[3]
+g4 <- sorted.names[4]
+x <- as.vector(as.matrix(expr.matrix[g3,]))
+y <- as.vector(as.matrix(expr.matrix[g4,]))
+     dev.new(width=8,height=8)
+     plot(x,y,
+     col=sample.colors,
+     type="n",
+     panel.first=grid(col="black"), 
+     main="Den Boer (2009), two selected genes", 
+     xlab=paste("gene", g3), ylab=paste("gene", g4))
+text(x, y,labels=sample.labels,col=sample.colors,pch=0.5)
+legend("topright",col=group.colors, 
+         legend=names(group.colors),pch=1,cex=0.6,bg="white",bty="o")
+
+
+## Select the 20 top-ranking genes sorted by decreasing variance
+top.variables <- 4
+selected.genes <- sorted.names[1:top.variables]
+
+
+## Train the classifier
+lda.classifier <- lda(t(expr.matrix[selected.genes,]),one.group.vs.others,CV=FALSE) 
+</pre>
+
+    <h3>Evaluating the hit rate by Leave-One-Out (LOO) cross-validation}
+
+      <pre class='brush:r'>
+## Use the MASS:lda() function with the cross-validation option
+lda.loo <- lda(t(expr.matrix[selected.genes,]),one.group.vs.others,CV=TRUE) 
+
+## Collect the LOO prediction result in a vector
+loo.predicted.class <- as.vector(lda.loo$class)
+print(loo.predicted.class)
+table(loo.predicted.class)
+
+## Build a contingency table of known versus predicted class
+(lda.loo.xtab1 <- table(one.group.vs.others, loo.predicted.class))
+
+## Check the assignation of all known groups to "Bo" or "other"
+(lda.loo.xtab2 <- table(sample.labels, loo.predicted.class))
+</pre>
+
+      <p>The result looks like this:</p>
+
+      <pre>
+             loo.predicted.class
+sample.labels Bc BE BEp BEs Bh BM Bo Bt  T
+          Bc   0  0   0   0  0  0  4  0  0
+          Bch  0  0   0   0  0  0  0  0  0
+          BE   0  0   0   0  0  0  0  0  0
+          BEp  0  1   6   0  0  0  1  0  0
+          BEs  0  0   0   3  0  0  1  0  0
+          Bh   0  0   0   1 40  0  3  0  0
+          BM   0  0   0   0  0  3  1  0  0
+          Bo   3  0   2   2  7  1 25  4  0
+          Bt   0  0   2   1  0  0  1 39  0
+          Bth  0  0   0   0  0  0  0  0  0
+          T    0  0   0   0  0  0  0  0 36
+</pre>
+
+
+      <pre class='brush:r'>
+## Display the contingency table as a heat map
+image(lda.loo.xtab)
+library(lattice)
+levelplot(lda.loo.xtab)
+
+## Compute the hit rate
+hits <- sample.labels == loo.predicted.class
+errors <- sample.labels != loo.predicted.class
+
+## Compute the number of hits 
+## (we need to omit NA values because LDA fails to assign a group to some objects).
+(nb.hits <- sum(na.omit(hits))) ## this should give 152
+(nb.pred <- length(na.omit(hits))) ## This should give 187
+(hit.rate <- nb.hits / nb.pred ) ## This should give 0.81
+</pre>
+
+      <h3>Testing the random expectation with permutation tests}
+
+	<h4>Exercises</h4>
+
+	<ol>
+	  <li>Use the <span class="program">R</span>
+	    function <tt>sample()</tt> to randomly permute the
+	    training labels (store the result in a vector called
+	    "sample.labels.perm"), and test the hit rate of a
+	    classifier trained with these randomized labels.
+
+	  <li>Use the <span class="program">R</span>
+	    function <tt>sample()</tt> to randomly permute the values
+	    of the input table (store the result in a data frame
+	    called "expr.perm"), and test the hit rate of a classifier
+	    trained with these randomized data.
+
+	</ol>
+	
+	<h4>Solutions</h4>
+	
+	<pre class='brush:r'>
+## Permute the training labels
+sample.labels.perm <- as.vector(sample(sample.labels))
+
+## Compare original training groups and permuted labels.
+table(sample.labels, sample.labels.perm)
+</pre>
+
+	<pre>
+             sample.labels.perm
+sample.labels Bc Bch BE BEp BEs Bh BM Bo Bt Bth  T
+          Bc   0   0  0   0   0  0  0  2  0   1  1
+          Bch  0   0  0   0   0  0  0  0  1   0  0
+          BE   0   0  0   0   0  0  0  0  0   0  1
+          BEp  0   0  0   1   0  3  0  3  1   0  0
+          BEs  0   0  0   0   0  1  0  1  1   0  1
+          Bh   1   0  0   1   2 18  0  7 10   0  5
+          BM   0   0  0   0   0  2  0  1  0   0  1
+          Bo   1   0  0   3   1  7  2 11 13   0  6
+          Bt   1   1  0   2   0  6  2 10 10   0 11
+          Bth  0   0  0   1   0  0  0  0  0   0  0
+          T    1   0  1   0   1  7  0  9  7   0 10
+</pre>
+
+	<pre class='brush:r'>
+## Run LDA in cross-validation (LOO) mode with the permuted labels
+lda.loo.labels.perm <- lda(t(expr.matrix[selected.genes,]),sample.labels.perm,CV=TRUE) 
+
+## Build a contingency table of known versus predicted class
+loo.predicted.class.labels.perm <- as.vector(lda.loo.labels.perm$class)
+lda.loo.labels.perm.xtab <- table(sample.labels.perm, loo.predicted.class.labels.perm)
+print(lda.loo.labels.perm.xtab)
+</pre>
+
+	<p>The particular values sould vary at each trial, since the
+	  sample labels are permuted at random. </p>
+
+	<pre class='brush:r'>
+## Display the contingency table as a heat map
+image(lda.loo.labels.perm.xtab)
+
+## Levelplot uses a nice color palette
+levelplot(lda.loo.labels.perm.xtab)
+
+## Compute the number of hits 
+## (we need to omit NA values because LDA fails to assign a group to some objects).
+hits.label.perm <- sample.labels.perm == loo.predicted.class.labels.perm
+(nb.hits.label.perm <- sum(na.omit(hits.label.perm))) ## This gives 25 this time, but should give different results at each trial
+(nb.pred.label.perm <- length(na.omit(hits.label.perm))) ## This should give 187
+(hit.rate.label.perm <- nb.hits.label.perm / nb.pred.label.perm ) ## This gives 0.13 this time, should give different results at each trial
+</pre>
+
+	<h2>Exercises</h2>
+	
+	
+	<h3>Exercise: Impact of the number of training variables</h3>
+	
+	
+	<div class='exo'>
+	  <ol>
+	    <li>Test the impact of the number of variables used for training the
+	      classifier. Draw a plot representing the hit rate (Y axis) as a
+	      function of the number of top genes used for the LDA classification,
+	      using different selection criteria:
+	      <ol>
+		<li>Gene-wise variance
+		<li>P-value of a Welch test (T-cells against all other types)
+		  <!--    <li>ANOVA -->
+	      </ol>
+	  </ol>
+	</div>
+
+
+	<h3>Random expectation</h3>
+
+	<div class='exo'>
+	  <ol>
+	    <li>Generate a randomized expression matrix by sampling the values
+	      of the Den Boer dataset with the R function <tt>sample()</tt>
+	      (as we did in the practical on multiple testing
+	      corrections).
+	    </li>
+	    <li>Run the same procedure with this randomized matrix as we did
+	      above with the original expression matrix, and calculate hit
+	      rate with increasing number of variables selected by
+	      <ul>
+		<li>variance</li>
+		<li>Welch test (T-cells against all other types)</li>
+	      </ul>
+	    </li>
+	    <li>Compare the hit rates obtained with the permuted matrix and
+	      with the original expression matrix. </li>
+	  </ol>
+
+	</div>
+
+
+<!--    
+<h3>Single variable-wise ordering (by individual hit rate)}
+
+\tbw
+
+<h3>Feed-forward variable selection}
+
+\tbw
+
+<h3>Evaluation the classifier with an independent testing set}
+\tbw
+
+
+<a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name="></a>
+    <h2>Other classification approaches}
+
+<h3>K-nearest-neighbours (KNN) classifier}
+
+\tbw
+
+<h3>Support vector machines}
+
+\tbw
+
+
+\bibliography{../statistics_for_bioinformatics.bib}
+
+\end{document}
+    <hr><a name='intro'></a>
+    <h2>Introduction</h2>
+
+    <p></p>
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name='resources'></a>
+    <h2>Resources</h2>
+
+    <table>
+      <tr>
+	<th>Name</th>
+	<th>Link</th>
+	<th>Description</th>
+      </tr>
+
+      <tr>
+	<td></td>
+	<td></td>
+	<td></td>
+      </tr>
+    </table>
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name='tutorial'></a>
+    <h2>Tutorial</h2>
+
+    <p>This first part of the practical consists in a tutorial, where
+      you will be guided in a step-by-step way to learn .... </p>
+    <p>You will then be invigted to put this knowledge in practice in
+      the exercises.</p>
+
+    <h4>Tutorial task 1</h4>
+
+    <div class='tut'>
+      <ol>
+	<li></li>
+	<li>Some code here
+	  <div class='code'>
+	    ## This is a style for inserting code
+	  </div>
+	</li>
+      </ol>
+    </div>
+
+    <h4>Tutorial task 2</h4>
+
+    <div class='tut'>
+      <ol>
+	<li></li>
+	<li></li>
+      </ol>
+    </div>
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name='exo1'></a>
+    <h2>Exercise 1: [TITLE1]</h2>
+
+
+    <h3>Context</h3>
+
+    <h3>Goals of this exercise</h3>
+
+    <ul>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+
+
+    <div class='tips'>
+      <h3>Tips</h3>
+      <ol>
+	<li></li>
+	<li></li>
+      </ol>
+    </div>
+
+    <div class='exo'>
+      <h3>Questions</h3>
+
+      <ol>
+	<li></li>
+	<li></li>
+	<li></li>
+      </ol>
+    </div>
+
+    <a href="javascript:sizeTbl2('block','sol_exo1')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_exo1')">Hide solution</a>
+    <div id='sol_exo1' class='solution' style="overflow:hidden;display:none">
+      <h3>Solutions</h3>
+      
+      <ol>
+	<li></li>
+	<li></li>
+      </ol>
+    </div>
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name='exo2'></a>
+    <h2>Exercise 2: [TITLE2]</h2>
+
+
+    <h3>Context</h3>
+
+    <h3>Goals of this exercise</h3>
+
+    <ul>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+
+
+    <div class='tips'>
+      <h3>Tips</h3>
+      <ol>
+	<li></li>
+	<li></li>
+      </ol>
+    </div>
+
+    <div class='exo'>
+      <h3>Questions</h3>
+
+      <ol>
+	<li></li>
+	<li></li>
+	<li></li>
+      </ol>
+    </div>
+
+    <a href="javascript:sizeTbl2('block','sol_exo2')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_exo2')">Hide solution</a>
+    <div id='sol_exo2' class='solution' style="overflow:hidden;display:none">
+      <h3>Solutions</h3>
+      
+      <ol>
+	<li></li>
+	<li></li>
+      </ol>
+    </div>
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    <hr><a name='exo3'></a>
+    <h2>Exercise 3: [TITLE3]</h2>
+
+
+    <h3>Context</h3>
+
+    <h3>Goals of this exercise</h3>
+
+    <ul>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+
+
+    <div class='tips'>
+      <h3>Tips</h3>
+      <ol>
+	<li></li>
+	<li></li>
+      </ol>
+    </div>
+
+    <div class='exo'>
+      <h3>Questions</h3>
+
+      <ol>
+	<li></li>
+	<li></li>
+	<li></li>
+      </ol>
+    </div>
+
+    <a href="javascript:sizeTbl2('block','sol_exo3')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_exo3')">Hide solution</a>
+    <div id='sol_exo3' class='solution' style="overflow:hidden;display:none">
+      <h3>Solutions</h3>
+      
+      <ol>
+	<li></li>
+	<li></li>
+      </ol>
+    </div>
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a><hr><a name='biblio'></a>
+    <h2>Bibliographic references</h2>
+    
+    <ol>
+      <li><a name='ref1'></a>
+	reference 1.</li>  
+    </ol>
+
+-->
+    <hr>
+    <address>
+      Denis Puthier (<a target='_blank' href='http://tagc.univ-mrs.fr/tagc/index.php/research/developmental-networks/d-puthier'>http://tagc.univ-mrs.fr/tagc/index.php/research/developmental-networks/d-puthier</a>)</li>
+      & <a target='_blank' href='http://jacques.van-helden.perso.luminy.univmed.fr/'>Jacques van Helden</a> (<a target='_blank' href='http://tagc.univ-mrs.fr/'>TAGC</a>, Aix-Marseille Universit&eacute;).
+    </address>
+</html>
+
+

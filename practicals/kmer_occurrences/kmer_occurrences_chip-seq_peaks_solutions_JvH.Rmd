@@ -1,0 +1,447 @@
+---
+title: "Detecting over-represented k-mers in ChIP-seq peaks"
+author: "Jacques van Helden and Denis Puthier"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    highlight: tango
+    theme: united
+    toc: yes
+    toc_depth: 4
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+    toc_depth: 4
+---
+
+
+```{r knitr setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo=FALSE, eval=TRUE, cache=FALSE, message=FALSE, warning=FALSE, comment = "")
+```
+
+
+## Datasets
+
+K-mer  occurrences in CEBPA peaks from Smith et al (2010) in the mouse genome (*Mus musculus*).
+
+### 6-mers
+
+| Data type | k | repeat | Table |
+|-----------|---|--------|-------|
+| CEBPA peaks | 6 | | [CEBPA_mm9_SWEMBL_R0.12_6nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_6nt-noov-2str.tab) |
+| genomic occurrences | 6 | full genome | [mm10_genome_6nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_6nt-noov-2str.tab) |
+| Random regions | 6 | 01 | [random-genome-fragments_mm10_repeat01_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_6nt-noov-2str.tab) |
+| Random regions | 6 | 02 | [random-genome-fragments_mm10_repeat02_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat02_6nt-noov-2str.tab) |
+| Random regions | 6 | 03 | [random-genome-fragments_mm10_repeat03_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat03_6nt-noov-2str.tab) |
+| Random regions | 6 | 04 | [random-genome-fragments_mm10_repeat04_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat04_6nt-noov-2str.tab) |
+| Random regions | 6 | 05 | [random-genome-fragments_mm10_repeat05_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat05_6nt-noov-2str.tab) |
+| Random regions | 6 | 06 | [random-genome-fragments_mm10_repeat06_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat06_6nt-noov-2str.tab) |
+| Random regions | 6 | 07 | [random-genome-fragments_mm10_repeat07_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat07_6nt-noov-2str.tab) |
+| Random regions | 6 | 08 | [random-genome-fragments_mm10_repeat08_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat08_6nt-noov-2str.tab) |
+
+### 7-mers
+
+| Data type | k | repeat | Table |
+|-----------|---|--------|-------|
+| CEBPA peaks | 7 | | [CEBPA_mm9_SWEMBL_R0.12_7nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_7nt-noov-2str.tab) |
+| genomic occurrences | 7 | full genome | [mm10_genome_7nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_7nt-noov-2str.tab) |
+| Random regions | 7 | 01 | [random-genome-fragments_mm10_repeat01_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_7nt-noov-2str.tab) |
+| Random regions | 7 | 02 | [random-genome-fragments_mm10_repeat02_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat02_7nt-noov-2str.tab) |
+| Random regions | 7 | 03 | [random-genome-fragments_mm10_repeat03_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat03_7nt-noov-2str.tab) |
+| Random regions | 7 | 04 | [random-genome-fragments_mm10_repeat04_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat04_7nt-noov-2str.tab) |
+| Random regions | 7 | 05 | [random-genome-fragments_mm10_repeat05_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat05_7nt-noov-2str.tab) |
+| Random regions | 7 | 07 | [random-genome-fragments_mm10_repeat07_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat07_7nt-noov-2str.tab) |
+| Random regions | 7 | 07 | [random-genome-fragments_mm10_repeat07_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat07_7nt-noov-2str.tab) |
+| Random regions | 7 | 08 | [random-genome-fragments_mm10_repeat08_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat08_7nt-noov-2str.tab) |
+
+### 8-mers
+
+| Data type | k | repeat | Table |
+|-----------|---|--------|-------|
+| CEBPA peaks | 8 | | [CEBPA_mm9_SWEMBL_R0.12_8nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_8nt-noov-2str.tab) |
+| genomic occurrences | 8 | full genome | [mm10_genome_8nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_8nt-noov-2str.tab) |
+| Random regions | 8 | 01 | [random-genome-fragments_mm10_repeat01_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_8nt-noov-2str.tab) |
+| Random regions | 8 | 02 | [random-genome-fragments_mm10_repeat02_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat02_8nt-noov-2str.tab) |
+| Random regions | 8 | 03 | [random-genome-fragments_mm10_repeat03_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat03_8nt-noov-2str.tab) |
+| Random regions | 8 | 04 | [random-genome-fragments_mm10_repeat04_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat04_8nt-noov-2str.tab) |
+| Random regions | 8 | 05 | [random-genome-fragments_mm10_repeat05_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat05_8nt-noov-2str.tab) |
+| Random regions | 8 | 08 | [random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab) |
+| Random regions | 8 | 08 | [random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab) |
+| Random regions | 8 | 08 | [random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat08_8nt-noov-2str.tab) |
+
+* * * * * 
+
+
+## Count distributions
+
+```{r parameters}
+## Define the URL of the course Web site from which the data will be downloaded 
+
+## course.url <- "http://localhost/courses/ASG1/" ## For JvH only
+course.url <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/"
+
+```
+
+
+
+### K-mer occurrences in the peaks
+
+```{r load data}
+
+## Load k-mer occurrences in ChIP-seq peaks
+peaks.url <- file.path(course.url, "data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_6nt-noov-2str.tab")
+peaks.6nt <- read.delim(peaks.url, comment.char = ";", row.names=1)
+# View(peaks.6nt) ## To check
+# names(peaks.6nt)
+# head(peaks.6nt)
+# dim(peaks.6nt)
+
+stats.6nt <- data.frame(row.names = "peaks",  
+                        mean=mean(peaks.6nt$occ),
+                        min=min(peaks.6nt$occ),
+                        max=max(peaks.6nt$occ),
+                        sum=sum(peaks.6nt$occ)
+                        )
+
+## Plot an hitogram with the distribution of occurrences per k-mer
+hist(peaks.6nt$occ, breaks=50)
+
+```
+
+### K-mer occurrences in random genomic regions
+
+
+```{r load_rand_occ}
+
+## Pick up a repeat number between 1 and 8
+repeat.nb <- sample(1:8, size=1)
+
+rand.url <- "http://localhost/courses/ASG1/data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat06_6nt-noov-2str.tab"
+
+## Load k-mer occurrences in random genomic regions
+rand.6nt <- read.delim(rand.url, comment.char = ";",
+                       row.names=1)
+# View(peaks.6nt) ## To check
+# names(peaks.6nt)
+# dim(rand.6nt)
+
+stats.6nt["rand",] <- data.frame(mean=mean(rand.6nt$occ),
+                                 min=min(rand.6nt$occ),
+                                 max=max(rand.6nt$occ),
+                                 sum=sum(rand.6nt$occ)
+                        )
+
+## Plot an hitogram with the distribution of occurrences per k-mer
+hist(rand.6nt$occ, breaks=50)
+
+## Export the table with summary statistics of k-meroccurrences per dataset
+library(knitr)
+kable(stats.6nt)
+
+```
+
+
+
+
+## Estimating the background from k-mer frequencies in random peaks
+
+### Build a table to compare k-mer occurrences between peaks and random genome regions
+
+```{r merge_occ_tables}
+
+## Merge the two tables
+merged <- merge(peaks.6nt, rand.6nt, by="row.names", all=TRUE)
+row.names(merged) <- merged$Row.names
+head(merged)
+
+################################################
+## Identify all k-mers found in either data set
+kmer.union <- union(row.names(peaks.6nt), 
+                    row.names(rand.6nt))
+length(kmer.union)
+
+## Build a table with the k-mer occurrences in peaks and random genome regions
+kmer.comparison <- data.frame(
+  row.names = kmer.union,
+  peaks = peaks.6nt[kmer.union,"occ"],
+  rand = rand.6nt[kmer.union,"occ"])
+kmer.comparison[is.na(kmer.comparison)] <- 0
+
+## Compute relative frequencies for each k-mer
+kmer.comparison$peak.freq <- kmer.comparison$peak / sum(kmer.comparison$peak)
+kmer.comparison$rand.freq <- kmer.comparison$rand / sum(kmer.comparison$rand)
+kmer.comparison$mean.freq <- (kmer.comparison$peak.freq + kmer.comparison$rand.freq)/2
+
+## Check the table
+head(kmer.comparison)
+head(peaks.6nt)
+head(rand.6nt)
+
+```
+
+```{r occurrence_XY_plot}
+
+################################################
+## Draw an XY plot with the k-mer occurrences
+
+## Define point-specific colors according to local density of points
+cols <- densCols(x= kmer.comparison$rand,
+                 y=kmer.comparison$peaks)
+
+## XY plot
+plot(x= kmer.comparison$rand, 
+     y=kmer.comparison$peaks, 
+     xlab="Random regions",
+     ylab="Peak sequences",
+     main="6nt occurrences, peaks vs random regions",
+     panel.first=grid(lty="solid", col="brown"),
+     col=cols, 
+     pch=19)
+abline(a=0,b=1, col="brown", lwd=2)
+
+# library(geneplotter)
+# smoothScatter(x= kmer.comparison$rand, 
+#               y=kmer.comparison$peaks)
+
+```
+
+### Occurrence ratios
+
+```{r occurrence_ratios}
+
+## Compute the mean occurrences per k-mer
+kmer.comparison$occ.mean <- (kmer.comparison$peaks + kmer.comparison$rand)/2
+
+## Occurrence ratio
+kmer.comparison$occ.ratio <- (kmer.comparison$peaks / kmer.comparison$rand)
+range(kmer.comparison$occ.ratio)
+
+## Plot occ ration versus mean occurrences
+plot(kmer.comparison$occ.mean, xlab="Mean occurrences",
+     kmer.comparison$occ.ratio, ylab="Peaks/rand occ ratio",
+     main="Occurrence ratios",
+     pch=20,
+     panel.first=grid(),
+     col="darkgrey")
+abline(h=1, col="brown", lwd=2)
+abline(h=0, col="black")
+
+```
+
+
+### Log2-ratios
+
+```{r log2_ratios}
+
+# head(kmer.comparison)
+
+## Log2 of the occurrence ratio
+kmer.comparison$log2.ratio <- log(kmer.comparison$occ.ratio, base=2)
+
+## Mean of the log2(occurrences)
+kmer.comparison$mean.log2 <- (log2(kmer.comparison$peaks) + log2(kmer.comparison$rand))/2
+
+## Occurrence log-ratio plot
+plot(x=kmer.comparison$occ.mean, 
+     xlab="Mean occurrences",
+     y=kmer.comparison$log2.ratio,
+     main="Occurrences log2 ratio",
+     ylab="log2(peaks/rand)",
+     pch=20, col="darkgrey",
+     panel.first=grid()
+     )
+abline(h=0, col="brown", lwd=2)
+```
+
+### M-A plot
+
+```{r MA_plot}
+
+# head(kmer.comparison)
+
+## MA plot
+plot(x=kmer.comparison$mean.log2, 
+     xlab="Mean log2 occurrences",
+     y=kmer.comparison$log2.ratio,
+     main="MA plot",
+     ylab="log2(peaks/rand)",
+     pch=20, col="darkgrey",
+     panel.first=grid()
+     )
+abline(h=0, col="brown", lwd=2)
+```
+
+Finally, I prefer to keep the mean occurrences on the X axis rather than the log2(mean occ)
+
+
+### Log-likelihood ratio (LLR)
+
+$$LLR=f_{exp} \cdot log_2(f_{obs}/f_{exp})$$
+
+
+```{r log-ratio_vs_LLR, fig.height=10, fig.width=7}
+
+kmer.comparison[, "LLR"] <- kmer.comparison$rand.freq * kmer.comparison$log2.ratio
+
+par(mfrow=c(2,1))
+
+## Occurrence log-ratio plot
+plot(x=kmer.comparison$occ.mean, 
+     xlab="Mean occurrences",
+     y=kmer.comparison$log2.ratio,
+     main="Occurrences log2 ratio",
+     ylab="log2(peaks/rand)",
+     pch=20, col="darkgrey",
+     panel.first=grid()
+     )
+abline(h=0, col="brown", lwd=2)
+
+## LLR plot
+plot(x=kmer.comparison$occ.mean, 
+     xlab="Mean occurrences",
+     y=kmer.comparison$LLR,
+     main="Log-likelihood ratio",
+     ylab="rand.freq * log2(peaks/rand)",
+     pch=20, col="darkgrey",
+     panel.first=grid()
+     )
+abline(h=0, col="brown", lwd=2)
+
+
+par(mfrow=c(1,2))
+
+```
+
+The log-likelihood ratio is effective in reducing the impact of small number fluctuations: the rare k-mers (left side of the LLR plot) achieve very low scores, whereas the ratio or log2-ratio tended to put a high emphasis on them. 
+
+### Compute p-value of over-representation with the Poisson law
+
+```{r ppois_p-value}
+
+## Compute p-value with Poisson law
+kmer.comparison$pval.poisson <- ppois(
+  q = kmer.comparison$peaks -1,
+  lambda = kmer.comparison$rand, lower=FALSE)
+
+## Plot the Poisson p-value as a function of the mean log occ
+plot(x=kmer.comparison$mean.log2, 
+     xlab="Mean log2 occurrences",
+     y=kmer.comparison$pval.poisson,
+     ylab="Poisson p-value",
+     pch=20, col="darkgrey",
+     panel.first=grid(), log="y")
+abline(h=1, col="black")
+
+```
+
+```{r volcano plot}
+plot(x=kmer.comparison$log2.ratio, 
+     xlab="log2-ratio of occurrences",
+     y=-log10(kmer.comparison$pval.poisson),
+     ylab="Poisson p-value",
+     main="Volcano plot",
+     pch=20, col="darkgrey",
+     panel.first=grid())
+abline(h=1, col="black")
+
+```
+
+
+### Intermediate interpretation
+
+
+So far, we performed all our analyses using a random selection of genomic regions ("random peaks") as background sequences in order to estimate the expected number of occurrences of each k-mer in the peaks. These random peaks had been selected with the same size as the actual peaks, so the total number of occurrences was supposed to be more or less the same as in the peaks (small differences may occur due to the presence of N character in the genomic sequences). 
+
+However, the results are problematic, because the random expectation is estimated based on a small sequence set, so that the numbers can fluctuate, especially for rare k-mers. We even noticed that some hexamers have zero occurrences in the random peaks.
+
+## Estimating the background from genomic k-mer frequencies
+
+```{r genomic_frequencies}
+
+genomic.url <- file.path(course.url, "data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_6nt-noov-2str.tab")
+genomic.6nt <- read.delim(genomic.url, comment.char = ";", row.names=1)
+head(genomic.6nt)
+
+
+########################################################
+#' @title compare.occurrences
+#' @description a table with two columns, indicating the test and background occurrences, respectively
+#' @author Jacques.van-Helden\@univ-amu.fr
+#' @param x a data frame containing two columns of counts. The first column contains the test counts, and the second column the background counts.
+#' @param test.col=1 Column containing the observed counts
+#' @param bg.col=1 Column containing the background counts
+#' @export
+compare.occurrences <- function(x,
+                                test.col = 1,
+                                bg.col = 2) {
+  result <- x
+  
+  ## compute the sums per column
+  occ.sum <- c("test" = sum(result[,test.col], na.rm=TRUE),
+               "bg" = sum(result[,bg.col], na.rm=TRUE)
+               )
+  
+  ## Compute relative k-mer frequencies
+  result$test.freq <- result[, test.col] / occ.sum["test"]
+  result$bg.freq <- result[, bg.col] / occ.sum["bg"]
+  
+  ## Define a density-based color for each element
+  result$color <- densCols(
+    x=result$test.freq,
+    y=result$bg.freq)
+
+  ## Check the head and tail of the result table
+  head(result)
+  tail(result)
+  return(result)
+}
+
+## Compute statistics on the peaks versus genome
+peaks.vs.genome <- compare.occurrences(
+  data.frame(
+    row.names = row.names(genomic.6nt),
+    peak.occ = peaks.6nt[row.names(genomic.6nt),"occ"],
+    genomic.occ = as.numeric(genomic.6nt[row.names(genomic.6nt),"occ"])))
+
+rand.vs.genome <- compare.occurrences(
+  data.frame(
+    row.names = row.names(genomic.6nt),
+    rand.occ = rand.6nt[row.names(genomic.6nt),"occ"],
+    genomic.occ = as.numeric(genomic.6nt[row.names(genomic.6nt),"occ"])))
+
+
+```
+
+
+```{r peak_vs_genomic_occ, fig.width=12, fig.height=6}
+## XY plot
+par(mfrow=c(1,2))
+
+## Define a density-based color map for peaks
+plot(x= peaks.vs.genome$bg.freq, 
+     y=peaks.vs.genome$test.freq, 
+     main="6nt frequencies, peaks vs genome",
+     xlab="Full genome",
+     ylab="Peak sequences",
+     panel.first=grid(lty="solid", col="brown"),
+     col=peaks.vs.genome$color, 
+     pch=19)
+abline(a=0,b=1, col="brown", lwd=2)
+
+
+plot(x= rand.vs.genome$bg.freq, 
+     y=rand.vs.genome$test.freq, 
+     main="6nt frequencies, random regions vs genome",
+     xlab="Full genome",
+     ylab="Random genomic regions",
+     panel.first=grid(lty="solid", col="brown"),
+     col=peaks.vs.genome$color, 
+     pch=19)
+abline(a=0,b=1, col="brown", lwd=2)
+
+par(mfrow=c(1,1))
+
+
+```
+

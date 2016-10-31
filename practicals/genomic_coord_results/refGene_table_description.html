@@ -1,0 +1,341 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html class="js"><head>
+
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<meta http-equiv="Content-Script-Type" content="text/javascript">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="-1">
+	<title>Schema for RefSeq Genes - RefSeq Genes	</title>
+    <link rel="STYLESHEET" href="refGene_table_description_files/HGStyle-v275.css" type="text/css">
+</head>
+<body class="hgTables cgi">
+<script type="text/javascript">
+document.write("<center><div id='warnBox' style='display:none;'><CENTER><B id='warnHead'></B></CENTER><UL id='warnList'></UL><CENTER><button id='warnOK' onclick='hideWarnBox();return false;'></button></CENTER></div></center>");
+function showWarnBox() {document.getElementById('warnOK').innerHTML='&nbsp;OK&nbsp;';var warnBox=document.getElementById('warnBox');warnBox.style.display=''; warnBox.style.width='65%';document.getElementById('warnHead').innerHTML='Warning/Error(s):';window.scrollTo(0, 0);}
+function hideWarnBox() {var warnBox=document.getElementById('warnBox');warnBox.style.display='none';warnBox.innerHTML='';var endOfPage = document.body.innerHTML.substr(document.body.innerHTML.length-20);if(endOfPage.lastIndexOf('-- ERROR --') > 0) { history.back(); }}
+window.onunload = function(){}; // Trick to avoid FF back button issue.
+</script><center><div id="warnBox" style="display:none;"><center><b id="warnHead"></b></center><ul id="warnList"></ul><center><button id="warnOK" onclick="hideWarnBox();return false;"></button></center></div></center>
+
+<a name="TOP"></a>
+
+<noscript><div class='noscript'><div class='noscript-inner'><p><b>JavaScript is disabled in your web browser</b></p><p>You must have JavaScript enabled in your web browser to use the Genome Browser</p></div></div></noscript><link rel="STYLESHEET" href="refGene_table_description_files/nice_menu-v275.css" type="text/css"><div id="main-menu-whole">
+
+		<div id="main-menu"><div id="block-nice_menus-1" class="clear-block block block-nice_menus">
+
+	<div class="upcorner"></div>
+	<div class="blockbg">
+		<div class="blockcontent">
+						<div class="content">
+
+<ul class="nice-menu nice-menu-down sf-js-enabled" id="nice-menu-1">
+
+<li class="first even" id="home"><a href="https://genome.ucsc.edu/index.html"><span id="home-link">Home</span></a></li> 
+
+<li id="genomes"><a href="https://genome.ucsc.edu/cgi-bin/hgGateway?hgsid=309563919">Genomes</a></li>
+<li id="genomeBrowser"><a href="https://genome.ucsc.edu/cgi-bin/hgTracks?hgsid=309563919">Genome Browser</a></li>
+
+<li class="menuparent" id="tools"><span>Tools</span>
+	<ul style="display: none; visibility: hidden;">
+	<li class="first"><a href="https://genome.ucsc.edu/cgi-bin/hgBlat?hgsid=309563919&amp;command=start">Blat</a></li>
+	<li><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919">Table Browser</a></li>
+	<li><a href="https://genome.ucsc.edu/cgi-bin/hgNear?hgsid=309563919">Gene Sorter</a></li>
+	<li><a href="https://genome.ucsc.edu/cgi-bin/hgGenome?hgsid=309563919">Genome Graphs</a></li>
+	<li><a href="https://genome.ucsc.edu/cgi-bin/hgPcr?hgsid=309563919">In-Silico PCR</a></li>
+	<li><a href="https://genome.ucsc.edu/cgi-bin/hgLiftOver?hgsid=309563919">LiftOver</a></li>
+	<li><a href="https://genome.ucsc.edu/cgi-bin/hgVisiGene?hgsid=309563919">VisiGene</a></li>
+	<li class="last"><a href="https://genome.ucsc.edu/util.html">Other Utilities</a></li>
+	</ul>
+</li>
+<li class="menuparent" id="mirrors"><span>Mirrors</span>
+	<ul style="display: none; visibility: hidden;">
+	<!-- OPTIONAL_GEO_MIRROR_ITEMS -->
+	<li><a href="https://genome.ucsc.edu/mirror.html">Third Party Mirrors</a></li>
+	<li class="last"><a href="https://genome.ucsc.edu/admin/mirror.html">Mirroring Instructions</a></li>
+	</ul>
+</li>
+<li class="menuparent" id="downloads"><span>Downloads</span>
+	<ul style="display: none; visibility: hidden;">
+	<li class="first"><a href="http://hgdownload.soe.ucsc.edu/downloads.html">Genome Data</a></li>
+	<li><a href="http://hgdownload.soe.ucsc.edu/downloads.html#source_downloads">Source Code</a></li>
+	<li><a href="http://hgdownload.soe.ucsc.edu/downloads.html#utilities_downloads">Utilities</a></li>
+	<li class="last"><a href="https://genome.ucsc.edu/goldenPath/help/ftp.html">FTP</a></li>
+	<li class="last"><a href="https://genome.ucsc.edu/goldenPath/help/mysql.html">MySQL Access</a></li>
+	</ul>
+</li>
+<li class="menuparent" id="myData"><span>My Data</span>
+	<ul style="display: none; visibility: hidden;">
+	<li><a href="https://genome.ucsc.edu/cgi-bin/hgSession?hgsid=309563919&amp;hgS_doMainPage=1">Sessions</a></li>
+	<li><a href="https://genome.ucsc.edu/cgi-bin/hgHubConnect?hgsid=309563919">Track Hubs</a></li>
+	<li class="last"><a href="https://genome.ucsc.edu/cgi-bin/hgCustom?hgsid=309563919">Custom Tracks</a></li>
+	</ul>
+</li>
+<li class="menuparent" id="aboutUs"><span>About Us</span>
+	<ul style="display: none; visibility: hidden;">
+	<li class="first odd"><a href="https://genome.ucsc.edu/goldenPath/newsarch.html">News</a></li>
+	<li class="even"><a href="https://genome.ucsc.edu/goldenPath/pubs.html">Publications</a></li>
+	<li class="odd"><a href="https://genome.ucsc.edu/cite.html">Cite Us</a></li>
+	<li class="even"><a href="https://genome.ucsc.edu/goldenPath/credits.html">Credits</a></li>
+	<li class="odd"><a href="https://genome.ucsc.edu/goldenPath/releaseLog.html">Release Log</a></li>
+	<li class="even"><a href="https://genome.ucsc.edu/staff.html">Staff</a></li>
+	<li class="odd"><a href="https://genome.ucsc.edu/contacts.html">Contact Us</a></li>
+	<li class="even"><a href="https://genome.ucsc.edu/conditions.html">Conditions of Use</a></li>
+	<li class="odd"><a href="http://www.cbse.ucsc.edu/jobs" target="_blank">Jobs</a></li>
+	<li class="even last"><a href="https://genome.ucsc.edu/license/">Licenses</a></li>
+</ul>
+</li>
+
+<!-- OPTIONAL_VIEW_MENU -->
+
+<li class="menuparent last" id="help"><span>Help</span><ul style="display: none; visibility: hidden;">
+<li><a href="https://genome.ucsc.edu/goldenPath/help/hgTablesHelp.html">Help on Table Browser</a></li>
+<li><a href="https://genome.ucsc.edu/FAQ/">FAQs</a></li>
+<li><a href="https://genome.ucsc.edu/goldenPath/help/hgTracksHelp.html">Browser Documentation</a></li>
+<li><a href="https://genome.ucsc.edu/training.html">Training</a></li>
+<li><a href="https://genome.ucsc.edu/contacts.html">Mailing Lists</a></li>
+<li class="last"><a href="http://genomewiki.ucsc.edu/" target="_blank">GenomeWiki</a></li>
+</ul>
+</li>
+</ul>
+</div>
+		</div>
+	</div>
+	<div class="downcorner"></div>
+
+</div>
+</div><!-- end main-menu -->
+</div><table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+
+<script type="text/javascript" src="refGene_table_description_files/jquery-v275.js"></script>
+<script type="text/javascript" src="refGene_table_description_files/jquery.js"></script>
+
+<!-- end main-menu-whole -->
+
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+jQuery.extend(Drupal.settings, { "basePath": "/", "nice_menus_options": { "delay": 800, "speed": 1 }, "thickbox": { "close": "Close", "next": "Next \x3e", "prev": "\x3c Prev", "esc_key": "or Esc Key", "next_close": "Next / Close on last", "image_count": "Image !current of !total" }, "custom_search": { "form_target": "_self", "solr": 0 } });
+//--><!]]>
+</script>
+
+<!-- +++++++++++++++++++++ CONTENT TABLES +++++++++++++++++++ -->
+<tbody><tr><td colspan="3">
+<div id="firstSection">      <!--outer table is for border purposes-->
+      <table bgcolor="#888888" border="0" cellpadding="1" cellspacing="0" width="100%"><tbody><tr><td>
+    <table bgcolor="#FFFEE8" border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td>
+     <div class="subheadingBar"><div class="windowSize" id="sectTtl">
+Schema for RefSeq Genes - RefSeq Genes     </div></div>
+     <table bgcolor="#FFFEE8" cellpadding="0" width="100%"><tbody><tr><th height="10"></th></tr>
+     <tr><td width="10">&nbsp;</td><td>
+
+
+<b>Database:</b> mm8&nbsp;&nbsp;&nbsp;&nbsp;<b>Primary Table:</b> refGene&nbsp;&nbsp;&nbsp;&nbsp;<b>Row Count:</b> 30,716<br>
+<b>Format description:</b> A gene prediction with some additional info.<br><!--hTableStart-->
+<table bgcolor="#888888" border="0" cellpadding="1" cellspacing="0"><tbody><tr><td>
+<table bgcolor="#FFFEE8" border="1" cellspacing="0">
+<tbody><tr><th>field</th><th>example</th><th>SQL type</th> <th>info</th> <th>description</th> </tr>
+
+<tr><td><tt>bin</tt></td> <td>1621</td><td><tt>smallint(5) unsigned</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueRange=bin">range</a></td> <td>Indexing field to speed chromosome range queries.</td></tr>
+<tr><td><tt>name</tt></td> <td>NM_001013412</td><td><tt>varchar(255)</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueHistogram=name">values</a></td> <td>Name of gene (usually transcript_id from GTF)</td></tr>
+<tr><td><tt>chrom</tt></td> <td>chr5</td><td><tt>varchar(255)</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueHistogram=chrom">values</a></td> <td>Reference sequence chromosome or scaffold</td></tr>
+<tr><td><tt>strand</tt></td> <td>-</td><td><tt>char(1)</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueHistogram=strand">values</a></td> <td>+ or - for strand</td></tr>
+<tr><td><tt>txStart</tt></td> <td>135845074</td><td><tt>int(10) unsigned</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueRange=txStart">range</a></td> <td>Transcription start position</td></tr>
+<tr><td><tt>txEnd</tt></td> <td>135848196</td><td><tt>int(10) unsigned</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueRange=txEnd">range</a></td> <td>Transcription end position</td></tr>
+<tr><td><tt>cdsStart</tt></td> <td>135845074</td><td><tt>int(10) unsigned</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueRange=cdsStart">range</a></td> <td>Coding region start</td></tr>
+<tr><td><tt>cdsEnd</tt></td> <td>135848196</td><td><tt>int(10) unsigned</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueRange=cdsEnd">range</a></td> <td>Coding region end</td></tr>
+<tr><td><tt>exonCount</tt></td> <td>3</td><td><tt>int(10) unsigned</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueRange=exonCount">range</a></td> <td>Number of exons</td></tr>
+<tr><td><tt>exonStarts</tt></td> <td>135845074,135847923,135848126,</td><td><tt>longblob</tt></td> <td>&nbsp;</td> <td>Exon start positions</td></tr>
+<tr><td><tt>exonEnds</tt></td> <td>135845171,135848038,135848196,</td><td><tt>longblob</tt></td> <td>&nbsp;</td> <td>Exon end positions</td></tr>
+<tr><td><tt>id</tt></td> <td>0</td><td><tt>int(10) unsigned</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueRange=id">range</a></td> <td>&nbsp;</td></tr>
+<tr><td><tt>name2</tt></td> <td>Ccl26</td><td><tt>varchar(255)</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueHistogram=name2">values</a></td> <td>Alternate name (e.g. gene_id from GTF)</td></tr>
+<tr><td><tt>cdsStartStat</tt></td> <td>cmpl</td><td><tt>enum('none', 'unk', 'incmpl', 'cmpl')</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueHistogram=cdsStartStat">values</a></td> <td>enum('none','unk','incmpl','cmpl')</td></tr>
+<tr><td><tt>cdsEndStat</tt></td> <td>cmpl</td><td><tt>enum('none', 'unk', 'incmpl', 'cmpl')</tt></td> <td><a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_database=mm8&amp;hgta_histoTable=refGene&amp;hgta_doValueHistogram=cdsEndStat">values</a></td> <td>enum('none','unk','incmpl','cmpl')</td></tr>
+<tr><td><tt>exonFrames</tt></td> <td>2,1,0,</td><td><tt>longblob</tt></td> <td>&nbsp;</td> <td>Exon frame {0,1,2}, or -1 if no frame for exon</td></tr>
+</tbody></table>
+</td></tr></tbody></table>
+<!--hTableEnd-->
+
+	</td><td width="15"></td></tr></tbody></table>
+	</td></tr></tbody></table>
+	</td></tr></tbody></table>
+	
+</div>
+<div>
+<!-- +++++++++++++++++++++ START NEW SECTION +++++++++++++++++++ -->
+<br>
+
+   <!--outer table is for border purposes-->
+   <table bgcolor="#888888" border="0" cellpadding="1" cellspacing="0" width="100%"><tbody><tr><td>
+    <table bgcolor="#FFFEE8" border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td>
+     <div class="subheadingBar">
+Connected Tables and Joining Fields     </div>
+     <table bgcolor="#FFFEE8" cellpadding="0" width="100%"><tbody><tr><th height="10"></th></tr>
+     <tr><td width="10">&nbsp;</td><td>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=all_est">all_est</a>.qName (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=all_mrna">all_mrna</a>.qName (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=ccdsInfo">ccdsInfo</a>.mrnaAcc (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=dupSpMrna">dupSpMrna</a>.dupMrnaID (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=dupSpMrna">dupSpMrna</a>.mrnaID (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=gbCdnaInfo">gbCdnaInfo</a>.acc (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=gbMiscDiff">gbMiscDiff</a>.acc (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=gbSeq">gbSeq</a>.acc (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=gbStatus">gbStatus</a>.acc (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=gbWarn">gbWarn</a>.acc (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=imageClone">imageClone</a>.acc (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=kgXref">kgXref</a>.refseq (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=knownToRefSeq">knownToRefSeq</a>.value (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=mrnaOrientInfo">mrnaOrientInfo</a>.name (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=mrnaRefseq">mrnaRefseq</a>.mrna (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=mrnaRefseq">mrnaRefseq</a>.refseq (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=refFlat">refFlat</a>.name (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=refLink">refLink</a>.mrnaAcc (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=refSeqAli">refSeqAli</a>.qName (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=refSeqStatus">refSeqStatus</a>.mrnaAcc (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=refSeqSummary">refSeqSummary</a>.mrnaAcc (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=seq">seq</a>.acc (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=xenoMrna">xenoMrna</a>.qName (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=xenoRefGene">xenoRefGene</a>.name (via refGene.name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mm8.<a href="https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=309563919&amp;hgta_doSchemaDb=mm8&amp;hgta_doSchemaTable=xenoRefSeqAli">xenoRefSeqAli</a>.qName (via refGene.name)<br>
+
+	</td><td width="15"></td></tr></tbody></table>
+	</td></tr></tbody></table>
+	</td></tr></tbody></table>
+	
+</div>
+<div>
+<!-- +++++++++++++++++++++ START NEW SECTION +++++++++++++++++++ -->
+<br>
+
+   <!--outer table is for border purposes-->
+   <table bgcolor="#888888" border="0" cellpadding="1" cellspacing="0" width="100%"><tbody><tr><td>
+    <table bgcolor="#FFFEE8" border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td>
+     <div class="subheadingBar">
+Sample Rows     </div>
+     <table bgcolor="#FFFEE8" cellpadding="0" width="100%"><tbody><tr><th height="10"></th></tr>
+     <tr><td width="10">&nbsp;</td><td>
+
+
+<!--hTableStart-->
+<table bgcolor="#888888" border="0" cellpadding="1" cellspacing="0"><tbody><tr><td>
+<table bgcolor="#FFFEE8" border="1" cellspacing="0">
+<tbody><tr><th>bin</th><th>name</th><th>chrom</th><th>strand</th><th>txStart</th><th>txEnd</th><th>cdsStart</th><th>cdsEnd</th><th>exonCount</th><th>exonStarts</th><th>exonEnds</th><th>id</th><th>name2</th><th>cdsStartStat</th><th>cdsEndStat</th><th>exonFrames</th></tr><tr><td>1621</td><td>NM_001013412</td><td>chr5</td><td>-</td><td>135845074</td><td>135848196</td><td>135845074</td><td>135848196</td><td>3</td><td>135845074,135847923,135848126,</td><td>135845171,135848038,135848196,</td><td>0</td><td>Ccl26</td><td>cmpl</td><td>cmpl</td><td>2,1,0,</td></tr>
+<tr><td>804</td><td>NM_001013609</td><td>chr8</td><td>+</td><td>28810329</td><td>28815123</td><td>28810381</td><td>28811854</td><td>3</td><td>28810329,28811773,28814497,</td><td>28811356,28811886,28815123,</td><td>0</td><td>Tex24</td><td>cmpl</td><td>cmpl</td><td>0,0,-1,</td></tr>
+<tr><td>1198</td><td>NM_001033443</td><td>chr17</td><td>-</td><td>80431875</td><td>80472160</td><td>80433610</td><td>80468843</td><td>10</td><td>80431875,80442123,80443719,80447829,80451945,80456017,80459151,80464632,80468675,80472050,</td><td>80433712,80442258,80443776,80447912,80452143,80456108,80459224,80464754,80468900,80472160,</td><td>0</td><td>Cdkl4</td><td>cmpl</td><td>cmpl</td><td>0,0,0,1,1,0,2,0,0,-1,</td></tr>
+<tr><td>81</td><td>NM_001025263</td><td>chr3</td><td>-</td><td>8912508</td><td>8987588</td><td>8914124</td><td>8987496</td><td>7</td><td>8912508,8918064,8919511,8927683,8930553,8936756,8987477,</td><td>8914247,8918113,8919553,8927785,8930702,8936872,8987588,</td><td>0</td><td>Tpd52</td><td>cmpl</td><td>cmpl</td><td>0,2,2,2,0,1,0,</td></tr>
+<tr><td>199</td><td>NM_008551</td><td>chr1</td><td>-</td><td>132881249</td><td>132925089</td><td>132882637</td><td>132925071</td><td>10</td><td>132881249,132883304,132883474,132883959,132884434,132885039,132885546,132885897,132886168,132924834,</td><td>132882781,132883385,132883560,132884084,132884510,132885166,132885626,132885962,132886308,132925089,</td><td>0</td><td>Mapkapk2</td><td>cmpl</td><td>cmpl</td><td>0,0,1,2,1,0,1,2,0,0,</td></tr>
+<tr><td>940</td><td>NM_011315</td><td>chr7</td><td>-</td><td>46580039</td><td>46583718</td><td>46580167</td><td>46583142</td><td>4</td><td>46580039,46580630,46583051,46583688,</td><td>46580306,46580769,46583146,46583718,</td><td>0</td><td>Saa3</td><td>cmpl</td><td>cmpl</td><td>2,1,0,-1,</td></tr>
+<tr><td>1</td><td>NM_021377</td><td>chr19</td><td>-</td><td>50200971</td><td>50731957</td><td>50204526</td><td>50731779</td><td>26</td><td>50200971,50206364,50221829,50228360,50229369,50234712,50235963,50243331,50263959,50275433,50278409,50280052,50281510,50283521,50&nbsp;...</td><td>50204662,50206470,50221929,50228492,50229482,50234836,50236097,50243518,50264131,50275547,50278540,50280170,50281618,50283613,50&nbsp;...</td><td>0</td><td>Sorcs1</td><td>cmpl</td><td>cmpl</td><td>2,1,0,0,1,0,1,0,2,2,0,2,2,0,1,0,0,0,0,1,2,0,0,2,0,0,</td></tr>
+<tr><td>77</td><td>NM_021374</td><td>chr1</td><td>-</td><td>4899656</td><td>5009507</td><td>4900554</td><td>5009460</td><td>5</td><td>4899656,4902394,4906977,4913927,5009391,</td><td>4900743,4902629,4907061,4914070,5009507,</td><td>0</td><td>Rgs20</td><td>cmpl</td><td>cmpl</td><td>0,2,2,0,0,</td></tr>
+<tr><td>92</td><td>NM_021372</td><td>chr11</td><td>+</td><td>20443255</td><td>20553026</td><td>20547808</td><td>20548738</td><td>2</td><td>20443255,20547804,</td><td>20443763,20553026,</td><td>0</td><td>Sertad2</td><td>cmpl</td><td>cmpl</td><td>-1,0,</td></tr>
+<tr><td>1905</td><td>NM_025388</td><td>chr1</td><td>-</td><td>173125238</td><td>173131657</td><td>173125565</td><td>173131431</td><td>7</td><td>173125238,173125845,173126192,173126558,173126823,173131308,173131595,</td><td>173125646,173125936,173126269,173126622,173126891,173131502,173131657,</td><td>0</td><td>Ufc1</td><td>cmpl</td><td>cmpl</td><td>0,2,0,2,0,0,-1,</td></tr>
+</tbody></table>
+</td></tr></tbody></table>
+<!--hTableEnd-->
+<br><i>Note: all start coordinates in our database are 0-based, not 
+1-based.  See explanation 
+<a href="http://genome.ucsc.edu/FAQ/FAQtracks#tracks1">here</a>.</i>
+
+	</td><td width="15"></td></tr></tbody></table>
+	</td></tr></tbody></table>
+	</td></tr></tbody></table>
+	
+</div>
+<div>
+<!-- +++++++++++++++++++++ START NEW SECTION +++++++++++++++++++ -->
+<br>
+
+   <!--outer table is for border purposes-->
+   <table bgcolor="#888888" border="0" cellpadding="1" cellspacing="0" width="100%"><tbody><tr><td>
+    <table bgcolor="#FFFEE8" border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td>
+     <div class="subheadingBar">
+RefSeq Genes (refGene) Track Description     </div>
+     <table bgcolor="#FFFEE8" cellpadding="0" width="100%"><tbody><tr><th height="10"></th></tr>
+     <tr><td width="10">&nbsp;</td><td>
+
+
+<span style="position:relative; top:-1.2em; margin-bottom:0em;"><h2>Description</h2>
+
+<p>
+The RefSeq Genes track shows known mouse protein-coding and
+non-protein-coding genes taken from the NCBI RNA reference sequences
+collection (RefSeq). The data underlying this track are updated daily.</p>
+
+<h2>Display Conventions and Configuration</h2>
+
+<p>
+This track follows the display conventions for
+<a href="https://genome.ucsc.edu/goldenPath/help/hgTracksHelp.html#GeneDisplay" target="_blank">
+gene prediction tracks</a>.
+The color shading indicates the level of review the RefSeq record has
+undergone: predicted (light), provisional (medium), reviewed (dark).
+</p>
+
+<p>
+The item labels and display colors of features within this track can be
+configured through the controls at the top of the track description page.
+This page is accessed via the small button to the left of the track's
+graphical display or through the link on the track's control menu.
+</p><ul>
+<li><b>Label:</b> By default, items are labeled by gene name. Click the
+appropriate Label option to display the accession name instead of the gene
+name, show both the gene and accession names, or turn off the label
+completely.</li>
+<li><b>Codon coloring:</b> This track contains an optional codon coloring
+feature that allows users to quickly validate and compare gene predictions.
+To display codon colors, select the <em>genomic codons</em> option from the
+<em>Color track by codons</em> pull-down menu. For more information about this
+feature, go to the
+<a href="https://genome.ucsc.edu/goldenPath/help/hgCodonColoring.html" target="_blank">
+Coloring Gene Predictions and Annotations by Codon</a> page.</li>
+<li><b>Hide non-coding genes:</b> By default, both the protein-coding and
+non-protein-coding genes are displayed.  If you wish to see only the coding
+genes, click this box.</li>
+</ul>
+<p></p>
+
+<h2>Methods</h2>
+
+<p>
+RefSeq RNAs were aligned against the mouse genome using blat; those
+with an alignment of less than 15% were discarded. When a single RNA
+aligned in multiple places, the alignment having the highest base identity
+was identified.  Only alignments having a base identity level within 0.1% of
+the best and at least 96% base identity with the genomic sequence were kept.
+</p>
+
+<h2>Credits</h2>
+
+<p>
+This track was produced at UCSC from RNA sequence data generated by scientists
+worldwide and curated by the NCBI
+<a href="http://www.ncbi.nlm.nih.gov/RefSeq/" target="_blank">RefSeq project</a>.
+</p>
+
+<h2>References</h2>
+
+<p>
+Kent WJ.
+<a href="http://genome.cshlp.org/content/12/4/656.full" target="_blank">
+BLAT - the BLAST-like alignment tool</a>.
+<em>Genome Res.</em> 2002 Apr;12(4):656-64.
+</p>
+
+<p>
+Pruitt KD, Tatusova T, Maglott DR.
+<a href="http://nar.oxfordjournals.org/content/33/suppl_1/D501.full" target="_blank">
+NCBI Reference Sequence (RefSeq): a curated non-redundant sequence database of genomes, transcripts and proteins</a>.
+<em>Nucleic Acids Res.</em> 2005 Jan 1;33(Database issue):D501-4.
+</p>
+
+</span>
+	</td><td width="15"></td></tr></tbody></table>
+	</td></tr></tbody></table>
+	</td></tr></tbody></table>
+	
+</div>
+</td></tr></tbody></table>
+
+
+</body></html>

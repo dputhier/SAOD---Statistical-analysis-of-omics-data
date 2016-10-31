@@ -1,0 +1,524 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+    <title>Introduction to Unix for Bioinformatics</title>
+    <script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    <script type="text/javascript">
+      SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+      SyntaxHighlighter.all();
+    </script>
+    
+  </head>
+  <body>
+    
+    <script language="JavaScript" type="text/javascript">
+      <!--
+	  function sizeTbl2(h,i) {
+	  var tbl = document.getElementById(i);
+	  tbl.style.display = h;
+	  }
+	  // -->
+    </script> 
+    
+    <h1>Introduction to Unix for Bioinformatics</h1>
+    <h2>Handling genomic coordinates</h2>
+    
+    <a name='contents'></a>
+    <h2>Contents</h2>
+    <ul>
+      <li><a href='#session'>Opening a session</a></li>
+      <li><a href='#datasets'>Downloading RefSeq transcript coordinates</a></li>
+      <li><a href="#descstats" >Some descriptive statistics on refSeq transcript using basic unix command</a></li>
+      <li><a href='#bedtools'>The Bedtools suite</a></li>
+      <li><a href='#bedtools'>Getting promoter regions of each transcript</a></li>
+      <li><a href='#tfbs'>Intersecting promoter regions with predicted transcription factor binding sites</a></li>
+      <li><a href='#annotation'>Functional annotation using  Database for Annotation, Visualization and Integrated Discovery</a></li>		      
+    </ul> 
+    
+    
+    <hr>		  
+    <a name='session'></a>
+    <h3>Opening a session.</h3>
+    <h4>Starting a terminal</h4>
+    
+    
+    <div class='protocol'>
+      <ol>
+	<li>Connect to the computer using your login and password.</li> 
+	<li>Open a terminal. You should find a terminal (terminal, konsole, terminator,...) under the <i>Application Menu</i>: Applications > Accessories > Terminal </li>
+      </ol>
+    </div>
+    
+    <p>Using this terminal you should now be able to communicate with the system through a set of shell commands (your default shell command interpreter should be BASH). </p>
+    
+    <h4>Creating a working directory</h4>
+    
+    <div class='protocol'>
+      <ol>
+	<li>Using the <span class="program">mkdir</span> command
+	  (<b>m</b>a<b>k</b>e <b>dir</b>ectory) create a working
+	  directory
+	  named <span class="program">td1_genomic_coordinates</span>
+	  in your HOME folder.</li>
+	<li>Use the <i>cd</i> (<b>c</b>hange <b>d</b>irectory) command
+	to enter the <i>td1_genomic_coordinates</i> directory</li>
+      </ol>
+    </div>
+    
+    <a href="javascript:sizeTbl2('block','sol_mk')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_mk')">Hide solution</a>
+    <div id=sol_mk  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+      
+      <pre class="brush:bash;">
+	cd ~             # or cd
+	pwd              # check the current working directory
+	mkdir td1_genomic_coordinates
+	cd td1_genomic_coordinates # or cd ~/td1_genomic_coordinates
+      </pre>
+    </div>
+    
+
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a>
+    
+    
+    <hr>		
+    <a name='datasets'></a>    
+    <h3>Downloading RefSeq transcript coordinates</h3>
+    
+    <h4>RefSeq transcript</h4>
+    
+    <p>The Reference Sequence (<a target='_blank'
+				  href="http://www.ncbi.nlm.nih.gov/RefSeq/">RefSeq</a>) collection aims
+      to provide a comprehensive, integrated, non-redundant, well-annotated
+      set of sequences. Here we will download informations about RefSeq
+      transcripts (that is known full-length transcript) related to Mus
+      musculus genome (mm9 version). Refseq transcript can be obtained
+      from <a target='_blank' href="https://genome.ucsc.edu">UCSC</a> genome
+      browser.</p>
+    <p></p>
+    <p></p>
+    <div class='protocol'>
+      <ol>
+	<li>Go to the <a target='_blank' href="https://genome.ucsc.edu">UCSC</a> web site</li> 
+	<li> In the middle of the left menu select <span class="option">Downloads</span>.</li>
+	<li> Select the <a target='_blank' href='http://hgdownload.cse.ucsc.edu/downloads.html#mouse'>Mouse</a> genome.</li>
+	<li>In the section <b>July 2007 (mm9)</b>,
+	    select <a target="_blank"
+	    href="http://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/">Annotation
+	    database</a> to enter the UCSC ftp web site.</li>
+	<li>Find the file <span class="file">refGene.txt.gz</span>, and copy the link
+	  location (URL) by right-clicking on the link.</li>
+	<li>In a terminal use the <span class="command">wget</span>
+	  command followed by this URL to retrieve
+	  the <span class="file">refGene.txt.gz</span> file.</li>
+	<li>Uncompress the file using the
+	  command <span class="command">gunzip</span> command.</li>
+      </ol>
+    </div>
+    
+    <a href="javascript:sizeTbl2('block','sol_wget')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_wget')">Hide solution</a>
+    <div id=sol_wget  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+      
+      <pre class="brush:bash;">	
+	wget http://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/refGene.txt.gz
+	gunzip refGene.txt.gz
+      </pre>
+    </div>
+
+    <div class='exo'>
+    <p>What kind of informations are available for each transcript?</p>
+    </div>
+
+    <div class='protocol'>
+      <ol>
+	<li>Go to the <a target='_blank'
+	href="https://genome.ucsc.edu"><b>UCSC</b></a> web site</li>
+	<li>Select <span class="option">Tables</span> in the top menu </li>	
+	<li>Select 
+	  <ul>
+	    <li><span class="option">clade</span>: Mammal, </li>
+	    <li><span class="option">genome</span>: Mouse, </li>
+	    <li><span class="option">assembly</span>: mm9, </li>
+	    <li><span class="option">group</span>: Genes and Gene Predictions, </li>
+	    <li><span class="option">track</span>: RefSeq Genes, </li>
+	    <li><span class="option">table: refGene</span>,</li>
+	  </ul>
+	  and click <span class="option">describe table
+	  schema</span>. </li>
+      </ol>
+    </div>
+    
+    <p>The UCSC Web page describes the column content of the refGene
+      table that we just downloaded. This table contains one line per
+      "object" (gene), and one column per attribute. This description
+      table is of course crucial to understand the content of the
+      refGene.txt file that we downloaded in the previous step.</p>
+
+    <p>Let's now have a look at the refGene file.</p>				    
+    <p></p>
+    <div class='protocol'>
+      <ol>
+	<li>Use the <span class="program">wc</span> command
+	  with <i>-l</i> arguments to count the number of lines in the
+	  refGene.txt file </li>
+	<li>Use the <span class="program">head</span> command
+	  with <i>-n</i> arguments to see the first 5 lines of the
+	  refGene.txt file.</li>
+	<li>Use the <span class="program">tail</span> command
+	  with <i>-n</i> arguments to see the last 5 lines of the
+	  refGene.txt file.</li>
+	<li>Have a look at the whole file
+	  using <span class="program">less</span> (use up/down arrow
+	  keys and type "<b>q</b>" to <b>q</b>uit))</li>
+	<li>Using <span class="program">head</span> extract the first
+	  line and use a <i>pipe</i> to redirect the output to
+	  the <span class="program">od</span> command with <i>-c</i>
+	  argument. </li>
+      </ol>
+    </div>
+    
+    <div class='exo'>
+      <p>What can you guess from the results?</p>
+    </div>
+    
+    <a href="javascript:sizeTbl2('block','sol_ref')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_ref')">Hide solution</a>
+    <div id=sol_ref  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+      <pre class="brush:bash;">		   
+	wc -l refGene.txt
+	head -n 5 refGene.txt
+	tail -n 5 refGene.txt
+	less refGene.txt
+	head -n 1 refGene.txt  | od -c 					
+      </pre>
+    </div>
+    
+    <hr>		
+    <a name='descstats'></a>				
+    <h3>Some descriptive statistics on refSeq transcript using basic unix command</h3>
+    
+    <div class='protocol'>
+      <ol>
+	<li>Using the <span class="program">cut</span> command
+	  retrieve the 13th column.</li>
+	<li>Using the <span class="program">cut</span> command
+	  retrieve the 13th column and redirect the output to
+	  the <span class="program">grep</span> command to find genes
+	  whose symbol start with <i>Bcl</i>. Count them by
+	  redirecting the output to the <span class="command">wc
+	  -l</span> command.</li>
+	<li>What is the gene that display the highest number of transcripts (use <span class="program">sort</span> and <span class="program">uniq</span> with <i>-c</i> argument). Check the results by typing the gene symbol in the UCSC genome browser (top menu > genomes) </li>
+	<li>What is the gene that display the highest number of exons.</li>
+	<li>Some transcrits may be coding (NM_...) or non-coding (NR_...). How many transcripts of each class are available in the refGene.txt file?</li>
+	<li>How many genes does each chromosome holds?</li>	 
+      </ol>
+    </div>
+    
+    <a href="javascript:sizeTbl2('block','sol_dstats')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_dstats')">Hide solution</a>
+    <div id=sol_dstats  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+      
+      <pre class="brush:bash;">
+	cut -f13 refGene.txt
+	cut -f13 refGene.txt | grep "^Bcl"
+	cut -f13 refGene.txt | grep "^Bcl" | sort | uniq | wc -l		
+	cut -f13 refGene.txt | sort | uniq -c | sort -n | tail -1
+	cut -f13 refGene.txt | sort | uniq -c | sort -n | tail -1
+	cut -f9,13 refGene.txt | sort -n | tail -1
+	cut -f2 refGene.txt  | sed 's/_.*//' | sort | uniq -c
+	cut -f3 refGene.txt  | sort | uniq -c | sort -n
+      </pre>		
+    </div>	
+    <hr>		
+
+    <a name='bedtools'>	</a>	
+    <h3>The Bedtools suite</h3>
+    
+    <h4>What is bedtools</h4>
+    
+    <p>The bedtools manual says: 
+
+      <blockquote>
+	<i>The BEDTools utilities allow one to address common
+	  genomics tasks such as finding feature overlaps and
+	  computing coverage. The utilities are largely based on four
+	  widely-used file formats:
+	  <a href='https://genome.ucsc.edu/FAQ/FAQformat.html#format1' >BED</a>, 
+	  <a href='https://genome.ucsc.edu/FAQ/FAQformat.html#format3' >GFF/GTF</a>, 
+	  <a href='https://genome.ucsc.edu/FAQ/FAQformat.html#format10.1' >VCF</a>, and 
+	  <a href='https://genome.ucsc.edu/FAQ/FAQformat.html#format5.1' >SAM/BAM</a>. 
+	  Using BEDTools, one can develop sophisticated pipelines that
+	  answer complicated research questions by "streaming"
+	  several BEDTools together. The following are examples of
+	  common questions that one can address with BEDTools.
+	  <ol>
+	    <li>Intersecting two BED files in search of overlapping features.</li>
+	    <li>Computing coverage for BAM alignments based on genome features.</li>
+	    <li>Merging overlapping features.</li>
+	    <li>Screening for paired-end (PE) overlaps between PE sequences and existing genomic features.</li>
+	    <li>Calculating the depth and breadth of sequence coverage across defined "windows" in a genome.</li>
+	    <li>Screening for overlaps between "split" alignments and genomic features.</li> 
+	  </ol>
+	</i>
+      </blockquote>
+    </p>
+    
+
+    
+    <h4>Installing the bedtools suite</h4>
+    <p>Check if the <a href="http://code.google.com/p/bedtools/">
+	bedtools suite</a> is already installed on your system
+      (type <span class="program">intersectBed</span> in a terminal). If
+      bedtools is not available, follow the procedure below to perform
+      installation.</p>
+    
+    <pre class="brush:bash;">
+      wget https://bedtools.googlecode.com/files/BEDTools.v2.16.2.tar.gz
+      mkdir -p  ~/bin
+      mv BEDTools.v2.16.2.tar.gz ~/bin
+      cd ~/bin
+      tar xvfz BEDTools.v2.16.2.tar.gz
+      cd BEDTools-Version-2.16.2
+      make
+      echo PATH=$PATH:~/bin/BEDTools-Version-2.16.2/bin >> ~/.bashrc
+      source ~/.bashrc
+    </pre>
+
+
+    <h4>Transforming refGene file into bed format</h4>
+    
+    <p>First we need to transform the refGene.txt file into a bed to use it as input for the bedtools suite. We will do it with <i>awk</i>.</p>
+    
+    <pre class="brush:bash;">
+      awk 'BEGIN{FS=OFS="\t"}{print $3,$5,$6,$2"|"$13,0,$4}' refGene.txt> refGene.bed
+    </pre>
+    
+    <p>Upload the resulting bed file into UCSC (top menu, genome > add
+      custom track > choose file > submit). Go to the genome browser to
+      visualize the new track.</p>
+    
+    <hr>		
+    <a name=promoter>	</a>	
+    <h3>Getting promoter regions of each transcript</h3>
+
+    <p>To obtain promoter regions of each transcript we will first
+      extract the TSS coordinates of each transcript. The TSS will
+      correspond to the txStart or txEnd coordinates depending on wether
+      genes is located on the positive or negative strand respectively
+      (<a href="http://tinyurl.com/cfvl5n2" > see refSeq table
+	definition</a>).</p>
+    
+    <pre class="brush:bash;">
+      awk 'BEGIN{FS=OFS="\t"}($6=="+"){print $1,$2,$2,$4,$5,$6}' refGene.bed > refGene.TSS.bed
+      awk 'BEGIN{FS=OFS="\t"}($6=="-"){print $1,$3,$3,$4,$5,$6}' refGene.bed >> refGene.TSS.bed
+    </pre>
+
+    <p>Now we will use slopBed to increase the size of each feature
+      (TSS) to define a promoter region around the TSS
+      ([-2000,+500]). Also this can be done with a simple <i>awk</i>
+      command, sploBed will restrict the resizing to the size of the
+      chromosome (i.e. no start < 0 and no end > chromosome size). We
+      thus need to download the length of each chromosome (here
+      from <a
+      href="http://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/">UCSC
+      ftp site</a>).</p>
+    
+    <pre class="brush:bash;">
+      wget http://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/chromInfo.txt.gz
+      gunzip chromInfo.txt.gz
+      cat chromInfo.txt
+    </pre>
+    
+    <p>Now we can run slopBed. We will also reorder features (TSS)
+      according to chromosomes coordinates</p>
+
+    <pre class="brush:bash;">
+      slopBed -i refGene.TSS.bed -l 2000 -r 500 -s  -g chromInfo.txt  | sortBed > refGene_Prom_2000_500.bed
+    </pre>
+    
+    <p>Check the results by loading the refGene_Prom_2000_500.bed as a
+      new user track in the UCSC genome browser.<p>
+	
+    <p><b>NB:</b> The <a href="http://rsat.ulb.ac.be/" >RSAT web
+	server</a> also proposes advance tools for retrieving promoter
+	regions (excluding coding regions, repeat elements,...). This
+	tools can also be run using UNIX command lines.</p>
+
+
+    <hr>  
+    <a name='tfbs'></a>
+    <h3>Intersecting promoter regions with predicted transcription factor binding sites</h3>
+    
+    <p>The dataset that will be used thereafter was obtained from the
+      following <a
+		   href="http://www.ncbi.nlm.nih.gov/pubmed/22292669">publication</a>:</p>
+    <ul>
+      <li>Lepoivre C, Bergon A, Lopez F, Perumal NB, Nguyen C, Imbert J, Puthier D. TranscriptomeBrowser 3.0: introducing a new compendium of molecular interactions and a new visualization tool for the study of gene regulatory networks. BMC Bioinformatics. 2012 Jan 31;13:19.</li>
+    </ul>
+
+    <p>In this article, the authors scanned vertevrates alignments in
+      search for highly conserved putative transcription factor binding
+      sites (TFBS). The resulting file contains the coordinates of the
+      predicted TFBS (mm9 genome version)</p>
+    
+    <div class='exo'>
+      <ol>
+	<li>Download the <a target="_blank"
+			    href="../../data/cis-reg/conserved_predicted_TFBS_mm9.bed">conserved_predicted_TFBS_mm9.bed</a>
+	  file </li>
+	<li>Use intersectBed to find for each promoter region its
+	  associated sets of predicted TFBS.</li>
+	<li>Using <span class="program">grep</span>
+	  and <span class="program">sed</span>, select the non-redondant
+	  list of targets for transcription factor E2F (represented by
+	  M00920:V$E2F_Q6_01 identifier), or ETS (represented by
+	  M00771:V$ETS_Q4 identifier), or MEF2A (represented by
+	  M00941:V$MEF2_Q6_01 identifier), or NFKB (represented by
+	  M00054:V$NFKAPPAB_01 identifier) or NRSF (represented by
+	  M01028:V$NRSF_Q4 identifier).
+      </ol>
+    </div>
+    
+    <a href="javascript:sizeTbl2('block','sol_getchen')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_getchen')">Hide solution</a>
+    <div id=sol_getchen  style="overflow:hidden;display:none">
+      <h4>Solution</h4>				    
+      <pre class="brush:bash;">
+	wget http://www.bigre.ulb.ac.be/courses/statistics_bioinformatics/data/cis-reg/conserved_predicted_TFBS_mm9.bed
+	head conserved_predicted_TFBS_mm9.bed
+	intersectBed -wa -wb -a refGene_Prom_2000_500.bed -b conserved_predicted_TFBS_mm9.bed > conservedsites_prom_intersect.bed
+	grep  -w M00920 conservedsites_prom_intersect.bed   | sed 's/.*|//' | cut -f1 | sort | uniq > M00920_targets.txt
+	grep  -w M00771  conservedsites_prom_intersect.bed  | sed 's/.*|//' | cut -f1 | sort | uniq > M00771_targets.txt
+	grep  -w M00941  conservedsites_prom_intersect.bed  | sed 's/.*|//' | cut -f1 | sort | uniq >  M00941_targets.txt
+	grep  -w M00054  conservedsites_prom_intersect.bed  | sed 's/.*|//' | cut -f1 | sort | uniq >  M00054_targets.txt
+	grep  -w M01028  conservedsites_prom_intersect.bed  | sed 's/.*|//' | cut -f1 | sort | uniq >  M01028_targets.txt
+      </pre>
+    </div>
+
+    <hr> 
+    <a name='annotation'></a>
+    <h3>Functional annotation using  Database for Annotation, Visualization and Integrated Discovery </h3>
+    
+    <p>We have seen that each transcription factor is associated with
+      a set of putative targets. What can we learn from these targets?
+      Is the transcription factor associated to genes involved in some
+      particular biological functions?</p>
+
+    <p>To answer this question we will use the <i>Database for
+	Annotation, Visualization and Integrated Discovery</i>
+      (DAVID). DAVID will try to find whether the selected genes
+      share some particular features, by analyzing their annotations
+      from several sources including Gene Ontology, KEGG pathways,
+      Reactome Pathways, genomic locations, ...</p>
+    
+    <div class='protocol'>
+      <ol>
+	<li>Go to the <a target='_blank' href="http://david.abcc.ncifcrf.gov/home.jsp">DAVID web site</a>.</li>
+	<li>In the left menu select <i>Functional annotation.</i></li>
+	<li>In the left menu select the upload tab. Paste the list of genes associated to one of the transcription factors.</li>
+	<li>Select <i>step 2 > OFFICIAL_GENE_SYMBOL.</i></li>
+	<li>Select <i>step 3 > Gene List.</i></li>
+	<li>Press <i>Submit List.</i></li>
+	<li>The program now displays the "Gene list manager", with a
+	  list of species sorted by decreasing number of matching gene
+	  names. Select "Mus musculus" and click "Select species".</li>
+	<li>Optionally, you can click on the list under "List manager"
+	  and rename if (for example, name it "M00920 E2F mouse").</li>
+	<li>In the "Annotation Summary Results" page, click the
+	  button <i>Functional Annotation Chart</i>.</li>
+	<li>In the new window, select <i>option</i> and ask
+	  for <i>Fold
+	    Enrichment</i>, <i>Bonferroni</i>, <i>Benjamini</i>, <i>FDR</i>, <i>Fisher
+	    Exact</i>, <i>LT,PH,PT</i> </li>
+      </ol>
+    </div>	  
+
+    <p>Note: the Fisher test will be explained in the next practical
+      "<a href='../go_statistics_td/go_statistics_td.html'>GO
+	statistics</a>".</p>
+
+    <div class='exo'>
+      <p>What can you guess from the results? 
+	<ol><li>Which are the most significant functional classes?</li>
+	  <li>How do you interpret their P-value?</li>
+	  <li>Is the significance proportional to the fold enrichment?</li>
+	  <li>Compare the P-values obtained after correction for
+	    multiple testing (Boneroni, Benjamini).</li>  
+	  <li>Evaluate the results at the bottom of the table: can
+	    these associations be considered as significant? Why?</li>
+      </ol>
+    </div>
+
+    <a href="javascript:sizeTbl2('block','sol_david')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','sol_david')">Hide solution</a>
+    <div id='sol_david'  style="overflow:hidden;display:none">
+      <h4>Gene list</h4>
+
+      <p>The list of E2F target genes predicted with the matrix M00920
+      is provided in the following file.
+	<ul><a href='../results_practicals_ASG1_2012/genomic_coordinates_results/M00920_targets.txt'>M00920_targets.txt</a></ul>
+      </p>
+
+      <h4>Interpretation</h4>
+
+      <p>The figure below shows a snapshot of the top rows of
+	functional annotation chart returned by David.
+	<img src='../results_practicals_ASG1_2012/genomic_coordinates_results/DAVID_M00920_snapshot.png'>
+      </p>
+      
+      <p>The most significant association for our list of genes is the
+	KEGG pathway "Cell cycle". The second row indicates a
+	significant intersection with another source of annotations:
+	the Gene Ontology term "cell cycle". Although these two
+	functional classes have the same name, they come from
+	different databases, with different annotation strategies. To
+	avoid redundancy, the interface of DAVID allows you to
+	selectively display some subsets of the Gene Ontology
+	annotations.
+
+      <p>Let us analyze in detail the second result row (GOTERM_BP_FAT cell cycle).
+	<ul>
+	  <li>The column "count" gives us the most directly
+	    interpretable data: 19 of the 80 genes submitted to David
+	    are associated to the term "cell cycle" in the GOTERM_BP_FAT
+	    (Gene Ontology, Biological Processes, "FAT" annotations)
+	    annotations. Let us denote this number by the symbol
+	    <i>x=19</i>.</li>
+	  <li>The column <b>PT</b> indicates the total number of genes
+	    having some annotation in GOTERM_BP_FAT
+	    (<i>N=13588</i>). This does not cover the total set of
+	    human genes (~25,000). However, since the other genes have
+	    no annotation in GOTERM_BP_FAT, we would not be able to
+	    test if they do or not belong to the cell cycle
+	    annotations. We will thus consider that the "universe" of
+	    possibilities is restricted to the <i>N</i> genes having
+	    at least some annotation in GOTERM_BP_FAT. </li>
+	  <li>The column <b>LT</b> indicates that, among the 80 genes
+	    submitted to DAVID, only <i>k=59</i> have some annotation
+	    in GOTERM_BP_FAT. This is the maximal number of genes
+	    which could match some biological process in GO
+	    annotations. </li>
+	  <li>The colum <b>PH</b> indicates the number of genes
+	    associated to the cell cycle in
+	    GOTERM_BP_FAT: <i>m=611</i>. </li>
+	</ul>
+      </p>
+    </div>
+
+
+    
+    <hr>    
+
+
+  </body>
+</html>

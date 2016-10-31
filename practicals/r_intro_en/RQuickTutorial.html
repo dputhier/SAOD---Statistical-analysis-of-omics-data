@@ -1,0 +1,1566 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 4.01">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+
+                   
+<title>  R language: A quick tutorial</title>
+ 
+<h1 align="center"><b>R language: A quick tutorial</b> </h1>
+
+<h3 align="center">Denis Puthier  </h3>
+
+
+<div class="p"><!----></div>
+
+<center>Laboratoire INSERM TAGC/ERM206, Parc Scientifique de Luminy case 928,13288 MARSEILLE cedex 09, FRANCE.
+</center> 
+
+<div class="p"><!----></div>
+
+<h1>Contents </h1><a href="#tth_sEc1"
+>1&nbsp; Basic aspects of the language.</a><br />
+<a href="#tth_sEc2"
+>2&nbsp; Syntax for calling Functions.</a><br />
+<a href="#tth_sEc3"
+>3&nbsp; Modes. Functions for creating vectors.</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.1"
+>3.1&nbsp; Modes</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.2"
+>3.2&nbsp; Functions and operators for creating vectors.</a><br />
+
+
+
+
+<a href="#tth_sEc4"
+>4&nbsp; Vector manipulation.</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc4.1"
+>4.1&nbsp; Indexing vectors</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc4.2"
+>4.2&nbsp; Replacing parts of a vector</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc4.3"
+>4.3&nbsp; Vectorization</a><br />
+<a href="#tth_sEc5"
+>5&nbsp; Objects of class: <tt>factor</tt>, <tt>Matrix</tt>, <tt>data.frame</tt> and <tt>list</tt>.</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.1"
+>5.1&nbsp; factor</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.2"
+>5.2&nbsp; Matrix</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.3"
+>5.3&nbsp; data.frame</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.4"
+>5.4&nbsp; list</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.5"
+>5.5&nbsp; The &#196;pply" family of functions</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.6"
+>5.6&nbsp; The <tt>tapply</tt> function</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.7"
+>5.7&nbsp; Graphics with R</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.8"
+>5.8&nbsp; Graphics</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.9"
+>5.9&nbsp; A simple example using two colour microarray data processed with basic R functions.</a><br />
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.10"
+>5.10&nbsp; S4 objects in R</a><br />
+<a href="#tth_sEc6"
+>6&nbsp; Bioconductor</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.1"
+>6.1&nbsp; Example: 2 color Arrays</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.2"
+>6.2&nbsp; Example: Affy Data normalization</a><br />
+<a href="#tth_sEc7"
+>7&nbsp; Further readings</a><br />
+
+
+
+<div class="p"><!----></div>
+This tutorial is just a brief tour of the language capabilities and  is intented to give some clues to begin with the R programming language. For a more detailled overview see "R for beginners" (E. Paradis, http://cran.r-project.org/doc/contrib/Paradis-rdebuts_en.pdf) 
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Basic aspects of the language.</h2>
+
+<div class="p"><!----></div>
+R is an object-oriented programming language. You can easily create basic objects of class <tt>vector</tt>, <tt>matrix</tt>,
+<tt>data.frame</tt>, <tt>list</tt>, <tt>factor</tt>,... 
+
+<div class="p"><!----></div>
+A vector <i>x</i> that contains one value.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;15
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+You can see the content of <i>x</i> by simply calling it.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;15
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+Alternatively, you can use the "=" operator. However &#171;-" is most generally prefered.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;=&nbsp;22
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;22
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+You can add comment by starting a line with a hash (#). In this case the code at the right of the hash won't be interpreted.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;#x&nbsp;&lt;-&nbsp;&nbsp;57
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;22
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;22
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+Instructions can be separated by semi-colons (;) or new-line.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;12;&nbsp;y&nbsp;&lt;-&nbsp;13
+&#62;&nbsp;x;y
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;12
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;13
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+Once values are assigned to an object, R will store this object in the memory (RAM). Previously created objects can be <b>l</b>i<b>s</b>ted using the <tt>ls</tt> function. 
+
+<div class="p"><!----></div>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;ls()
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"x"&nbsp;"y"
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+Object can be deleted using the <tt>rm</tt> (<b>r</b>e<b>m</b>ove) function.
+
+<div class="p"><!----></div>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;rm(x)
+&#62;&nbsp;rm(y)
+&#62;&nbsp;ls()
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+character(0)
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+  <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Syntax for calling Functions.</h2>
+
+<div class="p"><!----></div>
+In the above section we have created vectors containing  numeric data. We have also used functions (<tt>ls</tt> and <tt>rm</tt>). We can use numerous functions to perform specific tasks. When calling a function, we will use this generic syntax:
+
+<div class="p"><!----></div>
+
+<center>  <font color="#FF0000">
+<pre>
+&nbsp;-&nbsp;NameOfTheFunction(arg1=&nbsp;a,&nbsp;arg2=&nbsp;b,...)
+&nbsp;
+</pre> </font>
+</center>
+
+<div class="p"><!----></div>
+arg1 et arg2 (...) : arguments of the function.
+a and b : The objects that will be passed to the function.
+
+<div class="p"><!----></div>
+To access the documentation of a given function, use the <tt>help</tt> function (or the question mark). The documentation gives you an overview of the function (usage, arguments name and class, returned values and examples). For instance to get information about the <tt>substr</tt> function (used to extract part of a character string) use one of the following instructions:
+
+<div class="p"><!----></div>
+  <font color="#0000FF">
+<pre>
+&#62;&nbsp;help(substr)&nbsp;#&nbsp;or&nbsp;?substr
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+    <font color="#0000FF">
+<pre>
+substr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;package:base&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R&nbsp;Documentation
+
+Substrings&nbsp;of&nbsp;a&nbsp;Character&nbsp;Vector
+
+Description:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Extract&nbsp;or&nbsp;replace&nbsp;substrings&nbsp;in&nbsp;a&nbsp;character&nbsp;vector.
+
+Usage:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;substr(x,&nbsp;start,&nbsp;stop)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;substring(text,&nbsp;first,&nbsp;last&nbsp;=&nbsp;1000000)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;substr(x,&nbsp;start,&nbsp;stop)&nbsp;&lt;-&nbsp;value
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;substring(text,&nbsp;first,&nbsp;last&nbsp;=&nbsp;1000000)&nbsp;&lt;-&nbsp;value
+
+Arguments:
+
+&nbsp;x,&nbsp;text:&nbsp;a&nbsp;character&nbsp;vector.
+
+start,&nbsp;first:&nbsp;integer.&nbsp;The&nbsp;first&nbsp;element&nbsp;to&nbsp;be&nbsp;replaced.
+
+stop,&nbsp;last:&nbsp;integer.&nbsp;The&nbsp;last&nbsp;element&nbsp;to&nbsp;be&nbsp;replaced.
+
+&nbsp;&nbsp;&nbsp;value:&nbsp;a&nbsp;character&nbsp;vector,&nbsp;recycled&nbsp;if&nbsp;necessary.
+
+Details:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'substring'&nbsp;is&nbsp;compatible&nbsp;with&nbsp;S,&nbsp;with&nbsp;'first'&nbsp;and&nbsp;'last'&nbsp;instead
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;of&nbsp;'start'&nbsp;and&nbsp;'stop'.&nbsp;For&nbsp;vector&nbsp;arguments,&nbsp;it&nbsp;expands&nbsp;the
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arguments&nbsp;cyclically&nbsp;to&nbsp;the&nbsp;length&nbsp;of&nbsp;the&nbsp;longest&nbsp;_provided_&nbsp;none
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;are&nbsp;of&nbsp;zero&nbsp;length.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When&nbsp;extracting,&nbsp;if&nbsp;'start'&nbsp;is&nbsp;larger&nbsp;than&nbsp;the&nbsp;string&nbsp;length&nbsp;then
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'""'&nbsp;is&nbsp;returned.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For&nbsp;the&nbsp;extraction&nbsp;functions,&nbsp;'x'&nbsp;or&nbsp;'text'&nbsp;will&nbsp;be&nbsp;converted&nbsp;to&nbsp;a
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;character&nbsp;vector&nbsp;by&nbsp;'as.character'&nbsp;if&nbsp;it&nbsp;is&nbsp;not&nbsp;already&nbsp;one.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For&nbsp;the&nbsp;replacement&nbsp;functions,&nbsp;if&nbsp;'start'&nbsp;is&nbsp;larger&nbsp;than&nbsp;the
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;length&nbsp;then&nbsp;no&nbsp;replacement&nbsp;is&nbsp;done.&nbsp;&nbsp;If&nbsp;the&nbsp;portion&nbsp;to&nbsp;be
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;replaced&nbsp;is&nbsp;longer&nbsp;than&nbsp;the&nbsp;replacement&nbsp;string,&nbsp;then&nbsp;only&nbsp;the
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;portion&nbsp;the&nbsp;length&nbsp;of&nbsp;the&nbsp;string&nbsp;is&nbsp;replaced.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;any&nbsp;argument&nbsp;is&nbsp;an&nbsp;'NA'&nbsp;element,&nbsp;the&nbsp;corresponding&nbsp;element&nbsp;of
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;answer&nbsp;is&nbsp;'NA'.
+
+Value:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For&nbsp;'substr',&nbsp;a&nbsp;character&nbsp;vector&nbsp;of&nbsp;the&nbsp;same&nbsp;length&nbsp;and&nbsp;with&nbsp;the
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;same&nbsp;attributes&nbsp;as&nbsp;'x'&nbsp;(after&nbsp;possible&nbsp;coercion).
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For&nbsp;'substring',&nbsp;a&nbsp;character&nbsp;vector&nbsp;of&nbsp;length&nbsp;the&nbsp;longest&nbsp;of&nbsp;the
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arguments.&nbsp;&nbsp;This&nbsp;will&nbsp;have&nbsp;names&nbsp;taken&nbsp;from&nbsp;'x'&nbsp;(if&nbsp;it&nbsp;has&nbsp;any
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;after&nbsp;coercion,&nbsp;repeated&nbsp;as&nbsp;needed),&nbsp;and&nbsp;other&nbsp;attributes&nbsp;copied
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from&nbsp;'x'&nbsp;if&nbsp;it&nbsp;is&nbsp;the&nbsp;longest&nbsp;of&nbsp;the&nbsp;arguments).
+
+Note:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;S4&nbsp;version&nbsp;of&nbsp;'substring&lt;-'&nbsp;ignores&nbsp;'last';&nbsp;this&nbsp;version&nbsp;does
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;not.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;These&nbsp;functions&nbsp;are&nbsp;often&nbsp;used&nbsp;with&nbsp;'nchar'&nbsp;to&nbsp;truncate&nbsp;a&nbsp;display.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;That&nbsp;does&nbsp;not&nbsp;really&nbsp;work&nbsp;(you&nbsp;want&nbsp;to&nbsp;limit&nbsp;the&nbsp;width,&nbsp;not&nbsp;the
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number&nbsp;of&nbsp;characters,&nbsp;so&nbsp;it&nbsp;would&nbsp;be&nbsp;better&nbsp;to&nbsp;use&nbsp;'strtrim'),&nbsp;but
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;least&nbsp;make&nbsp;sure&nbsp;you&nbsp;use&nbsp;'nchar(type="c")'.
+
+References:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Becker,&nbsp;R.&nbsp;A.,&nbsp;Chambers,&nbsp;J.&nbsp;M.&nbsp;and&nbsp;Wilks,&nbsp;A.&nbsp;R.&nbsp;(1988)&nbsp;_The&nbsp;New&nbsp;S
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Language_.&nbsp;Wadsworth&nbsp;&amp;&nbsp;Brooks/Cole.&nbsp;('substring'.)
+
+See&nbsp;Also:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'strsplit',&nbsp;'paste',&nbsp;'nchar'.
+
+Examples:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;substr("abcdef",2,4)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;substring("abcdef",1:6,1:6)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;strsplit&nbsp;is&nbsp;more&nbsp;efficient&nbsp;...
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;substr(rep("abcdef",4),1:4,4:5)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;&lt;-&nbsp;c("asfef",&nbsp;"qwerty",&nbsp;"yuiop[",&nbsp;"b",&nbsp;"stuff.blah.yech")
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;substr(x,&nbsp;2,&nbsp;5)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;substring(x,&nbsp;2,&nbsp;4:6)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;substring(x,&nbsp;2)&nbsp;&lt;-&nbsp;c("..",&nbsp;"+++")
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x
+&nbsp;
+</pre> </font>
+
+
+<div class="p"><!----></div>
+When calling a function, the name of the arguments can be omitted if they are placed as expected. For instance if one wants to extract character 2 to 4 in the string "microarray":
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;substr("microarray",&nbsp;2,&nbsp;4)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"icr"
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+If the  arguments are not in the expected order their names are mandatory (note that, for convenience, they can be abbreviated but the abbreviation used should be unambiguous):
+
+<div class="p"><!----></div>
+  <font color="#0000FF">
+<pre>
+&#62;&nbsp;substr(2,4,"microarray")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;arguments&nbsp;are&nbsp;misplaced
+[1]&nbsp;NA
+Warning&nbsp;message:
+In&nbsp;substr(2,&nbsp;4,&nbsp;"microarray")&nbsp;:
+&nbsp;&nbsp;NAs&nbsp;introduits&nbsp;lors&nbsp;de&nbsp;la&nbsp;conversion&nbsp;automatique
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;substr(start=2,stop=4,x="microarray")&nbsp;#&nbsp;works
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"icr"
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+  <font color="#0000FF">
+<pre>
+&#62;&nbsp;substr(st=2,st=4,x="microarray")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#ambiguous
+Erreur&nbsp;dans&nbsp;substr(st&nbsp;=&nbsp;2,&nbsp;st&nbsp;=&nbsp;4,&nbsp;x&nbsp;=&nbsp;"microarray")&nbsp;:
+&nbsp;&nbsp;argument&nbsp;formel&nbsp;"start"&nbsp;correspondant&nbsp;à&nbsp;plusieurs&nbsp;arguments&nbsp;fournis
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Modes. Functions for creating vectors.</h2>
+
+     <h3><a name="tth_sEc3.1">
+3.1</a>&nbsp;&nbsp;Modes</h3>
+A vector can contain several variables of the same mode. Most frequently, the mode will be one of: "numeric", "character" or "logical". 
+
+     <h3><a name="tth_sEc3.2">
+3.2</a>&nbsp;&nbsp;Functions and operators for creating vectors.</h3>
+
+<div class="p"><!----></div>
+<b>The function <tt>c</tt>&nbsp;&nbsp;</b>
+The function <tt>c</tt> is used to <b>c</b>ombine values into a vector.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;mic&nbsp;&lt;-&nbsp;c("Agilent",&nbsp;"Affy")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;A&nbsp;character&nbsp;vector
+&#62;&nbsp;mic&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"Agilent"&nbsp;"Affy"&nbsp;&nbsp;&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;is(mic)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"character"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"vector"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"data.frameRowLabels"
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;num&nbsp;&lt;-&nbsp;c(1,2,3)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;A&nbsp;numeric&nbsp;vector
+&#62;&nbsp;num
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;1&nbsp;2&nbsp;3
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;is(num)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"numeric"&nbsp;"vector"&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;bool&nbsp;&lt;-&nbsp;c(T,F,T)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;A&nbsp;logical&nbsp;vector
+&#62;&nbsp;bool
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;&nbsp;TRUE&nbsp;FALSE&nbsp;&nbsp;TRUE
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;is(bool)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"logical"&nbsp;"vector"&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;num&nbsp;&#62;&nbsp;1.5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Also&nbsp;returns&nbsp;a&nbsp;logical&nbsp;vector
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;FALSE&nbsp;&nbsp;TRUE&nbsp;&nbsp;TRUE
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+
+<b>The operator ":"&nbsp;&nbsp;</b>
+This operator generates a sequence from 'from' to 'to' in steps of '1' .
+For numeric arguments 'from:to' is equivalent to 'seq(from, to)'.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;1:3
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;1&nbsp;2&nbsp;3
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;seq(3,&nbsp;1)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;3&nbsp;2&nbsp;1
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;3:1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Values&nbsp;in&nbsp;decreasing&nbsp;order
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;3&nbsp;2&nbsp;1
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+
+<b>Functions <tt>rep</tt>, <tt>seq</tt>&nbsp;&nbsp;</b>
+The <tt>rep</tt> function <b>rep</b>eats a value as many times as requested.
+
+<div class="p"><!----></div>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;rep(3,5)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;3&nbsp;3&nbsp;3&nbsp;3&nbsp;3
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+The <tt>seq</tt> function is used to create numeric <b>seq</b>uence.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;seq(0,10,by=2)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;&nbsp;0&nbsp;&nbsp;2&nbsp;&nbsp;4&nbsp;&nbsp;6&nbsp;&nbsp;8&nbsp;10
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;seq(0,10,length.out=3)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;&nbsp;0&nbsp;&nbsp;5&nbsp;10
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+
+<b>Functions to generate random number&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+the <tt>rnorm</tt> function is used to generate normally distributed values with mean equal to 'mean' (default 0) and standard deviation equal to 'sd' (default 1).
+
+<div class="p"><!----></div>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;rnorm(1000,mean=2,sd=2)
+&#62;&nbsp;hist(x)
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Vector manipulation.</h2>
+
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Indexing vectors</h3>
+Extraction or replacement of parts of a vector can be performed using the "[" operator (which is equivalent to the <tt>subset</tt> function). Numeric vectors, logical vectors or names are used to indicate which positions in the vector are to be extracted or replaced.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;set.seed(1)
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;round(rnorm(10),2)
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;-0.63&nbsp;&nbsp;0.18&nbsp;-0.84&nbsp;&nbsp;1.60&nbsp;&nbsp;0.33&nbsp;-0.82&nbsp;&nbsp;0.49&nbsp;&nbsp;0.74&nbsp;&nbsp;0.58&nbsp;-0.31
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[2]
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;0.18
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[1:3]
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;-0.63&nbsp;&nbsp;0.18&nbsp;-0.84
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[c(2,6)]
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;&nbsp;0.18&nbsp;-0.82
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;which(x&#62;0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;returns&nbsp;the&nbsp;positions&nbsp;containing&nbsp;positive&nbsp;values
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;2&nbsp;4&nbsp;5&nbsp;7&nbsp;8&nbsp;9
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[which(x&#62;0)]&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;returns&nbsp;the&nbsp;requested&nbsp;positive&nbsp;values&nbsp;(using&nbsp;a&nbsp;vector&nbsp;of&nbsp;integers)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;0.18&nbsp;1.60&nbsp;0.33&nbsp;0.49&nbsp;0.74&nbsp;0.58
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&#62;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;returns&nbsp;TRUE&nbsp;if&nbsp;a&nbsp;positions&nbsp;contains&nbsp;a&nbsp;positive&nbsp;value&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;FALSE&nbsp;&nbsp;TRUE&nbsp;FALSE&nbsp;&nbsp;TRUE&nbsp;&nbsp;TRUE&nbsp;FALSE&nbsp;&nbsp;TRUE&nbsp;&nbsp;TRUE&nbsp;&nbsp;TRUE&nbsp;FALSE
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[x&nbsp;&#62;&nbsp;0]
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;0.18&nbsp;1.60&nbsp;0.33&nbsp;0.49&nbsp;0.74&nbsp;0.58
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;nm&nbsp;&lt;-&nbsp;paste("n",1:10,&nbsp;sep="")
+&#62;&nbsp;nm
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;"n1"&nbsp;&nbsp;"n2"&nbsp;&nbsp;"n3"&nbsp;&nbsp;"n4"&nbsp;&nbsp;"n5"&nbsp;&nbsp;"n6"&nbsp;&nbsp;"n7"&nbsp;&nbsp;"n8"&nbsp;&nbsp;"n9"&nbsp;&nbsp;"n10"
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;names(x)&nbsp;&lt;-&nbsp;nm
+&#62;&nbsp;x["n10"]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Indexing&nbsp;with&nbsp;the&nbsp;names&nbsp;of&nbsp;the&nbsp;element&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;n10&nbsp;
+-0.31&nbsp;
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Replacing parts of a vector</h3>
+Simply use the &#171;-" operators. Note that in R, missing values are defined as "NA" (Not Attributed).
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[1:2]&nbsp;&lt;-&nbsp;c(10,11)
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;&nbsp;n1&nbsp;&nbsp;&nbsp;&nbsp;n2&nbsp;&nbsp;&nbsp;&nbsp;n3&nbsp;&nbsp;&nbsp;&nbsp;n4&nbsp;&nbsp;&nbsp;&nbsp;n5&nbsp;&nbsp;&nbsp;&nbsp;n6&nbsp;&nbsp;&nbsp;&nbsp;n7&nbsp;&nbsp;&nbsp;&nbsp;n8&nbsp;&nbsp;&nbsp;&nbsp;n9&nbsp;&nbsp;&nbsp;n10&nbsp;
+10.00&nbsp;11.00&nbsp;-0.84&nbsp;&nbsp;1.60&nbsp;&nbsp;0.33&nbsp;-0.82&nbsp;&nbsp;0.49&nbsp;&nbsp;0.74&nbsp;&nbsp;0.58&nbsp;-0.31&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[4:6]&nbsp;&lt;-&nbsp;NA
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;&nbsp;n1&nbsp;&nbsp;&nbsp;&nbsp;n2&nbsp;&nbsp;&nbsp;&nbsp;n3&nbsp;&nbsp;&nbsp;&nbsp;n4&nbsp;&nbsp;&nbsp;&nbsp;n5&nbsp;&nbsp;&nbsp;&nbsp;n6&nbsp;&nbsp;&nbsp;&nbsp;n7&nbsp;&nbsp;&nbsp;&nbsp;n8&nbsp;&nbsp;&nbsp;&nbsp;n9&nbsp;&nbsp;&nbsp;n10&nbsp;
+10.00&nbsp;11.00&nbsp;-0.84&nbsp;&nbsp;&nbsp;&nbsp;NA&nbsp;&nbsp;&nbsp;&nbsp;NA&nbsp;&nbsp;&nbsp;&nbsp;NA&nbsp;&nbsp;0.49&nbsp;&nbsp;0.74&nbsp;&nbsp;0.58&nbsp;-0.31&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;is.na(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;returns&nbsp;TRUE&nbsp;if&nbsp;the&nbsp;position&nbsp;is&nbsp;NA
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;&nbsp;n1&nbsp;&nbsp;&nbsp;&nbsp;n2&nbsp;&nbsp;&nbsp;&nbsp;n3&nbsp;&nbsp;&nbsp;&nbsp;n4&nbsp;&nbsp;&nbsp;&nbsp;n5&nbsp;&nbsp;&nbsp;&nbsp;n6&nbsp;&nbsp;&nbsp;&nbsp;n7&nbsp;&nbsp;&nbsp;&nbsp;n8&nbsp;&nbsp;&nbsp;&nbsp;n9&nbsp;&nbsp;&nbsp;n10&nbsp;
+FALSE&nbsp;FALSE&nbsp;FALSE&nbsp;&nbsp;TRUE&nbsp;&nbsp;TRUE&nbsp;&nbsp;TRUE&nbsp;FALSE&nbsp;FALSE&nbsp;FALSE&nbsp;FALSE&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;na.omit(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;To&nbsp;delete&nbsp;NA&nbsp;values
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;&nbsp;n1&nbsp;&nbsp;&nbsp;&nbsp;n2&nbsp;&nbsp;&nbsp;&nbsp;n3&nbsp;&nbsp;&nbsp;&nbsp;n7&nbsp;&nbsp;&nbsp;&nbsp;n8&nbsp;&nbsp;&nbsp;&nbsp;n9&nbsp;&nbsp;&nbsp;n10&nbsp;
+10.00&nbsp;11.00&nbsp;-0.84&nbsp;&nbsp;0.49&nbsp;&nbsp;0.74&nbsp;&nbsp;0.58&nbsp;-0.31&nbsp;
+attr(,"na.action")
+n4&nbsp;n5&nbsp;n6&nbsp;
+&nbsp;4&nbsp;&nbsp;5&nbsp;&nbsp;6&nbsp;
+attr(,"class")
+[1]&nbsp;"omit"
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Vectorization</h3>
+R is intented to handle large data sets and to retrieve information using a concise syntax. Thanks to the internal feature of R, called <i>vectorization</i>, numerous operation can be written without a loop: 
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;0:10
+&#62;&nbsp;y&nbsp;&lt;-&nbsp;20:30
+&#62;&nbsp;x+y
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;20&nbsp;22&nbsp;24&nbsp;26&nbsp;28&nbsp;30&nbsp;32&nbsp;34&nbsp;36&nbsp;38&nbsp;40
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x^2
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;9&nbsp;&nbsp;16&nbsp;&nbsp;25&nbsp;&nbsp;36&nbsp;&nbsp;49&nbsp;&nbsp;64&nbsp;&nbsp;81&nbsp;100
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;sqrt(x)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;0.000000&nbsp;1.000000&nbsp;1.414214&nbsp;1.732051&nbsp;2.000000&nbsp;2.236068&nbsp;2.449490&nbsp;2.645751
+&nbsp;[9]&nbsp;2.828427&nbsp;3.000000&nbsp;3.162278
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Objects of class: <tt>factor</tt>, <tt>Matrix</tt>, <tt>data.frame</tt> and <tt>list</tt>.</h2>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.1">
+5.1</a>&nbsp;&nbsp;factor</h3>
+This object looks like a vector. It is used to store categorical variables. A vector can be converted to a factor using the <tt>as.factor</tt> function. The <tt>levels</tt> function can be used to extract the names of the categories and to rename them. 
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;rep(c("good","bad"),5)
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;"good"&nbsp;"bad"&nbsp;&nbsp;"good"&nbsp;"bad"&nbsp;&nbsp;"good"&nbsp;"bad"&nbsp;&nbsp;"good"&nbsp;"bad"&nbsp;&nbsp;"good"&nbsp;"bad"&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;as.factor(x)
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;good&nbsp;bad&nbsp;&nbsp;good&nbsp;bad&nbsp;&nbsp;good&nbsp;bad&nbsp;&nbsp;good&nbsp;bad&nbsp;&nbsp;good&nbsp;bad&nbsp;
+Levels:&nbsp;bad&nbsp;good
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;as.factor(x)
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;good&nbsp;bad&nbsp;&nbsp;good&nbsp;bad&nbsp;&nbsp;good&nbsp;bad&nbsp;&nbsp;good&nbsp;bad&nbsp;&nbsp;good&nbsp;bad&nbsp;
+Levels:&nbsp;bad&nbsp;good
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;levels(x)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"bad"&nbsp;&nbsp;"good"
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;levels(x)&nbsp;&lt;-&nbsp;0:1
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;1&nbsp;0&nbsp;1&nbsp;0&nbsp;1&nbsp;0&nbsp;1&nbsp;0&nbsp;1&nbsp;0
+Levels:&nbsp;0&nbsp;1
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;table(x)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+x
+0&nbsp;1&nbsp;
+5&nbsp;5&nbsp;
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.2">
+5.2</a>&nbsp;&nbsp;Matrix</h3>
+Matrix are intended to store 2-dimensional datasets. Each value will be of the same mode. As with vectors, one can use names, numeric vectors or a logical vector for indexing this object. One can index rows or columns or both.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;matrix(1:10,ncol=2)
+&#62;&nbsp;colnames(x)&nbsp;&lt;-&nbsp;c("ctrl","trmt")
+&#62;&nbsp;row.names(x)&nbsp;&lt;-&nbsp;paste("gene",&nbsp;1:5,&nbsp;sep="_")
+&#62;&nbsp;x
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctrl&nbsp;trmt
+gene_1&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;6
+gene_2&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;7
+gene_3&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;8
+gene_4&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;9
+gene_5&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;10
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[,1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;first&nbsp;column
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+gene_1&nbsp;gene_2&nbsp;gene_3&nbsp;gene_4&nbsp;gene_5&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[1,]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;first&nbsp;row
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+ctrl&nbsp;trmt&nbsp;
+&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[1,2]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;row&nbsp;1&nbsp;and&nbsp;column&nbsp;2
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;6
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[c(T,F,T,T,T),]&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctrl&nbsp;trmt
+gene_1&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;6
+gene_3&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;8
+gene_4&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;9
+gene_5&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;10
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+Note that the syntax below that use a logical matrix is also frequently used to extract or replace part of a matrix.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&lt;&nbsp;2&nbsp;|&nbsp;x&nbsp;&#62;&nbsp;8
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctrl&nbsp;&nbsp;trmt
+gene_1&nbsp;&nbsp;TRUE&nbsp;FALSE
+gene_2&nbsp;FALSE&nbsp;FALSE
+gene_3&nbsp;FALSE&nbsp;FALSE
+gene_4&nbsp;FALSE&nbsp;&nbsp;TRUE
+gene_5&nbsp;FALSE&nbsp;&nbsp;TRUE
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;x[x&nbsp;&lt;&nbsp;2&nbsp;|&nbsp;x&nbsp;&#62;&nbsp;8]&nbsp;&lt;-&nbsp;&nbsp;NA
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.3">
+5.3</a>&nbsp;&nbsp;data.frame</h3>
+This object is very similar to the matrix except that each column can contain a given mode (a column with characters, a column with logicals, a column with numerics,...).
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.4">
+5.4</a>&nbsp;&nbsp;list</h3>
+Object of class list can store any type of object. They should be indexed with the "[[" or $ operators.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;l1&nbsp;&lt;-&nbsp;list(A=x,&nbsp;B=rnorm(10))
+&#62;&nbsp;l1
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+$A
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctrl&nbsp;trmt
+gene_1&nbsp;&nbsp;&nbsp;NA&nbsp;&nbsp;&nbsp;&nbsp;6
+gene_2&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;7
+gene_3&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;8
+gene_4&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;NA
+gene_5&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;NA
+
+$B
+&nbsp;[1]&nbsp;&nbsp;1.51178117&nbsp;&nbsp;0.38984324&nbsp;-0.62124058&nbsp;-2.21469989&nbsp;&nbsp;1.12493092&nbsp;-0.04493361
+&nbsp;[7]&nbsp;-0.01619026&nbsp;&nbsp;0.94383621&nbsp;&nbsp;0.82122120&nbsp;&nbsp;0.59390132
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;is(l1[[1]])
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"matrix"&nbsp;&nbsp;&nbsp;&nbsp;"array"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"structure"&nbsp;"vector"&nbsp;&nbsp;&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;is(l1[[2]])
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"numeric"&nbsp;"vector"&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;l1$A
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctrl&nbsp;trmt
+gene_1&nbsp;&nbsp;&nbsp;NA&nbsp;&nbsp;&nbsp;&nbsp;6
+gene_2&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;7
+gene_3&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;8
+gene_4&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;NA
+gene_5&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;NA
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.5">
+5.5</a>&nbsp;&nbsp;The &#196;pply" family of functions</h3>
+
+<div class="p"><!----></div>
+They are used to loop through row and columns of a matrix (or dataframe) or through elements of a list.
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;matrix(1:10,ncol=2)
+&#62;&nbsp;apply(x,1,&nbsp;sd)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1&nbsp;stands&nbsp;for&nbsp;rows
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;3.535534&nbsp;3.535534&nbsp;3.535534&nbsp;3.535534&nbsp;3.535534
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;apply(x,2,&nbsp;sd)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;2&nbsp;stands&nbsp;for&nbsp;colums
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;1.581139&nbsp;1.581139
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+The <tt><b>l</b>apply</tt> is used for <b>l</b>ist (or data.frame).
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;lapply(l1,&nbsp;is)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;The&nbsp;types&nbsp;of&nbsp;the&nbsp;object&nbsp;stored&nbsp;in&nbsp;the&nbsp;list.
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+$A
+[1]&nbsp;"matrix"&nbsp;&nbsp;&nbsp;&nbsp;"array"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"structure"&nbsp;"vector"&nbsp;&nbsp;&nbsp;
+
+$B
+[1]&nbsp;"numeric"&nbsp;"vector"&nbsp;
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+      <h3><a name="tth_sEc5.6">
+5.6</a>&nbsp;&nbsp;The <tt>tapply</tt> function</h3>
+This function tipically takes a vector and a factor as arguments. For instance, we have data that fall in three caterogies ("good", "bad", "medium"). We can compute different statistics related to the category:
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;cat&nbsp;&lt;-&nbsp;rep(c("good",&nbsp;"bad",&nbsp;"medium"),5)
+&#62;&nbsp;cat&nbsp;&lt;-&nbsp;as.factor(cat)
+&#62;&nbsp;x&nbsp;&lt;-&nbsp;rnorm(length(cat))
+&#62;&nbsp;x[cat&nbsp;==&nbsp;"good"]&nbsp;&lt;-&nbsp;x[cat&nbsp;==&nbsp;"good"]+2
+&#62;&nbsp;x[cat&nbsp;==&nbsp;"medium"]&nbsp;&lt;-&nbsp;x[cat&nbsp;==&nbsp;"medium"]+1
+&#62;&nbsp;boxplot(x~cat)
+&#62;&nbsp;tapply(x,cat,sd)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bad&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;good&nbsp;&nbsp;&nbsp;&nbsp;medium&nbsp;
+1.0842461&nbsp;1.1309181&nbsp;0.5898764&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;tapply(x,cat,mean)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bad&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;good&nbsp;&nbsp;&nbsp;&nbsp;medium&nbsp;
+0.2472168&nbsp;1.9158887&nbsp;0.6120878&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;tapply(x,cat,length)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;&nbsp;&nbsp;bad&nbsp;&nbsp;&nbsp;good&nbsp;medium&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.7">
+5.7</a>&nbsp;&nbsp;Graphics with R</h3>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.8">
+5.8</a>&nbsp;&nbsp;Graphics</h3>
+
+<div class="p"><!----></div>
+R offers a large variety of high-level graphics functions (<tt>plot</tt>, <tt>boxplot</tt>, <tt>barplot</tt>, <tt>hist</tt>, <tt>pairs</tt>, <tt>image</tt>, ...). The generated graphics can be modified using low-level functions (<b>points</b>, <b>text</b>, <b>line</b>, <b>abline</b>, <b>rect</b>, <b>legend</b>, ...).
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.9">
+5.9</a>&nbsp;&nbsp;A simple example using two colour microarray data processed with basic R functions.</h3>
+
+<div class="p"><!----></div>
+
+<b>Loading and visualizing the data&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;#&nbsp;Create&nbsp;an&nbsp;OS-independent&nbsp;path&nbsp;to&nbsp;the&nbsp;directory&nbsp;"swirldata"
+&#62;&nbsp;#&nbsp;located&nbsp;in&nbsp;the&nbsp;package&nbsp;"marray"
+&#62;&nbsp;path&nbsp;&lt;-&nbsp;system.file("swirldata",&nbsp;package&nbsp;=&nbsp;"marray")&nbsp;
+&#62;&nbsp;path
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"/usr/lib/R/library/marray/swirldata"
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;getwd()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;the&nbsp;current&nbsp;working&nbsp;directory
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"/win/D/COMMUNICATION/PERSONNEL/cours/LES&nbsp;COURS/2008/brazil/R_tuto"
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;setwd(path)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;set&nbsp;working&nbsp;directory&nbsp;to&nbsp;"path"
+&#62;&nbsp;getwd()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;The&nbsp;working&nbsp;directory&nbsp;has&nbsp;changed
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"/usr/lib/R/library/marray/swirldata"
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;dir()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;list&nbsp;the&nbsp;working&nbsp;directory
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;"fish.gal"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"RQuickTutorial-029.eps"&nbsp;"RQuickTutorial-029.pdf"
+&nbsp;[4]&nbsp;"RQuickTutorial-030.eps"&nbsp;"RQuickTutorial-030.pdf"&nbsp;"swirl.1.spot"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;[7]&nbsp;"swirl.2.spot"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"swirl.3.spot"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"swirl.4.spot"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[10]&nbsp;"SwirlSample.txt"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;#file.show("swirl.1.spot")&nbsp;#&nbsp;this&nbsp;file&nbsp;contains&nbsp;a&nbsp;Header
+&#62;&nbsp;d&nbsp;&lt;-&nbsp;read.table("swirl.1.spot",&nbsp;header=T,&nbsp;sep="\t",&nbsp;row.names=1)
+&#62;&nbsp;is(d)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"data.frame"&nbsp;"list"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"oldClass"&nbsp;&nbsp;&nbsp;"vector"&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;colnames(d)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+&nbsp;[1]&nbsp;"grid.r"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"grid.c"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"spot.r"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;[4]&nbsp;"spot.c"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"area"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Gmean"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;[7]&nbsp;"Gmedian"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"GIQR"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Rmean"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[10]&nbsp;"Rmedian"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"RIQR"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"bgGmean"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[13]&nbsp;"bgGmed"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"bgGSD"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"bgRmean"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[16]&nbsp;"bgRmed"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"bgRSD"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"valleyG"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[19]&nbsp;"valleyR"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"morphG"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"morphG.erode"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[22]&nbsp;"morphG.close.open"&nbsp;"morphR"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"morphR.erode"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[25]&nbsp;"morphR.close.open"&nbsp;"logratio"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"perimeter"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[28]&nbsp;"circularity"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"badspot"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;G&nbsp;&lt;-&nbsp;d[,"Gmedian"]
+&#62;&nbsp;R&nbsp;&lt;-&nbsp;d[,"Rmedian"]
+&#62;&nbsp;plot(R,G,&nbsp;pch=16,&nbsp;cex=0.5,&nbsp;col="red")&nbsp;#&nbsp;low&nbsp;values&nbsp;are&nbsp;densely&nbsp;packed
+&#62;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;in&nbsp;the&nbsp;UL&nbsp;corner
+&#62;&nbsp;library(geneplotter)
+&#62;&nbsp;smoothScatter(R,G)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;even&nbsp;more&nbsp;marked
+&#62;&nbsp;boxplot(R,G)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1rst&nbsp;,&nbsp;2nd&nbsp;(median)&nbsp;and&nbsp;3rd&nbsp;quartile
+&#62;&nbsp;R&nbsp;&lt;-&nbsp;log2(R)
+&#62;&nbsp;G&nbsp;&lt;-&nbsp;log2(G)
+&#62;&nbsp;plot(R,G,&nbsp;pch=16,&nbsp;cex=0.5,&nbsp;col="red")
+&#62;&nbsp;boxplot(R,G)
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+
+<b>MA plot&nbsp;&nbsp;</b>
+A MA plot without normalization.
+
+<div class="p"><!----></div>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;M&nbsp;&lt;-&nbsp;R-G
+&#62;&nbsp;A&nbsp;&lt;-&nbsp;R+G
+&#62;&nbsp;plot(A,M,&nbsp;pch=16,cex&nbsp;=0.5)
+&#62;&nbsp;low&nbsp;&lt;-&nbsp;lowess(M~A)
+&#62;&nbsp;lines(low,col="blue",&nbsp;lwd&nbsp;=&nbsp;2)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;lwd:&nbsp;line&nbsp;width
+&#62;&nbsp;abline(h=0,&nbsp;col="red")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;h:&nbsp;horizontal
+&#62;&nbsp;abline(h=-1,&nbsp;col="green")
+&#62;&nbsp;abline(h=1,&nbsp;col="green")
+&#62;&nbsp;#&nbsp;Genes&nbsp;considered&nbsp;as&nbsp;"good"&nbsp;have&nbsp;an&nbsp;
+&#62;&nbsp;#&nbsp;absolute&nbsp;ratio&nbsp;of&nbsp;1&nbsp;(2&nbsp;in&nbsp;linear&nbsp;scale).&nbsp;
+&#62;&nbsp;good&nbsp;&lt;-&nbsp;abs(M)&nbsp;&#62;&nbsp;1
+&#62;&nbsp;points(A[good],&nbsp;M[good],&nbsp;col="red")
+&#62;&nbsp;#&nbsp;They&nbsp;aren't&nbsp;so&nbsp;good...
+&#62;&nbsp;gn&nbsp;&lt;-&nbsp;1:nrow(d)
+&#62;&nbsp;text(A[good],&nbsp;M[good],&nbsp;lab=gn[good],cex=0.4,pos=2)
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.10">
+5.10</a>&nbsp;&nbsp;S4 objects in R</h3>
+In the last example, we have used Gmedian and  Rmedian data. However, we should have also considered the background signal. The problem is that we should have created four vectors (or four matrix if several microarrays were analyzed). As it is rather difficult to manipulate the four matrices we will design a class ("micBatch") that will contain all information within a single object. 
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;#&nbsp;micBatch
+&#62;&nbsp;#&nbsp;"representation"&nbsp;corresponds&nbsp;to&nbsp;all&nbsp;attributes&nbsp;of&nbsp;the&nbsp;object:
+&#62;&nbsp;#&nbsp;"prototype"&nbsp;corresponds&nbsp;corresponds&nbsp;to&nbsp;default&nbsp;values:
+&#62;&nbsp;
+&#62;&nbsp;setClass("micBatch",
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;representation(
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R="matrix",
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G="matrix",
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rb="matrix",
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gb="matrix",
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phenotype="matrix",
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;genes="character",
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description="character"),
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prototype=list(
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R=matrix(nr=0,nc=0),
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G=matrix(nr=0,nc=0),
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rb=matrix(nr=0,nc=0),
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gb=matrix(nr=0,nc=0),
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phenotype=matrix(nr=0,nc=0),
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description=new("character")
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"micBatch"
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;myMA=new("micBatch")
+&#62;&nbsp;slotNames(myMA)
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"R"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"G"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Rb"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Gb"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phenotype"&nbsp;&nbsp;
+[6]&nbsp;"genes"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"description"
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;getClassDef("micBatch")
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+Class&nbsp;“micBatch”
+
+Slots:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gb&nbsp;&nbsp;&nbsp;phenotype&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;genes
+Class:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matrix&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matrix&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matrix&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matrix&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matrix&nbsp;&nbsp;&nbsp;character
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Name:&nbsp;&nbsp;description
+Class:&nbsp;&nbsp;&nbsp;character
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;myMA@R&nbsp;&lt;-&nbsp;matrix(rnorm(20),nc=5)
+&#62;&nbsp;myMA@R&nbsp;&lt;-&nbsp;matrix(rnorm(20),nc=5)
+&#62;&nbsp;myMA@Rb&nbsp;&lt;-&nbsp;matrix(rnorm(20),nc=5)
+&#62;&nbsp;myMA@Gb&nbsp;&lt;-&nbsp;matrix(rnorm(20),nc=5)
+&#62;&nbsp;#&nbsp;let's&nbsp;visualize&nbsp;the&nbsp;object.
+&#62;&nbsp;#&nbsp;(implicit&nbsp;call&nbsp;to&nbsp;the&nbsp;"show"&nbsp;method).
+&#62;&nbsp;myMA
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+An&nbsp;object&nbsp;of&nbsp;class&nbsp;“micBatch”
+Slot&nbsp;"R":
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,2]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,3]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,4]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,5]
+[1,]&nbsp;&nbsp;1.9803999&nbsp;-0.1350546&nbsp;&nbsp;0.02800216&nbsp;1.4655549&nbsp;-0.7099464
+[2,]&nbsp;-0.3672215&nbsp;&nbsp;2.4016178&nbsp;-0.74327321&nbsp;0.1532533&nbsp;&nbsp;0.6107264
+[3,]&nbsp;-1.0441346&nbsp;-0.0392400&nbsp;&nbsp;0.18879230&nbsp;2.1726117&nbsp;-0.9340976
+[4,]&nbsp;&nbsp;0.5697196&nbsp;&nbsp;0.6897394&nbsp;-1.80495863&nbsp;0.4755095&nbsp;-1.2536334
+
+Slot&nbsp;"G":
+&lt;0&nbsp;x&nbsp;0&nbsp;matrix&#62;
+
+Slot&nbsp;"Rb":
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,2]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,3]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,4]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,5]
+[1,]&nbsp;&nbsp;0.291446236&nbsp;-0.5895209&nbsp;-1.5235668&nbsp;-0.3041839&nbsp;1.2078678
+[2,]&nbsp;-0.443291873&nbsp;-0.5686687&nbsp;&nbsp;0.5939462&nbsp;&nbsp;0.3700188&nbsp;1.1604026
+[3,]&nbsp;&nbsp;0.001105352&nbsp;-0.1351786&nbsp;&nbsp;0.3329504&nbsp;&nbsp;0.2670988&nbsp;0.7002136
+[4,]&nbsp;&nbsp;0.074341324&nbsp;&nbsp;1.1780870&nbsp;&nbsp;1.0630998&nbsp;-0.5425200&nbsp;1.5868335
+
+Slot&nbsp;"Gb":
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,2]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,3]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,4]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[,5]
+[1,]&nbsp;&nbsp;0.5584864&nbsp;-0.47340064&nbsp;&nbsp;0.1580288&nbsp;&nbsp;0.9101742&nbsp;-0.4616447
+[2,]&nbsp;-1.2765922&nbsp;-0.62036668&nbsp;-0.6545846&nbsp;&nbsp;0.3841854&nbsp;&nbsp;1.4322822
+[3,]&nbsp;-0.5732654&nbsp;&nbsp;0.04211587&nbsp;&nbsp;1.7672873&nbsp;&nbsp;1.6821761&nbsp;-0.6506964
+[4,]&nbsp;-1.2246126&nbsp;-0.91092165&nbsp;&nbsp;0.7167075&nbsp;-0.6357365&nbsp;-0.2073807
+
+Slot&nbsp;"phenotype":
+&lt;0&nbsp;x&nbsp;0&nbsp;matrix&#62;
+
+Slot&nbsp;"genes":
+character(0)
+
+Slot&nbsp;"description":
+character(0)
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;#&nbsp;Let's&nbsp;define&nbsp;the&nbsp;method&nbsp;"show"&nbsp;for&nbsp;an&nbsp;object&nbsp;of&nbsp;class
+&#62;&nbsp;#&nbsp;micBatch
+&#62;&nbsp;
+&#62;&nbsp;setMethod("show",&nbsp;signature("micBatch"),
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function(object){
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cat("An&nbsp;instance&nbsp;of&nbsp;class&nbsp;micBatch\n")
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cat("Nb&nbsp;sample=",&nbsp;ncol(object@R),"\n")
++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cat("Nb&nbsp;genes=",&nbsp;nrow(object@R),"\n")
++&nbsp;})
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+[1]&nbsp;"show"
+&nbsp;
+</pre> </font>
+  <font color="#FF0000">
+<pre>
+&#62;&nbsp;#&nbsp;Let's&nbsp;call&nbsp;the&nbsp;"show"&nbsp;method
+&#62;&nbsp;myMA
+&nbsp;
+</pre> </font>
+  <font color="#0000FF">
+<pre>
+An&nbsp;instance&nbsp;of&nbsp;class&nbsp;micBatch
+Nb&nbsp;sample=&nbsp;5&nbsp;
+Nb&nbsp;genes=&nbsp;4&nbsp;
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+
+
+<div class="p"><!----></div>
+As shown in this example we can easily define methods for the class <tt>micBatch</tt>. Just remind that we could have define a method for the "[" operator. This would have been particularly interesting to extract rows (genes) and columns (arrays) of the object.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Bioconductor</h2>
+Bioconductor offers a set of libraries of functions that are useful to biologists (see http://bioconductor.org for more informations)
+
+<div class="p"><!----></div>
+
+<ul>
+<li> cDNA Microarray analysis:<br />
+  -marray, ArrayQuality, arrayMagic, limma, sma
+<div class="p"><!----></div>
+</li>
+
+<li>  Affymetrix GeneChip analysis:<br />
+  -Affy, simpleaffy
+<div class="p"><!----></div>
+</li>
+
+<li>  Probe Metadata:<br />
+- Annotate, hgu133aprobe,  hgu95av2probe, ABPkgBuilder
+<div class="p"><!----></div>
+</li>
+
+<li> High level plotting functions
+- geneplotter
+<div class="p"><!----></div>
+</li>
+
+<li>  Microarray data filtering:<br />
+  -Genefilter
+<div class="p"><!----></div>
+</li>
+
+<li>  Statistical analysis:<br />
+  -SAMR, siggenes, multtest, DEDS, pickgene
+<div class="p"><!----></div>
+</li>
+
+<li> Interpretation:<br />
+  -GO, Gostats, goCluster, geneplotter
+<div class="p"><!----></div>
+</li>
+
+<li> Graphs:<br />
+  -graph, Rgraphviz, biocGraph,
+<div class="p"><!----></div>
+</li>
+
+<li> Training datasets:<br />
+  -golubEsets, fibroEseT...
+<div class="p"><!----></div>
+</li>
+
+<li> Flow cytometry:<br />
+  -flowCore, flowViZ...
+<div class="p"><!----></div>
+</li>
+
+<li> Proteomics
+  -MassSpecWavelet, PROcess, xcms...
+<div class="p"><!----></div>
+</li>
+
+<li> Image analysis:<br />
+  -EBImage
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.1">
+6.1</a>&nbsp;&nbsp;Example: 2 color Arrays</h3>
+
+<div class="p"><!----></div>
+Affymetrix data can be analyzed using the <tt>affy</tt> package.<br />
+You can run this example using raw data of the GSE2004 dataset (Gene Expression Omnibus).<br />
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;library(marray)
+&#62;&nbsp;path&nbsp;&lt;-&nbsp;system.file("swirldata",&nbsp;package&nbsp;=&nbsp;"marray")&nbsp;
+&#62;&nbsp;setwd(path)
+&#62;&nbsp;m&nbsp;&lt;-&nbsp;read.Spot()
+&#62;&nbsp;plot(m[,1])
+&#62;&nbsp;maImage(m[,1])
+&#62;&nbsp;n&nbsp;&lt;-&nbsp;maNorm(m,norm="printTipLoess")
+&#62;&nbsp;plot(n[,1])
+&#62;&nbsp;plot(n[,2])
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.2">
+6.2</a>&nbsp;&nbsp;Example: Affy Data normalization</h3>
+
+<div class="p"><!----></div>
+Affymetrix data can be analyzed using the <tt>affy</tt> package.<br />
+You can run this example using raw data of the GSE2004 dataset (Gene Expression Omnibus).<br />
+
+<div class="p"><!----></div>
+   <font color="#FF0000">
+<pre>
+&#62;&nbsp;setwd("/where/the/cel/files/are")
+&#62;&nbsp;library(affy)
+&#62;&nbsp;d&nbsp;&lt;-&nbsp;ReadAffy()
+&#62;&nbsp;is(d)
+&#62;&nbsp;image(d[,1])
+&#62;&nbsp;n&nbsp;&lt;-&nbsp;rma(d)
+&#62;&nbsp;write.exprs(n,"normalized.txt")
+&nbsp;
+</pre> </font>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Further readings</h2>
+
+<ul>
+<li> R for beginners<br />
+ http://cran.r-project.org/doc/contrib/Paradis-rdebuts_en.pdf<br />
+<div class="p"><!----></div>
+</li>
+
+<li> Bioinformatics and Computational Biology Solutions Using R and Bioconductor. Robert Gentleman, Vincent Carey, Wolfgang Huber, Rafael Irizarry, Sandrine Dudoit.ISBN: 978-0-387-25146-2<br />.
+ http://www.springer.com/computer/computational+biology+and+bioinformatics/book/978-0-387-25146-2
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 4.01.<br />On 12 Nov 2012, 10:10.</small>
+</html>

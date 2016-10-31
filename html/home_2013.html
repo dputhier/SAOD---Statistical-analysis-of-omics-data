@@ -1,0 +1,336 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="course.css" media="screen,projection" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Analyse statistique des données génomiques  (AMU SBBCU23L - ASG1)</title>
+  </head>
+  <body>
+
+    <h1>Analyse statistique des données génomiques 1<br>(AMU SBBCU23L - ASG1)</h1>
+
+    <a name='teachers'></a>
+    <h3>Enseignants</h3>
+    
+    <ol>
+      <li>Jacques van Helden (JvH)</li>
+      <li>Denis Puthier (DP)</li>
+    </ol>
+
+
+    <a name='teachers'></a>
+    <h3>Année</h3>
+    
+    <p>2012-2013</p>
+
+    <a name='teachers'></a>
+    <h3>Public</h3>
+    
+    <p>2ème année du Master BBSG (Bioinformatique, biochimie structurale et génomique).</p>
+    <hr><a name='resources'></a>
+    <h3>Resources</h3>
+
+    <table>
+      <tr valign="top">
+	<td>ASG1</td>
+	<td><a target="_top" href="http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/">http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/</a></td>
+	<td>Web site for this course</td>
+      </tr>
+
+      <tr valign="top">
+	<td>R</td>
+	<td><a target="_blank" href="http://www.r-project.org/">http://www.r-project.org/</a></td>
+	<td>A free software environment for statistical computing and graphics</td>
+      </tr>
+
+      <tr valign="top">
+	<td>Bioconductor</td>
+	<td>
+	  <a target="_blank" href="http://www.bioconductor.org/">http://www.bioconductor.org/</a>
+	</td>
+	<td>A set of R libraries dedicated to statistical analysis of genomics data.</td>
+      </tr>
+
+
+      <tr valign="top">
+	<td>MeV: MultiExperiment Viewer</td>
+	<td>
+	  <a target="_blank" href="http://www.tm4.org/mev.html">http://www.tm4.org/mev.html</a>
+	</td>
+	<td>A Java application designed to allow the analysis of expression data</td>
+      </tr>
+
+
+      <tr valign="top">
+	<td>Cluster 3.0</td>
+	<td>
+	  <a target="_blank" href="http://bonsai.hgc.jp/~mdehoon/software/cluster/software.htm">http://bonsai.hgc.jp/~mdehoon/software/cluster/software.htm</a>
+	</td>
+	<td>Implements the most commonly used clustering methods for
+	  gene expression</td>
+      </tr>
+
+
+      <tr valigne="top">
+	<td>java Treeview</td>
+	<td>
+	  <a target="_blank" href="http://jtreeview.sourceforge.net/">http://jtreeview.sourceforge.net/</a>
+	</td>
+	<td>Java-based tool to visualize trees prodced by hierarchical
+	  clustering togeter with a heatmap with expression
+	  proviles.</td>
+      </tr>
+
+      <tr valign="top">
+	<td>Integrative Genome Viewer (IGV) </td>
+	<td>
+	  <a target="_blank" href="http://www.broadinstitute.org/igv/">http://www.broadinstitute.org/igv/</a>
+	</td>
+	<td>A high-performance visualization genome browser.</td>
+      </tr>
+      
+      <tr valign="top">
+	<td>Tophat </td>
+	<td>
+	  <a target="_blank" href="http://tophat.cbcb.umd.edu/">http://tophat.cbcb.umd.edu/</a>
+	</td>
+	<td>A high-performance splice-aware aligner.</td>
+      </tr>
+      
+    </table>
+    
+
+    <p>A draft version of the supporting book will be provided to
+      students during the course.</p>
+    
+    <hr><a name='programme'></a>
+    
+    <h2>Schedule of the course 2013</h2>
+    
+    <table>
+      
+      <tr  valign='top'>
+	<th>Session</th>
+	<th>Date</th>
+	<th width="250">Topics</th>
+	<th>Slides</th>
+	<th>Practicals</th>
+      </tr>
+      
+  
+
+      <tr  valign='top'>
+	<td>1</td>
+	<td>2013-10-25</td>
+	<td>
+	  <p><b>Microarrays: normalization methods,  data quality.</b></p>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../practicals/affynorm_slides/index.html">Handling Affymetrix data.  Normalization. Quality control</a></li>
+	    <!-- <li><a href="../pdf_files/06.02.fitting.pdf">Fitting (esp. robust estimation of central and dispersion parameters).</a></li> -->
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../practicals/r_intro_td/index.html">A quick tutorial to the R langage</li> 
+	    <li><a href="../practicals/affynorm_td/index.html">Handling and normalizing affymetrix data with bioconductor</a></li>
+	  </ol>
+	</td>
+      </tr>
+
+      <tr  valign='top'>
+	<td>2</td>
+	<td>2013-10-25</td>
+	<td>
+	  <b>Microarrays: selecting differentially expressed genes.</b>
+	  <ol>
+	    <li>Parametric tests of mean equality: Student/Welch</li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+<!--	    <li><a href="../pdf_files/05.theoretical_distrib.pdf">05.theoretical_distrib.pdf</a></li>-->
+	    <li><a href="../pdf_files/06.03.00.hypothesis_testing.pdf">06.03.00.hypothesis_testing.pdf</a></li>
+	    <li><a href="../pdf_files/06.01.sampling_estimation.pdf">06.01.sampling_estimation.pdf</a></li>
+	    <li><a href="../pdf_files/06.03.01.conformity_tests.pdf">06.03.01.conformity_tests.pdf</a></li>
+	    <li><a href="../pdf_files/06.03.02.homogeneity_tests.pdf">06.03.02.homogeneity_tests.pdf</a></li>
+	    <li><a href="../pdf_files/06.03.03.significance_tests.pdf">06.03.03.significance_tests.pdf</a></li>
+	    <li><a href="../pdf_files/06.03.04.goodness_of_fit.pdf">06.03.04.goodness_of_fit.pdf</a></li>
+	    <li><a href="../pdf_files/07.04.differential_expression_6spp.pdf">07.04.differential_expression_6spp.pdf</a></li>
+<!--	    <li><a href="../pdf_files/"></a></li>  -->
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../practicals/affy_selection_td/index.html">Selecting differentially expressed genes with R or TmeV.</a></li>
+	    <li><a target="main" href="../practicals/sampling_distrib.html">Sampling distributions</a></li>
+	  </ol>
+	</td>
+      </tr>
+
+      <tr  valign='top'>
+	<td>3</td>
+	<td>2013-11-05</td>
+	<td>
+	  
+	  <p><b>Microarrays: selecting differentially expressed genes</b> (continued).
+	    <ol start="2">
+	      <li>Non-parametric test of mean equality: Wilcoxon rank-sum test</li>
+	      <li>SAM</li>
+	      <li>Rank product</li>
+	      <li>Multiple groups: ANOVA</li>
+	    </ol>
+	  </p>
+
+	  <p><b>The multiple ways to correct multiple testing</b>
+		<ol>
+		  <li>Bonferoni</li>
+		  <li>E-value</li>
+		  <li>FWER</li>
+		  <li>Benjamini-Hochberg</li>
+		  <li>q-value</li>
+		</ol>
+	  </p>
+	  
+	  <p><b>Clustering</b>
+	    <ol>
+	    <li>(dis)similarity metrics</li>
+	    <li>hierarchical clustering</li>
+	    <li>k-means clustering</li>
+	    <li>bootstrap.</li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../pdf_files/06.04.multitesting_corrections.pdf">Multiple testing corrections slides</a></li>
+	    <li><a href="../pdf_files/08.metrics.pdf">08.metrics.pdf</a></li>
+	    <li><a href="../pdf_files/09.clustering.pdf">09.clustering.pdf</a></li>
+	    <li><a href="../practicals/unsup_classif_slides/unsup_classification.pdf">Clustering (DP)</a></li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a target="main" href="../practicals/multiple_testing_td/multiple_testing_corrections.html">Multiple testing corrections practical</a></li>
+	    <li><a href="../practicals/unsup_classification_sim_td/index.html">Handling clustering methods (artificial datasets)</a></li>
+	    <li><a href="../practicals/unsup_classification_td/index.html">Microarray data analysis: unsupervised clustering.</a></li>
+	  </ol>
+
+	</td>
+      </tr>
+
+      <tr  valign='top'>
+	<td>4</td>
+	<td>2013-11-12</td>
+	<td>
+	  Supervised classification
+	  <ol>
+	    <li>Training vs testing sets</li>
+	    <li>Mehods: LDA, SVM, KNN</li>
+	    <li>Validation: k-fold, leave-one-out</li>
+	    <li>Variable selection</li>
+	    <li>How to avoid over-fitting ?</li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../pdf_files/07.03.correlation_analysis.pdf">Correlation analysis</a></li>
+	    <li><a href="../pdf_files/07.00.multiv_intro.pdf">Introduction to multivariate analysis</a></li>
+	    <li><a href="../pdf_files/10.visualization.pdf">Visualisation</a> (to see an example of PCA)</li>
+	    <li><a href="../pdf_files/11.discriminant_analysis.pdf">Discriminant analysis</a></li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../practicals/supervised_classification_td/supervised_classification_td.html">Supervised classification</a></li>
+	  </ol>
+        </td>
+      </tr>
+
+
+
+      <tr  valign='top'>
+	<td>6</td>
+	<td>2013-11-26</td>
+	<td>
+	  <ol>
+	    <li>Functional enrichment analysis</li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+<!--	    <li><a href="../practicals/unix_intro_slides/index.html">Unix</a></li>-->
+	    <li><a href="../pdf_files/05.theoretical_distrib.pdf">Theoretical distributions</a></li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../practicals/go_statistics_td/go_statistics_td.html">
+		GO statistics (hypergeometric, Fisher exact test)</a></li>
+	    <li><a href="../practicals/word_matching_proba_td/word_matching_proba_td.html">
+		Exercise: probabilities of read mapping with substitutions.</a></li>
+	  </ol>
+	</td>
+      </tr>
+
+
+	
+      <tr  valign='top'>
+	<td>7</td>
+	<td>2013-11-27</td>
+	<td>
+	  Analysis of RNA-seq data
+	  <ol>
+	    <li>RNA-seq technology</li>
+	    <li>Splice-aware aligners</li>
+	    <li>Transcript model inference</li>	    
+	    <li>Normalization</li>
+	    <li>Differential expression</li>
+	  </ol>
+	</td>
+	<td>
+	  <ol>
+	    <li><a href="../practicals/rnaseq/rnaseq.pdf">RNA-seq introduction</a></li>
+	  </ol>
+	<td><ol>
+	    <li><a href="../practicals/rnaseq_td/rnaseq_td.html">RNA-seq mapping</a></li>
+	    <li><a href="../practicals/rnaseq_diff/rnaseq_diff.html">RNA-seq differential expression with DESeq</a></li>
+	  </ol>
+	</td>
+      </tr>
+      
+
+<!--	    <td>
+	      Read mapping
+	      <ol>
+		<li>Impact of read length on mappability</li>
+		<li>Impact of substitutions</li>
+	      </ol>
+	Theoretical concepts
+	      <ol>
+		<li>Exact match probabilities</li>
+	  <li>Matching probability for the x first letters of a pattern</li>
+		<li>Matching probability with substitutions (equiprobable models)</li>
+		<li>Markov models</li>
+	      </ol>
+	    </td>
+	    <td></td>
+	    <td></td>
+	  </tr>
+	  
+-->     
+ 
+      <tr  valign='top'>
+	<td>8</td>
+	<td>To be discussed</td>
+	<td>
+	  Exam
+	</td>
+	<td></td>
+	<td></td>
+      </tr>
+      
+    </table>
+
+    <hr>
+  </body>
+</html>

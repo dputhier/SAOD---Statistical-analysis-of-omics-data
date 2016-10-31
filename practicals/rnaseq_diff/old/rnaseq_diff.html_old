@@ -1,0 +1,232 @@
+<html>
+<head>
+   	<title>RNA-seq practical session with DESeq</title>
+		<link rel="stylesheet" type="text/css" href="../base.css" media="screen,projection" />
+    	<link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+   	<script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    	<script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+    	<script type="text/javascript" src="../syntaxhighlight/shBrushR.js"></script>
+    	<link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    	<link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    	<script type="text/javascript">
+      	SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+      	SyntaxHighlighter.all();
+    	</script>
+
+</head>
+
+  <body>
+
+    <script language="JavaScript" type="text/javascript">
+      <!--
+	  function sizeTbl2(h,i) {
+	  var tbl = document.getElementById(i);
+	  tbl.style.display = h;
+	  }
+	  // -->
+    </script>
+
+    <h1>RNA-Seq analysis: practical session with DESeq.</h1>
+
+<p>DESeq is an <span class="program">R</span> library developed by Simon Anders and Wolfgang Huber. The package makes use of negative binomial to model read counts.  The method is detailled in the corresponding <a target='_blank' href="http://genomebiology.com/2010/11/10/r106">paper</a>. The tutorial below is inspired by the <a target='_blank' href="http://bioconductor.org/packages/release/bioc/vignettes/DESeq/inst/doc/DESeq.pdf">vignette</a> of the Bioconductor package.</p>
+
+
+<h2>Content</h2>
+<ul>
+<li><a href="#dataset">The Pasilla dataset.</a></li>
+<li><a href="#loading">Loading the pasilla dataset.</a></li>
+<li><a href="#pheno">Phenotypic data.</a></li>
+<li><a href="#subset">Creating a countDataset object.</a></li>
+<li><a href="#desc">Descriptive statistics.</a></li>
+<li><a href="#norm">Normalization</a></li>
+<li><a href="#diff">Differential expression call.</a></li>
+</ul>
+
+
+
+<a name="dataset"></a>
+<hr><h2>The Pasilla dataset</h2>
+
+<p>This dataset is available from the Pasilla Bioconductor library and is derived from the work from Brooks <i>et al.</i> (<a target='_blank' href="http://www.ncbi.nlm.nih.gov/pubmed/?term=20921232"> Conservation of an RNA regulatory map between Drosophila and mammals</a>. Genome Research, 2010).</p>
+
+<p>Alternative splicing is generally controlled by proteins that bind directly to regulatory sequence elements, and either activate or repress splicing of adjacent splice sites in a target pre-mRNA. Here, the authors have combined RNAi and mRNA-seq to identify exons that are regulated by the protein Pasilla (PS), the Drosophila melanogaster ortholog of the mammalian RNA-binding proteins NOVA1 and NOVA2.</p>
+
+
+<h3>Exercise</h3>
+
+<div class="exo">
+<p>Install the DESeq and pasilla libraries from Bioconductor.</p>
+<a href="javascript:sizeTbl2('block','sol_pas')">View solution</a>|
+<a href="javascript:sizeTbl2('none','sol_pas')">Hide solution</a>
+</div>
+
+<div id=sol_pas  style="overflow:hidden;display:none">
+	<h4>Solution</h4>
+   <pre class="brush:r;">
+source("http://bioconductor.org/biocLite.R")
+biocLite("pasilla")
+biocLite("DESeq")
+   </pre>
+</div>
+
+
+<a name="loading"></a><hr>
+<h2>Loading the pasilla dataset</h2>
+
+<p>To get the path to the tabulated file containing count table use the following commands:</p>
+
+<div class="protocol">
+<pre class="brush:r;">
+datafile <-  system.file( "extdata/pasilla_gene_counts.tsv", package="pasilla" )
+</pre>
+</div>
+
+
+<div class="exo">
+<p>Load the file using the read.table function.</p>
+</div>
+
+<a href="javascript:sizeTbl2('block','sol_load')">View solution</a>|
+<a href="javascript:sizeTbl2('none','sol_load')">Hide solution</a>
+
+<div id=sol_load  style="overflow:hidden;display:none">
+	<h4>Solution</h4>
+   <pre class="brush:r;">
+pasillaCountTable <-  read.table( datafile, header=TRUE, row.names=1 )
+head(pasillaCountTable)
+   </pre>
+</div>
+
+<a name="pheno"></a><hr>
+
+<h2>Phenotypic data</h2>
+<p>The dataset containsRNA-Seq count data for  RNAi treated or S2-DRSC untreated cells (late embryonic stage). Some results were obtained through single-end sequencing whereas others were obtained using paired-end sequencing. The data.frame produced below will store these informations.</p>
+
+
+<pre class="brush:r;">
+pasillaDesign <- data.frame(
+   row.names = colnames( pasillaCountTable ),
+   condition = c( "untreated", "untreated", "untreated","untreated", "treated", "treated", "treated" ),
+   libType   = c( "single-end", "single-end", "paired-end", "paired-end", "single-end", "paired-end", "paired-end" )
+)
+
+pasillaDesign
+   </pre>
+
+<a name="subset"></a><hr>
+<h2>Creating a countDataset object</h2>
+
+
+<div class="exo">
+<p>Create a new data.frame (<i>countTable</i>) that will stored "Paired-end" samples. Create a vector (<i>condition</i>) that will contain the phenotypes "treated" accordingly.</p>
+<a href="javascript:sizeTbl2('block','sol_sub')">View solution</a>|
+<a href="javascript:sizeTbl2('none','sol_sub')">Hide solution</a>
+</div>
+
+<div id=sol_sub  style="overflow:hidden;display:none">
+<h4>Solution</h4>
+<pre class="brush:r;">
+pairedSamples <-  pasillaDesign$libType == "paired-end"
+countTable    <-  pasillaCountTable[ , pairedSamples ]
+condition     <-  pasillaDesign$condition[ pairedSamples ]
+head(countTable)
+condition
+</pre>
+</div>
+
+
+<p>Now we have all the required material to create a <i>countDataSet</i> object (named <i>cds</i>) that will be used by DESeq to perform differential expression call.
+
+<div class="exo">
+<p></p>Create a <i>countDataSet</i> using the <i>newCountDataSet</i> function.<p>
+</div>
+
+<a href="javascript:sizeTbl2('block','sol_cnt')">View solution</a>|
+<a href="javascript:sizeTbl2('none','sol_cnt')">Hide solution</a>
+
+<div id=sol_cnt  style="overflow:hidden;display:none">
+<h4>Solution</h4>
+<pre class="brush:r;">
+cds <-  newCountDataSet( countTable, condition )
+isS4(cds)
+slotNames(cds)
+</pre>
+</div>
+
+
+<a name="desc"></a><hr>
+<h2>Descriptive statistics</h2>
+
+
+<div class="protocol">
+<p>Now we will apply some descriptive statistics on the datasets.</p>
+
+<pre class="brush:r;">
+## Min, Max, median...
+summary(counts(cds))
+
+## Some genes have no count
+nrow(countTable[rowSums(countTable) == 0,])
+
+## Data distribution
+hist(counts(cds))
+
+## Data distribution in log scale.
+## Note that a pseudo count is added to perform
+## Logarithmic transformation
+hist(log2(counts(cds)+1),  breaks=100)
+
+## Boxplot
+boxplot(log2(counts(cds)+1), col=as.numeric(condition)+1)
+
+## Density
+library(affy)
+plotDensity(log2(counts(cds)+1), col=as.numeric(condition)+1)
+</pre>
+</div>
+
+
+<a name="norm"></a><hr>
+<h2>Normalization</h2>
+<p>The normalization procedure (RLE) is implemented through the <i>estimateSizeFactors</i> function. <b>From DESeq help files:</b>Given a matrix or data frame of count data, this function estimates the size factors as follows: Each column is divided by the geometric means of the rows. The median (or, if requested, another location estimator) of these ratios (skipping the genes with a geometric mean of zero) is used as the size factor for this column.<p>
+
+<div class="protocol">
+<pre class="brush:r;">
+## Normalizing with RLE
+cds <-  estimateSizeFactors( cds )
+
+## Checking the normalization
+boxplot(log2(counts(cds, normalized=TRUE)+1),  col=as.numeric(condition)+1)
+plotDensity(log2(counts(cds, normalized=TRUE)+1),  col=as.numeric(condition)+1)
+</pre>
+</div>
+
+<a name="diff"></a><hr>
+<h2>Differential expression call</h2>
+
+<h3>Modelling read counts through a negative binomial</h3>
+<p>To perform diffential expression call DESeq need first to model the distribution of read counts for each gene <i>g</i> in each class using a negative binomial. Given the limited number of observation in each class, DESeq will improve the estimation of the dispersion by using a regression that will attempt to capture the overall dispersion of genes displaying similar expression levels than <i>g</i>. </p>
+
+<div class="protocol">
+<pre class="brush:r;">
+cds = estimateDispersions( cds )
+plotDispEsts( cds )
+</pre>
+</div>
+
+<h3>Performing differential expression call</h3>
+<p>Differential expression call is perform through the <i>nbinomTest</i> function from the DESeq package.</p>
+
+<div class="protocol">
+<pre class="brush:r;">
+res <- nbinomTest( cds, "untreated", "treated" )
+head(res)
+plotMA(res)
+</pre>
+
+</div>
+
+</body>
+</html>
+
+

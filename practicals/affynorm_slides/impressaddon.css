@@ -1,0 +1,13 @@
+.slide{
+    height:700px;
+    width:1000px;
+    background:#FFF;
+    border:1px solid #FFF;
+}
+.syntaxhighlighter .toolbar {
+display: none; 
+}
+
+.syntaxhighlighter .gutter {
+display: none; 
+}

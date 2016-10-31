@@ -1,0 +1,743 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="../../html/course.css" media="screen,projection" />
+    <title></title>
+    <script type="text/javascript" src="../syntaxhighlight/shCore.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushBash.js"></script>
+    <script type="text/javascript" src="../syntaxhighlight/shBrushR.js"></script>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="../syntaxhighlight/shThemeDefault.css"/>
+    <script type="text/javascript">
+      SyntaxHighlighter.config.clipboardSwf = '../../style/syntaxhighlight/clipboard.swf';
+      SyntaxHighlighter.all();
+    </script>
+    <script type='text/javascript' src='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </head>
+
+  <body>
+    <script language="JavaScript" type="text/javascript">
+      <!--
+	    function sizeTbl2(h,i) {
+	      var tbl = document.getElementById(i);
+	        tbl.style.display = h;
+		  }
+		    // -->
+    </script>
+
+    <h1>RNA-Seq normalization</h1>
+
+    <a name='contents'></a>
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#dataset">The parathyroid dataset</a></li>
+      <li><a href="#R">Loading data into R</a></li>
+      <li><a href="#desc">Descriptive statistics</a></li>
+    </ol>
+
+
+    <hr>
+    <a name="dataset"></a>
+    <h2>The parathyroid dataset</h2>
+    
+    <p>The parathyroid dataset is contained in the Bioconductor parathyroid library. Here the data will be proposed as a flat file containing <b>raw read counts</b> observed for each gene (row) in each sample (column).</p>
+    <p>This dataset is related to the article published by Haglund F entitled "Evidence of a Functional Estrogen Receptor in Parathyroid Adenomas" (J Clin Endocrinol Metab. jc.2012-2484, Epub 2012 Sep 28, <a href="http://www.ncbi.nlm.nih.gov/pubmed/?term=23024189">PMID: 23024189</a>). The sequencing was performed on tumor cultures from 4 patients at 2 time points over 3 conditions (DPN, OHT and control). One control sample was rejected by the authors due to low quality. Raw sequencing data are provided by NCBI Gene Expression Omnibus under accession number <a href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE37211">GSE37211</a>. Genes are annotated based on the <a href="http://www.ncbi.nlm.nih.gov/projects/genome/assembly/grc/human/">GRCh37</a> and <a href="http://www.ensembl.org/index.html">Ensembl annotations</a>, release 66.</p>
+    
+    
+    <a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+    <a name="R"></a>
+    <h2>Loading data into R</h2>
+    <p>Start R.</p>
+
+    <div class="protocol">
+      <ul>
+	<li>Have a look at the description of the <tt>read.table()</tt>
+	    function. </li>
+
+	<li>We will now load data into R using the <tt>read.table</tt> that allows us to directly
+	    fetch the tables from the Web server. We will successively load 2 files providing complementary informations.
+	    <ul>
+	          <li>the count table (<i>parathyroidGenes.txt</i>), </li>
+		  <li>the phenotypic table (<i>parathyroid_pheno.txt</i>)</li>
+			    </ul>
+<pre class="brush:r">
+?read.table
+
+## Location of datasets
+url.pheno <- "ftp://tagc.univ-mrs.fr/upload/parathyroid_pheno.txt"
+url.counts <- "ftp://tagc.univ-mrs.fr/upload/parathyroidGenes.txt"
+
+## Loading count table
+cnt <-  read.table(url.counts,sep="\t", head=T, row=1)
+#dimensions
+dim(cnt)
+#first 2 lines
+head(cnt,2)
+
+## Load phenotypic data
+pheno <- read.table(url.pheno, sep='\t', head=TRUE, row=1)
+</pre>
+
+  </li>
+
+	<li>We will now define a directory to store the results.</li>
+	
+<pre class="brush:r">
+dir.output <- "~/Parathyroid" ## Define the output directory. You can adapt this to your local configuration.
+dir.create(dir.output, showWarnings=FALSE, recurs=TRUE) ## Create the directory if it does not exist yet
+setwd(dir.output)
+</pre>
+
+      </ul>
+    </div>
+
+
+    
+    <div class="exo">
+      <ul>
+	<li>What are the dimension of the pheno data.frame ?</li>
+	<li>Does the phenotypic table reference all samples ? </li>
+	<li>Rename cnt.tab column names so that it will contain the sample name, patient number, time, and treatment label.</li>
+	<li>Delete rows (genes) that don't have any count</li>
+	<li>Create a subset matrix (cnt.sub) containing only 'Control' and 'DNP'-treated samples obtained at 24h.</li>
+      </ul>
+    </div>
+
+    <br>
+    <a href="javascript:sizeTbl2('block','2')">View solution</a>| 
+    <a href="javascript:sizeTbl2('none','2')">Hide solution</a>
+    <div id="2"  style="overflow:hidden;display:none">
+      <h4>Solution</h4>
+      
+      <pre class="brush:r">
+## Pheno object dimension
+dim(pheno)
+ncol(pheno)
+nrow(pheno)
+
+## Yes all samples are referenced.
+all(colnames(cnt) == rownames(pheno))
+
+## Changing colum names
+colnames(cnt) <- paste(
+		     colnames(cnt), 
+		     pheno$patient, 
+		     pheno$time, 
+		     pheno$treatment, sep="|"
+)
+colnames(cnt)
+
+# Deleting genes with 0 counts
+row.sum <- apply(cnt,1,sum)
+cnt <- cnt[ row.sum > 0, ]
+
+# Extracting Control/DPN treament at 24h.
+
+control <- cnt[, pheno$time=="24h" & pheno$treatment=="Control"]
+dpn     <- cnt[, pheno$time=="24h" & pheno$treatment=="DPN"]
+cnt.sub <- cbind(control, dpn)
+dim(cnt.sub)
+ 
+</pre>
+    </div>
+
+    <hr>
+    <a name="dataset"></a>
+    <h2>Descriptive statistics</h2>
+We will compute some descriptive statistics to ensure data are conform to what is expected and no obvious bias appears.
+
+<h3>Histogram of log2-transformed values</h3>
+  <p>The histogram of log-transformed values gives us a better perception of the distribution, because it emphasizes the lower
+    values. Here we will add a pseudo-count to every cell of the count table to avoid any warning during log-transformation.</p>
+
+<pre class="brush:r;">
+# A pseudo count is added and a set of log2-transformed data is produced 
+cnt.sub.l <- log2(cnt.sub+1)
+
+# Drawing a histogram 
+# results obtained for the 2 first samples are overlayed.
+col.pal <- rainbow(ncol(cnt.sub.l))
+breaks <- seq(from=0, to=max(cnt.l), length=100)
+par(mfrow=c(3,3))
+apply(	  cnt.sub.l, 
+	  MARGIN=2, 
+	  FUN=hist, 
+	  br=breaks, 
+	  col="steelblue", 
+	  xlab="intensity", 
+	  ylab="Number of genes", 
+	  main=""
+)
+
+</pre>
+
+
+<h3>Scatter plots</h3>
+Scatter plots can be obtained using the plot, SmoothScatterPlot or even plot functions (...).
+
+<pre class="brush:r;">
+# Here we compare counts obtained for control #1 and DPN #1
+plot(cnt.sub.l[,1], cnt.sub.l[,5], pch=".", col="seagreen")
+grid(lwd=1, col="#000000")
+ 
+# Same comparison but the density of points is color coded.
+# The 0 values appear clearly in the bottom left corner.
+library(geneplotter)
+smoothScatter(cnt.sub.l[,1], cnt.sub.l[,5], pch=".")
+
+# It is most generally  good idea to perform a more general comparison.
+myDisplayFunction <- function(x,y){smoothScatter(x,y,pch=".", add=TRUE)}
+pairs(cnt.sub.l, upper.panel=myDisplayFunction,  lower.panel=NULL)
+
+</pre>
+
+<h3>MA plot</h3>
+
+<p> To perform a MA plot, we will use a pseudo sample as a reference.</p> This pseudo sample will contain representative values computed as the median of each gene. </p>
+
+pseudo.sample  <- apply(cnt.sub.l, 1, median) 
+M <- cnt.sub.l - pseudo.sample
+A <- (cnt.sub.l + pseudo.sample)/2
+par(mfrow=c(3,3))
+for(i in 1:ncol(cnt.sub.l)){
+     plot(A[,i],M[,i], pch=".")
+     abline(h=0)
+     abline(h=-1)
+     abline(h=1)
+     lines(lowess(M[,i]~A[,i]), col="red")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# First we need to install Bioconductor
+source("http://bioconductor.org/biocLite.R")
+if(!required(Biobase)){
+        biocLite()
+}
+
+# We need the DESeq library
+if(!required(DESeq)){
+        library(DESeq)
+}
+
+<p>We can notice that this log-transformed distribution is far from "normal" (i.e. the Gaussian curve): the histogram is strongly asymmetrical with the majority of having value 0 (i.e, log2(1)).</p>
+
+
+
+## plot the histogram of raw expression values for the first sample
+hist(exprs(affy.s13)[,1], breaks=200)
+
+## plot the histogram of log2-transformed expression values 
+## for the first sample.
+hist(affyLog2[,1], br=100, col=rainbow(100))
+
+## Plot polygon frequencies for all the samples
+plotDensity(affyLog2)
+
+## Draw box plots for the 13 samples
+boxplot(affyLog2, pch=".",las=2, cex.axis=0.5)
+</pre> 
+
+
+
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+    <a name="welch"></a>
+    <h2>Basics about Welch's <i>t</i> test</h2>
+    
+    <p>Welch's test is a variant of the classical Student test, whose goal
+      is to test the equality between two means. 
+      <ul><i>H<sub>0</sub>: m<sub>g,1</sub> = m<sub>g,2</sub></i></ul>
+
+      where m<sub>g,1</sub> and m<sub>g,2</sub> represent the respective
+      mean expression values for a given gene (<i>g</i>) in two
+      populations (for example, all existing patients suffering from T-ALL
+      versus all patients suffering from pre-B ALL). Of course, we do not
+      dispose of measurments for all the patients suffering from these two
+      types of ALL in the world (the population). We only dispose of two
+      sets of samples, covering 36 (T-ALL) and 44 (pre-B ALL) patients,
+      respectively. On the basis of these samples, we will estimate how
+      likely it is that genes <i>g</i> is generally expressed at similar
+      levels in the populations from which the samples were drawn.
+    </p>
+    
+    <p>The essential difference between Student and Welch is that the
+      proper Student test relies on the assumption that the two sampled
+      populations have the same variance, whereas Welch's test is designed
+      to treat populations with unequal variances.</p>
+
+    <p>When detecting differentially expressed genes, we cannot assume
+      equal variance. Indeed, a typical case would be that a gene of
+      interest is expressed at very low level in the first group, and high
+      level in the second group. The inter-individual fluctuations in
+      expression values are expected to be larger when the gene is
+      expressed at a high level than when it is poorly expressed. It is
+      thus generally recommended to use Welch rather than Student test
+      when analyzing microarray expression profiles.</p>
+
+    <p>Welch's t-test defines the <i>t</i> statistic by the following
+      formula:</p>
+    <img src="https://upload.wikimedia.org/math/0/1/1/0112c5d989874858e3fa4b97f428a391.png" alt="" >
+    
+    <br>
+    <p>where</p>
+    <ul>
+      <li>\(\ \bar{X}_{i} \) is the sample mean,</li>
+      <li>\(\ s^2_{i} \) the sample variance,</li>
+      <li> \(\ N_{i} \) the sample size.</li>
+    </ul>
+    <br>
+    <br>
+    
+    
+    <p>The <tt>t.test()</tt> function can be used to calculate this score
+      (and additional informations such as p.value). This function returns
+      an S3 object whose slots can be listed using the <tt>names()</tt>
+      function and accessed using the $ operator (such as with lists in
+      R).</p>
+    
+    <p>In order to get an intuition of the <i>t</i> statistics, let us
+      create artificial datasets and run a Welch test on it. In the
+      following example x and y can be viewed as the values for gene g in
+      class x and y.</p>
+    
+    
+    <pre class="brush:r">
+## Generate 4 random numbers following a normal distribution, to
+## simulate the samples 1 and 2. We deliberately set the means to 
+## the same values (to fall under the null hypothesis), but 
+## different standard deviations.
+x <- rnorm(n=4, mean=6, s=1)
+y <- rnorm(n=4, mean=6, s=2)
+
+## Run the Welch test (this is specified by indicating that we don't expect equal variances)
+denboer.welch <- t.test(x,y, var.equal=FALSE)
+print(denboer.welch)
+## note: each student should have a different result, since values were generated at random
+
+## Retrieve the t statistics
+names(denboer.welch)
+denboer.welch$statistic
+
+</pre>
+
+    
+    <br>
+    <p>What would be the expected distribution of <i>t</i> when comparing
+      the expression levels in class x and y for 10000 genes whose values
+      would be randomly drawn from normal distributions with mean 0 and
+      standard deviations of 1 and 2, resp ? </p>
+    
+    <pre class="brush:r">
+## Run iteratively 10000 Welch tests with random values
+t.values <- replicate(10000,t.test(rnorm(4, 0, 1),rnorm(4, 0, 2))$statistic)
+dens <- density(t.values)
+plot(dens,xlim=c(-5,5))
+</pre>
+
+    <p>We can now compute the empirical frequency of <i>t</i>
+      statistics with absolute value above or equal to 3.</p>
+
+<pre class="brush:r">
+length(t.values[abs(t.values) >= 3])/10000
+</pre>
+
+    <p>We can visualize this by coloring the tails of the density
+      function on a plot.</p>
+
+<pre class="brush:r">
+plot(dens,xlim=c(-5,5))
+lower.bound <- 1
+upper.bound <- tail(which(dens$x <= -3),1)
+plot(dens)
+polygon(c(dens$x[lower.bound:upper.bound],dens$x[upper.bound]),c(dens$y[lower.bound:upper.bound],0),col="tan")
+lower.bound <- head(which(dens$x >= 3),1)
+upper.bound <- length(dens$x)
+polygon(c(dens$x[lower.bound],dens$x[lower.bound:upper.bound]),c(0,dens$y[lower.bound:upper.bound]),col="tan")
+</pre>
+
+    <p>Now we can check if the empirical distribution we have drawn
+      fits the theorical <i>t</i> distribution.</p>
+    <p>Student's t-distribution has the probability density function
+      given by:</p>
+    
+    <br>
+    <img src="student_density.png">
+    <br>
+
+    <p>where
+    <ul>
+      <li>\(\ \nu \) is the number of degrees of freedom.</li>
+      <li>\(\ \Gamma \) is the Gamma function.</li>
+    </ul>
+    </p>    
+
+    <p>The degree of freedom, which is related to the number of
+      samples and variance in class 1 and 2, is the parameter that will
+      control the shape of the probability density function. </p>
+    
+    <p>The degree of freedom can be computed using the following
+      formula.</p>
+    
+    <br><img src="welch_df.png">
+
+    <p>Here we will consider that variance is equal to 1 (as x and y
+      were drawn from a normal distribution with mean 0 and standard
+      deviation 1)</p>
+
+    <p>So we can compute the degree of freedom using R and draw the
+      theorical density of the t-distribution. </p>
+
+    <pre class="brush:r">
+## Compute the degrees of freedom for Welch test
+N1 <- length(x)
+N2 <- length(y)
+var1 <- var(x) ## Since we ignore the variance of the population, we estimate it from the sample
+var2 <- var(y)
+df <- (var1/N1+var2/N2)^2/(var1^2/(N1^2*(N1-1))+var2^2/(N2^2*(N1-1)))
+
+## Compare the degrees of freedom computed by ourselves with the df
+## reported by the t.test() function.
+names(denboer.welch)
+print(denboer.welch$parameter)
+      </pre>
+
+    <pre class="brush:r">
+## Compute the degrees of freedom for Welch test
+N1 <- length(x)
+N2 <- length(y)
+var1 <- var(x) ## Since we ignore the variance of the population, we estimate it from the sample
+var2 <- var(y)
+df <- (var1/N1+var2/N2)^2/(var1^2/(N1^2*(N1-1))+var2^2/(N2^2*(N1-1)))
+
+## Compare the degrees of freedom computed by ourselves with the df
+## reported by the t.test() function.
+names(denboer.welch)
+print(denboer.welch$parameter)
+      </pre>
+
+<!--
+    <p>We will now extend the experiment by computing the degrees of
+      freedom on 10,000 random simulations.</p>
+    
+    <pre class="brush:r">
+      t.df <- replicate(10000,t.test(rnorm(4, 0, 1),rnorm(4, 0, 2))$parameter)
+	      df.est <- mean(t.df)
+			  
+## Plot the theoretical distribution of t together with the
+			  ## distribution of t values observed in our simulation
+			  seq <- seq(-5,5,length=100)
+       plot(seq, dt(seq,df=df),typ="l", xlab="t values", main="Theorical and empirical density of t-distribution")
+       lines(dens,col="red")
+       </pre>
+    
+    <p>We can conclude that the theorical distribution fits very well
+      with the empirical distribution.</p>
+    -->
+
+
+    <a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+    <a name="apply"></a>
+    <h2>Applying Welch's t-test to the den Boer dataset</h2>
+    <br>
+    
+    <p>We would like to define genes that discriminate between
+      "TEL-AML1" tumors and "hyperdiploid" tumors.</p>
+    
+    <p>One possibility would be to iterate over all probesets, and to
+      successively run the R method t.test() on each one.  This would
+      however be quite inefficient, and the results would not be very
+      easy to handle, since it would be a list of objects of the class
+      t.test.</p>
+
+    <p>Instead, we will use a custom function that runs Student or
+      Welch test in parallel on all the elements of a data table.</p>
+
+
+    <h3>Running t-tests on each row of a data matrix</h3>
+
+<pre class='brush:r'>
+## Load the library for multiple t tests
+source('http://www.bigre.ulb.ac.be/courses/statistics_bioinformatics/R-files/config.R')
+source(file.path(dir.util, "util_student_test_multi.R"))
+</pre>
+
+    <p>For the sake of curiosity, you can also have a look at
+      the <a href='../../../R-files/util/util_student_test_multi.R'>R
+      code</a>.</p>
+
+    <p>We will now run the Welch test on all the genes of the Den Boer
+      dataset. We will apply the test to select genes differentially
+      expressed between the subtypes "hyperdiploid" and
+      "TEL-AML1".</p>
+
+<pre class="brush:r">
+## Define a Boolean vector indicating which samples belong to the two selected subtypes.
+samples.to.keep <- pheno$Sample.title == "hyperdiploid" |  pheno$Sample.title == "TEL-AML1"
+
+## Define a vector with the sample types for the two selected cancer subtype
+cancer.type <- as.vector(pheno[samples.to.keep, "Sample.title"])
+print(cancer.type)
+table(cancer.type)
+
+## Run the Welch test on each probesets of the DenBoer expression matrix
+denboer.welch <- t.test.multi(expr.matrix[samples.to.keep], cancer.type, volcano.plot=FALSE)
+
+## Inspect the result table
+dim(denboer.welch)
+names(denboer.welch)
+
+## Select genes with a stringent threshold on E-value
+threshold <- 0.05
+significant.probesets <- denboer.welch$E.value <= threshold
+table(significant.probesets) ## Count the number of significant probesets
+</pre>
+
+<h3>Comparing sample means</h3>
+
+    <p>We will compare the mean expression value between the two subtypes,
+      and highlight the significant genes.</p>
+
+<pre class='brush:r'>
+## Plot the gene-wise means
+plot(denboer.welch[, c("mean.TEL-AML1", "mean.hyperdiploid")], col="darkgray")
+grid()
+abline(a=0,b=1, col="black")
+lines(denboer.welch[significant.probesets, c("mean.TEL-AML1", "mean.hyperdiploid")], type='p', col="red") ## Highlight significant genes
+</pre>
+
+<div class='exo'>
+  <p>How do you explain that the regions covered by gray
+    (non-significant) and red (significant) probesets overlap on the
+    mean-mean plot ?</p>
+</div>
+
+<a href="javascript:sizeTbl2('block','mean_vs_signif')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','mean_vs_signif')">Hide solution</a>
+<div   id="mean_vs_signif"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+  
+  <p>
+    The significance of a Welch (or a Student) test does not only
+    depend on the differences between the means, but on the estimation
+    of the standard deviation of this difference. In other terms, a
+    same difference (or a same ratio) between two means could be
+    either significant or not, depending on whether the two groups to
+    be compared have a high or low variance.
+  </p>
+</div>
+
+
+
+<!--
+ 
+<div class="exo">
+<ul>
+<li>Select a subset of the dataset (<i>expr.matrix.sub</i>) that will
+  contain only "TEL-AML1" tumors and "hyperdiploid" tumors.</li>
+<li>Create a vector <i>cl</i> that will contain informations regarding
+  the classes of samples stored in expr.matrix.sub ("hyperdiploid" or
+  "TEL-AML1"). </li>
+<li>Select genes giving a significant signal ("present" call) in at
+  least 30% of the selected samples. </li>
+<li>Write the table onto disk ("GSE13425_Norm_TEL-AML1vsHyperdip.txt",
+  it will be used later with MeV software)</li>
+
+<br>
+</ul>
+</div>
+<br>
+<a href="javascript:sizeTbl2('block','3')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','3')">Hide solution</a>
+
+<div id="3"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+samples.to.keep <- pheno$Sample.title == "hyperdiploid" |  pheno$Sample.title == "TEL-AML1"
+## Check samples to keep
+print(samples.to.keep)
+sum(samples.to.keep)
+pheno[samples.to.keep, "Sample.title"]
+
+## Extact a subset of expression matrix with only the two selected sets
+expr.matrix.sub <- expr.matrix[,samples.to.keep]
+
+## Define a vector indicating sample groups
+cl <- pheno[samples.to.keep,]$Sample.title
+
+## Select a subset of the A/M/P matrix
+amp.sub <- amp[,samples.to.keep]
+dim(amp)
+dim(amp.sub)
+
+## Count the number of "Present" calls per probeset
+isPresent <- amp.sub == "P"
+present.per.probeset <- rowSums(isPresent)
+hist(present.per.probeset, breaks=0:ncol(amp.sub))
+
+## "Present filter":  Select probeset declared present in at least 25% of the samples
+retained <- rowSums(isPresent) >=  0.25*ncol(expr.matrix.sub)
+table(retained) ## Count number of retained and rejected probesets
+
+## Select a subset of the matrix with the retained probesets only
+expr.matrix.sub <- expr.matrix.sub[retained, ]
+setwd(dir.output)
+write.table(expr.matrix.sub, "GSE13425_Norm_TEL-AML1vsHyperdip.txt", col.names=NA,quote=F,sep="\t")
+</pre>
+</div>
+<br>
+
+
+<div class="exo">
+<p>Use the <tt>return.t</tt> function implemented below to compute the
+p-value of the Welch's <i>t</i> test for all genes.</p>
+<pre class="brush:r">
+return.t <- function(x,y){t.test(x[y=="TEL-AML1"], x[y=="hyperdiploid"])$p.value}
+</pre>
+</div>
+
+
+<br>
+<a href="javascript:sizeTbl2('block','4')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','4')">Hide solution</a>
+
+<div id="4"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+t.res <- apply(expr.matrix.sub,1,return.t,cl)
+</pre>
+</div>
+
+<p><b>BEWARE:</b> Data do not follow the normal distribution!
+However, t-test is robust to non-normality if there is a sufficient
+number of samples per group.</p>
+
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="lr"></a>
+<br>
+<h2>Log ratio</h2>
+<br>
+<div class="protocol">
+<ul>
+
+  <li> Calculate for each gene its average expression level in "TEL-AML1"  and "hyperdiploid" class.</li>
+  <li> Calculate the difference of the mean for each gene (log ratio).</li>
+</ul>
+</div>
+
+
+
+<br>
+<a href="javascript:sizeTbl2('block','5')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','5')">Hide solution</a>
+
+<div id="5"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+
+<pre class="brush:r">
+diff <- rowMeans(expr.matrix.sub[,cl== "TEL-AML1"]) - rowMeans(expr.matrix.sub[,cl == "hyperdiploid"]) 
+</pre>
+</div>
+<br>
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="volcano"></a>
+<br>
+<h2>Volcano plot</h2>
+<br>
+<p>The volcano plot is a classical representation of microarray results. In this diagram, the x axis represent the log ratio and the y axis the result of a statistic expressed as -log10(p-value).</p>
+
+
+<div class="exo">
+<ul>
+<li>Draw a volcano plot.</li>
+<li>Use the identify function to the names of some interesting genes.</li>
+</ul>
+</div>
+
+
+
+
+
+<br>
+<a href="javascript:sizeTbl2('block','6')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','6')">Hide solution</a>
+
+<div id="6"  style="overflow:hidden;display:none">
+  <h4>Solution</h4>
+<pre class="brush:r">
+ltc <- log10(1/t.res)
+plot(diff,ltc,pch=16,cex=0.7,xlab="Delta",ylab="log10(1/p-value)")
+retained <- abs(diff)>1 & t.res <0.001
+points(diff[retained],ltc[retained],col="red",cex=0.7,pch=16)
+gn <- strsplit(row.names(expr.matrix.sub),"|")
+gn <- unlist(lapply(gn,"[",1))
+identify(diff,ltc, lab=gn,cex=0.4, col="blue")
+grid()
+</pre>
+</div>
+<br>
+-->
+
+
+<a href='#contents'><font size=-2>[back to contents]</font></a><hr>
+<a name="sam"></a>
+<br>
+<h2>Significance Analysis of Microarrays (SAM)</h2>
+    <p>The most popular method for differential expression analysis of
+      microarray data is "Significance Analysis of Microarrays"
+      (SAM). SAM is implemented in several software including R (library
+      siggenes). Here we will use
+      the <a href="http://www.tm4.org/mev/">MultiExperiment Viewer</a>
+      (MeV).</p>
+
+    <h3>Installing Mev</h3>
+    <p>Type the command below in a terminal (this are shell/bash
+      commands)</p>
+
+<pre class="brush:bash">
+mkdir -p ~/bin
+cd ~/bin
+wget "http://freefr.dl.sourceforge.net/project/mev-tm4/mev-tm4/MeV%204.8.1/MeV_4_8_1_r2727_linux.tar.gz"
+tar xvfz MeV_4_8_1_r2727_linux.tar.gz
+cd -
+echo -e "\nalias tmev=\"cd ~/bin/MeV_4_8_1/; sh -c 'nohup ./tmev.sh &'; cd -\"" >> ~/.bashrc
+source ~/.bashrc
+tmev
+</pre>
+
+<h3>Running MeV</h3>
+
+<div class="protocol">
+<ul>
+<li>Load the file using File > Load data > Select file loader > Tab delimited.</li>
+<li>Browse to file "GSE13425_Norm_TEL-AML1vsHyperdip.txt", click on the upper-leftmost expression value and click on the "load" button.</li>
+<li>Select Adjust data > Gene/Rows adjustment > median center Genes/Rows</li>
+<li>Select Analysis > Statistics > SAM</li>
+<li>Set all samples from GSM338746.CEL.gz to GSM338789.CEL.gz to class B.</li>
+<li>Set the number of permutations to 500, select "Construct hierachical clustering" and click "OK"</li>
+<li>Accept default parameters for hierarchical clustering</li>
+<li>Set the delta value to 2 and click OK.</li>
+<li>Select Analysis results > SAM > Hierarchical trees > All Significant genes</li>
+<li>Select Display > Set color scale limits and set lower limit to -4, midpoint value to 0 and upper limit to 4.</li>
+<li>Select Display > Set Element Size > 5x2</li>
+<li>To store the resulting file right click to select the whole gene tree and select "Save cluster"</li>
+</ul>
+</div>
+
+</HTML>

@@ -1,0 +1,658 @@
+
+---
+title: "Statistics for Bioinformatics - Practicals - Multiple testing corrections"
+author: "Jacques van Helden"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    highlight: tango
+    theme: united
+    toc: yes
+    toc_depth: 3
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+css: ../../html/course.css
+---
+
+
+<body>
+  <script language="JavaScript" type="text/javascript">
+    <!--
+        function sizeTbl2(h,i) {
+        var tbl = document.getElementById(i);
+        tbl.style.display = h;
+        }
+        // -->
+  </script>
+    
+
+## Introduction
+
+Most analyses in current bioinformatics consist in performing thousands, or even millions of statistical tests in parallel. This applies to the microarrays or RNA-Seq analysis (e.g. differentially expressed genes), motif detection (e.g. discovering motifs in promoters of co-expressed genes), sequence similarity searches (comparing a query sequence against the millions of peptidic sequences currently available in Uniprot), genome-wise association studies (GWAS), and many other applications.
+
+In a previous practical ([Selecting differentially expressed genes](../affy_selection_td/affy_selection_td.html)), we applied a Welch's $t$ test to select differentially expressed genes from a microarray series containing 190 ALL samples. By doing this, we successively tested for more than 22,283 probesets the equality of the mean expression values, between two classes of ALL. For each gene, we computed a **nominal p-value**, which indicates the probability to obtain by chance a difference at least as large as the one observed in the data. This p-value can be interpreted as an estimate of the **False positive risk** (**FPR**): the probability of considering an observation as significant whereas it is not. However, we did not take into account an important factor: since the same test was successively applied to 22,283 probeset, the risk of false positives was thus repeated for each probeset. This situation is classically denoted as **multiple testing**. For example, if we accept an individual risk of 1%, we expect to observe $1% \cdot 22,283=223$ false positives when the same risk is taken for each probe of the microarray series.
+
+We will thus need to be more restrictive if we want to control the false positives. Several methods have been proposed to control the risk of false positives in situations of multiple testing. In this practical, we will investigate the practical consequences of multiple testing and explore some of the proposed solutions.
+
+------------------------------------------------------------------------------------
+
+## Generating random control sets
+
+In order to get an intuition of the problems arising from multiple testing, we will generate three datasets where no difference is expected to be found between the mean expression values of two groups of samples. 
+
+### Exercise
+
+<div class='exo'>
+1. Reload the normalized expression matrix from DenBoer, as described in the practical [Selecting differentially expressed genes](../affy_selection_td/affy_selection_td.html).
+
+2. Generate an expression matrix of the same size, in a data frame named "rnorm.frame", and fill if with random values sampled in a normal distribution of mean $m=0$ and standard deviation $sd=1$.
+
+3. Create a second data frame of the same size, name it "denboer.permuted.values", and fill it with the actual values of the DenBoer expression matrix, sampled in random order (**NB**: random sampling can be done with the R function **sample()**).
+
+4. Create a vector name "denboer.permuted.subtypes" and fill it with a random sampling of the cancer subtypes (these values can be found in **pheno$Sample_title**).
+
+</div>
+
+<a href="javascript:sizeTbl2('block','random_data')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','random_data')">Hide solution</a>
+<div id='random_data' class='solution' style="overflow:hidden;display:none">
+
+### Solutions
+
+
+```{r eval=TRUE}
+# get the URL base, from which data will be loaded
+url.base <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/"
+
+## Load a library
+if (!require("qvalue")) {
+  source("http://bioconductor.org/biocLite.R")
+  biocLite("qvalue")
+}
+library(qvalue)
+```
+
+Load the dataset from DeBoer et al (2009).
+
+```{r eval=TRUE}
+## Load expression values
+expr.matrix <-  read.table(file.path(url.base, "GSE13425_Norm_Whole.txt"),sep="\t", head=T, row=1)
+
+## Load phenotypic data
+pheno <- read.table(file.path(url.base, 'phenoData_GSE13425.tab'), sep='\t', head=TRUE, row=1)
+
+## Read the help of the rnorm() R function
+#?rnorm
+```
+
+We will now generate three different control sets:
+  
+  1. A matrix of the same size as the expression matrix from DebBoer (2009), but filled with random values following a normal distribution.
+  2. A randomized matrix obtained by permuting the values as the original data from DenBoer (2009).
+  3. A randomized assignation of each sample to acancer type, obtained by permuting the values of the pheno$SampleType vector.
+
+
+#### Generating a matrix with random numbers following a normal distribution
+
+The **rnorm()** function returns a vector with random numbers following a normal (Gaussian) distribution. 
+For the rest of this exercise, we will need to put the result in a matrix with the same number of columns and rows as our orginial expression matrix. 
+
+We will proceed as follow: 
+
+a. Count the number of columns ($m$ samples) and rows ($n$ probesets, ~ genes) in the original expression matrix
+b. Compute the number of values in the matrix  ($N= m \cdot n$).
+c. Generate a vector of random numbers using **rnorm()**
+d. Convert this vector into a matrix using **matrix()**
+e. Cast this matrix into an object of type *data.frame*, using the R command **as.data.frame()**
+f. Assign names to the rows and columns of this random matrix  using the commands **rownames()** and **colnames()**.
+g. Display thedistribution of these random values with and historgram (function **hist()**). 
+
+```{r eval=TRUE}
+## Generate a matrix with random normal values
+n.samples <- ncol(expr.matrix)
+n.probesets <- nrow(expr.matrix)
+n.values <- n.probesets * n.samples
+rnorm.vector <- rnorm(n=n.values, mean=0, sd=1)
+
+# Cast the vector into a matrix, then to a data frame
+rnorm.matrix <- matrix(rnorm.vector, ncol=n.samples, nrow=n.probesets)
+rnorm.frame <- as.data.frame(rnorm.matrix)
+rm(rnorm.vector); rm(rnorm.matrix)
+
+## More efficient code: you can do all of this in a single line
+rnorm.frame <- as.data.frame(matrix(ncol=n.samples, nrow=n.probesets,rnorm(n=n.values, mean=0, sd=1)))
+
+colnames(rnorm.frame) <- colnames(expr.matrix) ## Name the columns with same sample IDs as DenBoer, to facilitate the susbequent tests
+rownames(rnorm.frame) <- paste("rnorm", 1:nrow(rnorm.frame), sep=".") ## Name the rows of the random number matrix
+#head(rnorm.frame)
+hist(as.matrix(rnorm.frame), breaks=100) ## Check the distribution of the random normal sampling
+```
+
+#### Permuting all the cells of the expression matrix
+
+```{r eval=TRUE}
+## Read the help of the sample() R function
+# ?sample
+
+## Question: did you understand the role of the "replace" option ? If not, re-read the help.
+
+## Generate a matrix with expression values resampled from DenBoer
+denboer.values <- unlist(expr.matrix, use.names = FALSE)
+denboer.perm.matrix <- as.data.frame(matrix(sample(x=denboer.values, size=n.values, replace=FALSE), ncol=n.samples, nrow=n.probesets))
+colnames(denboer.perm.matrix) <- colnames(expr.matrix) ## Name the columns with same sample IDs as DenBoer, to facilitate the susbequent tests
+rownames(denboer.perm.matrix) <- paste("perm.matrix", 1:n.probesets, sep=".") ## Name the rows of the random number matrix
+#head(denboer.perm.matrix)
+hist(as.matrix(denboer.perm.matrix), breaks=100) ## Check the distribution of the random normal sampling
+
+## Generate a random vector of cancer subtypes by resampling the sample types of the phenodata
+samples.to.keep <- pheno$Sample.title == "hyperdiploid" |  pheno$Sample.title == "TEL-AML1" ## Select samples of two defined types
+cancer.type <- as.vector(pheno[samples.to.keep, "Sample.title"])  ## Define a vector with the sample types for the two selected cancer subtype
+cancer.type.permuted <- sample(cancer.type) ## Permute the vector of sample types
+
+## Compare original and permuted cancer type labels
+table(cancer.type) ## Count the number of samples for each one of the selected cancer types
+table(cancer.type.permuted) ## Count the number of samples for each one of the permuted cancer types
+table(cancer.type, cancer.type.permuted) ## Compare the original and permuted cancer types
+```
+
+
+The **table()** command can be used either with a vector, to count the number of instance for each distinct value, or to generate a contingency table. The last command allowed us to compare the original and resampled vectors of sample labels (cancer types). In principle, the contingency table should be balanced: each of the original groups (hyperdiploid or TEL-AML1) has been split randomly among the two groups of the permuted vector. We obtained the result above (see solution).
+
+
+Note that the results can vary from trial to trial. When trying a few more times, we obtain the following results, where the hyperdiploid and TEL-AML1 were partly unbalanced in the two random groups.
+
+```{r eval=TRUE}
+## Another permutation trial
+cancer.type.permuted <- sample(cancer.type)
+table(cancer.type, cancer.type.permuted)
+
+## Yet another permutation trial
+cancer.type.permuted <- sample(cancer.type)
+table(cancer.type, cancer.type.permuted)
+```
+
+Although sometimes unbalanced, the permutation will always be very far from the true repartition of the samples, which gives the following table.
+
+```{r eval=TRUE}
+## trivial comparison between the cancer.types and themselves, 
+## for the sake of comparison with the confusion table of the 
+##random permutataion
+table(cancer.type,cancer.type)
+```
+</div>
+
+---------------------------------------------------------------
+
+## Distribution of the p-values
+
+
+In the context of a Welch test, the p-value indicates the probability to obtain by chance a $t$ statistics greater than to the one measured from the samples. Under the null hypothesis (i.e. if the data were sampled from populations with equal means) a p-value of 1% is expected to be found at random once in 100 tests, a p-value of 5% once in 20 tests, etc. The goal of this exercise is to test if the p-values returned by our multiple Welch test correspond to this expectation.
+
+### Exercise
+
+<div class='exo'>
+For each of the 3 control sets prepared in the previous section, and for the actual data set from DenBoer 2009, apply the following procedure, and compare the results.
+
+  1.  Run the Welch test on each probeset, using our custom function **t.test.multi()** (as we did the practical on [Selecting differentially expressed genes](../affy_selection_td/affy_selection_td.html)), to compare the two subtypes "hyperdiploid" and "TEL-AML1".
+  2.  Draw a plot comparing mean expression of "hyperdiploid" (abscissa) and "TEL-AML1" (ordinate), and highlight the probesets declared significant with a p-value threshold of 1%. Count the number of significant genes and compare it to the random expectation.
+  3. Draw a histogram of the p-value density, by chunks of 5%, and draw a line representing the theoretical expectation for this distribution.
+</div>
+
+
+<a href="javascript:sizeTbl2('block','solpvalue')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','solpvalue')">Hide solution</a>
+<div id='solpvalue' class='solution' style="overflow:hidden;display:none">
+
+#### Solutions
+      
+```{r eval=TRUE}
+## Load some libraries
+source('http://pedagogix-tagc.univ-mrs.fr/courses/statistics_bioinformatics/R-files/config.R')
+source(file.path(dir.util, "util_student_test_multi.R"))
+
+## Define the constants for drawing the histograms of p-value densities
+pval.breaks <- 20 ## Number of class intervals for the p-value histograms
+threshold <- 0.01 ## Significance threshold, that will be applied successively to p-value, e-value, FWER and q-value
+
+## Prepare a graphical window for the 4 plot
+par(mfrow=c(2,2))
+
+## Run Welch test on normal-distributed random numbers
+rnorm.welch <- t.test.multi(rnorm.frame[,samples.to.keep], cancer.type, volcano.plot=FALSE)
+print(sum(rnorm.welch$P.value <= threshold))## count the number of significant genes at a given FPR
+hist(rnorm.welch$P.value, breaks=pval.breaks, main="Random normal values") ## Plot a histogram of p-value densities
+abline(h=n.probesets / pval.breaks, col="darkgreen", lwd=2)
+
+## Run Welch test on permuted matrix values
+perm.matrix.welch <- t.test.multi(denboer.perm.matrix[,samples.to.keep], cancer.type, volcano.plot=FALSE)
+print(sum(perm.matrix.welch$P.value <= threshold))## count the number of significant genes at a given FPR
+hist(perm.matrix.welch$P.value, breaks=pval.breaks, main="Matrix-wise permuted expression values") ## Plot a histogram of p-value densities
+abline(h=n.probesets / pval.breaks, col="darkgreen", lwd=2)
+
+## Run Welch test on permuted samples
+perm.labels.welch <- t.test.multi(expr.matrix[,samples.to.keep], cancer.type.permuted, volcano.plot=FALSE)
+print(sum(perm.labels.welch$P.value <= threshold))## count the number of significant genes at a given FPR
+hist(perm.labels.welch$P.value, breaks=pval.breaks, main="Permuted sample labels") ## Plot a histogram of p-value densities
+abline(h=n.probesets / pval.breaks, col="darkgreen", lwd=2)
+
+## Run Welch test on the dataset from Den Boer (2009)
+denboer.welch <- t.test.multi(expr.matrix[,samples.to.keep], cancer.type, volcano.plot=FALSE) 
+print(sum(denboer.welch$P.value <= threshold))## count the number of significant genes at a given FPR
+hist(denboer.welch$P.value, breaks=pval.breaks, main="DenBoer, 2009") ## Plot a histogram of p-value densities
+abline(h=n.probesets / pval.breaks, col="darkgreen", lwd=2) ## Draw the expected density under null hypothesis
+
+```
+
+
+### Interpretation of the results
+      
+We ran a Welch test on four datasets: 
+
+  1.  First negative control: **Normally distributed random values**. This control fits the working hypotheses for the Welch test: the
+	  two populations (sample types) follow a normal distribution, and have the same mean. 
+  2.  Second negative control: **permuted expression values**. Random sampling, without replacement, of the original expression values. Since these values do not
+	  follow a normal distribution, we do not meet the working hypotheses for a Welch test. However, Student and derived tests (including Welch) are robust to non-normality of the
+	  data, as soon as the number of elements (samples) is sufficient.
+  3.  Third negative control  : normalized expression values from DenBoer (2009), with **permuted sample labels** (cancer types).
+  4.  Real test: **normalized  expression profiles** from DenBoer et al.
+  
+
+For each dataset, the multiple Welch test was applied to each of the 22,283 rows of the matrix, and returned 22,283 p-values. The density plots indicate the repartition of p-values within 20 chunks of 5%. Under the null hypothesis (i.e. if not a single probe was differentially expressed), we would expect to obtain:
+
+  1.  a p-value &le; 5% in 5% of the tests,
+  2.  a p-value comprised between 5% and 10% in 5% of the tests,
+  3.  ...,
+  4.  a p-value comprised between 95% and 100% in 5% of the tests.
+  
+The density histograms are show above (see previous solution). Note that your result should be slightly different, since the three first histograms were generated from randomized datasets.
+
+The first (random normal values) and second (permuted expression values) negative controls perform quite well: the histograms are flat, and fit the random expectation (5% in each class, marked with the horizontal green line). The third negative control is less obvious: low p-values (&lt; 20%) are more frequent than expected by chance, and high p-values are depleted. in some cases, the random sampling of cancer types will proboke the opposite effect: depletion of the low p-values and enrichment in high p-values. The label sampling is a stringent test for negative controls, and should be interpreted with caution.
+
+The fourth density histogram shows a striking over-representation of the low p-values (&lt; 5%). This unbalance is similar to the one reported by Storey and Tibshirani in Figure 1 of their 2003 article. The over-representation of low p-values is likely to reflect the presence of a large number of differentially expressed genes.
+
+</div>
+
+-----------------------------------------------------------------------------------------
+
+## Estimating the proportions of truly null and truly alternative hypotheses
+
+As discussed in the solution of the previous section, the density histogram of p-values suggests that the DenBoer dataset contains a mixture of probesets corresponding either of two categories:
+
+  1.  Genes whose mean expression value does not differ between the two considered cancer types (hyperdiploid and
+	  TEL_AML1). The corresponding probesets are called "truly null", because they fit the null hypothesis: 
+    $$H_0: m_{hyper} = m_{TEL\_AML1}$$ 
+    The number of truly null probesets will be
+	  denoted $m_0$.
+  2.  Genes expressed differentially between the two considered cancer types. The corresponding probeset are called "truly alternative" because they fit the alternative hypothesis.
+	  $$H_1: m_{hyper} \neq m_{TEL\_AML1}$$
+    The number of truly alternative probesets will be
+	  denoted $m_1$.
+
+      
+Storey and Tibshirani (2003) proposed an elegant way to estimate the number of probesets belonging to these two categories.
+The next exercise will lead you, step by step, to discover how Storey and Tibshirani estimate the numbers of truly null ($m_0$) and alternative ($m_1$) hypothesis.
+
+### Exercise
+
+<div class='exo'>
+  1.  In the result table of the Welch test (DenBoer dataset), count the number of probesets having a p-value &ge; 0.6 (let us call the threshold p-value $\lambda$ ("lambda"), and the number of probeset above the &lambda; p-value $n_\lambda$).
+  2.  We can reasonably assume that the truly alternate probesets will tend to be concentrated in the low range of p-values on the density histogram. Consequently, the we can suppose that the area of the histogram covering p-values from 0.6 to 1 is principally made of truly null probesets. On the basis of the number $n_\lambda$ (with $\lambda=60$), try to estimate
+    1.  the total number $m_0$ of truly null probesets.
+    2.  the total number $m_1$ of truly alternative probesets.
+    3.  The proportion $\pi_0$ ("pi zero") of truly null among all probesets.
+
+After having estimated these three parameters for the DenBoer expression dataset, do the same for the three negative controls.
+
+</div>
+
+
+<a href="javascript:sizeTbl2('block','sol_pi0')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_pi0')">Hide solution</a>
+<div id='sol_pi0' class='solution' style="overflow:hidden;display:none">
+
+#### Solutions
+
+```{r eval=TRUE}
+## Define a function that takes as input a vector of p-values, 
+## and estimatesthe m0, m1 and pi0 parameters;
+estimate.pi0 <- function(p.values, lambda=0.5) {
+
+    ## We will store the numbers in a list
+    params <- list()
+    params$n <- length(p.values) ## Total number of probesets
+    params$n.lambda <- sum(p.values > lambda)  ## Number of probesets with p-value above lambda
+    
+    ## Extrapolate m0 from lambda and n.lambda, assuming homogeneous
+    ## repartition of the trully null probesets
+    params$m0.est <- min(params$n, params$n.lambda * 1/ (1 - lambda))
+    
+    ## Estimate m1
+    params$m1.est <- params$n - params$m0.est
+    
+    ## Compute pi0
+    params$pi0 <- params$m0.est / (params$m0.est + params$m1.est)
+    
+    ## Return the parameters
+    return(params)
+}
+
+
+## Estimate parameters for denboer with lambda = 0.5, to check robustness of the parameters
+print(estimate.pi0(denboer.welch$P.value, lambda=0.5))
+## pi0 = 0.6298075
+
+## Estimate parameters for denboer with lambda = 0.6
+print(estimate.pi0(denboer.welch$P.value, lambda=0.6))
+## pi0 = 0.6190818
+
+## Estimate parameters for denboer with lambda = 0.7, to check robustness of the parameters
+print(estimate.pi0(denboer.welch$P.value, lambda=0.7))
+## pi0 = 0.6194558
+
+## Estimate parameters for denboer with lambda = 0.3, to check robustness of the parameters
+print(estimate.pi0(denboer.welch$P.value, lambda=0.3))
+## pi0 = 0.6591828
+
+################################################################
+## Estimate the parameters for the negative controls, with lambda=0.5
+
+## Normally distributed random numbers
+print(estimate.pi0(rnorm.welch$P.value), lambda=0.5)
+## 1 in our case, might differ in your case since results from random numbers
+
+## Permutations of the expression matrix
+print(estimate.pi0(perm.matrix.welch$P.value), lambda=0.5)
+## 0.9986 in our case, might differ in your case since results from random numbers
+
+## Permutations of the sample labels (cancer types)
+print(estimate.pi0(perm.labels.welch$P.value), lambda=0.5)
+## 1 in our case, might differ in your case since results from random numbers
+```
+
+### Interpretation
+
+The $\pi_0$ parameter gives us an estimate of the proportion of truly null among a set of tested hypothesis. With the dataset from DenBoer, this parameter is relatively robust to the choice of the $\lambda$ parameter: $\pi_0$ takes values of 62%
+	($\lambda=0.7$), 62% ($\lambda=0.6$), 63% ($\lambda=0.5$) or 66%
+	($\lambda=0.3$), respectively.
+
+The two first negative controls (random numbers and permuted expression matrix, resp.) give the expected result: the estimated proportion of truly null hypotheses is 99% (by
+	construction, we know that 100% of the sets correspond to null hypotheses). 
+
+The third negative control (permuted labels) is less convincing: in our case, the procedure estimates that 88% of the probesets correspond to the null hypothesis, and that 2959 genes are differentially expressed!  This reflects the inhomogeneous distribution of density values observed on the third density histogram of the previous section. Note that the values of the negative controls will vary for each trial, since these controls rely on random sampling.
+
+</div>
+
+---------------------------------------------------------------------
+
+## Why do we need to correct for multiple testing ?
+
+A classical approach in statistical tests is to define <i>a priori</i> a level of significance, i.e. a threshold on the p-value. We will reject the null hypothesis if a test returns a lower p-value than the threshold, and accept it otherwise. Rejecting the null hypothesis means that we consider the test as significant. In the current case, this means that rejected hypotheses will correspond to differentially expressed genes.
+
+However, we are confronted to a problem: with the dataset from DenBoer (2009), we ran 22,283 tests in parallel. This means that, if we decide to use a classical p-value threshold of 1%, we accept, for each probeset, a risk of 1% to consider it significant whereas if follows the null hypothesis. Since this risk is multiplied 22,283 times, we expect an average of 223 false positives for any dataset. </p>
+
+### Exercise
+
+<div class='exo'>
+Count the numbers of significant probesets in the four datasets described above.
+</div>
+
+<a href="javascript:sizeTbl2('block','sol_p_value_fp')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_p_value_fp')">Hide solution</a>
+<div id='sol_p_value_fp' class='solution' style="overflow:hidden;display:none">
+
+#### Solutions
+
+```{r eval=TRUE}
+print(threshold)	
+
+## Count the number of probesets declared "positive" in the random normal dataset
+sum(rnorm.welch$P.value <= threshold) 
+## This returns 209 in our case (but can be different for you)
+
+## Count the number of probesets declared "positive" in the permuted expression dataset
+sum(perm.matrix.welch$P.value <= threshold) 
+## This returns 172 in our case (but can be different for you)
+
+## Count the number of probesets declared "positive" in the permuted labels dataset
+sum(perm.labels.welch$P.value <= threshold) 
+## This returns 254 in our case (but can be different for you)
+
+## Count the number of probesets declared "positive" in DenBoer 2009 expression dataset
+sum(denboer.welch$P.value <= threshold) 
+## This returns 4456 positives, much more than any of the 3 controls above
+
+```
+
+The negative controls clearly show that the classical way to control false positives by setting a threshold on the nominal p-value is problematic: when we set the significance threshold to 1%, we count ~200 false positives per analysis.
+In the next sections, we will try 3 alternative methods for controlling the number of false positives in such situations of multiple testing.
+
+</div>
+
+-------------------------------------------------------------------------
+
+## Expected number of false positives (e-value)
+
+### Context
+
+The E-value is the expected number of false positives. This is the simplest and most intuitive correction for multiple testing: given a threshold on the nominal p-value and the number of tests performed, we can easily compute the expected number of false positives.
+
+### Exercise
+
+<div class='exo'>
+  1.  The result table of the function **t.test.multi()** contains a column indicating the p-value. For the 4 datasets (DenBoer + the three negative controls), use the column
+	  "P.value" of the t.test.multi() result to compute the **E-value** (**expected number of false positives**) associated to each probeset. Compare it to the E-value
+	  indicated in the t.test.multi() result.
+  2.  Count the number of probesets declared "positive" with a threshold of 1% on E-value. 
+</div>
+
+<a href="javascript:sizeTbl2('block','sol_e_value')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_e_value')">Hide solution</a>
+<div id='sol_e_value' class='solution' style="overflow:hidden;display:none">
+
+#### Solutions
+
+```{r eval=TRUE}
+## Compute the E-value from the P-value
+E.value <- rnorm.welch$P.value * n.probesets
+
+## Compare the E-value we just computed	with the one stored in the t.test.multi() result
+# E.value - rnorm.welch$E.value
+head(E.value - rnorm.welch$E.value)
+sum(E.value != rnorm.welch$E.value) ## Count the number of probesets for which our E-value does not correspond the one computed by t.test.multi()
+
+################################################################
+## Count the number of probeset declared "positive" with an E-value threshold of 1%
+
+print(threshold)
+
+## In the random normal dataset
+sum(rnorm.welch$E.value <= threshold)  ## This returns 0 in our case (but can be different for you)
+min(rnorm.welch$E.value)  ## 3.65 in our case (can differ in your case)
+
+## Count the number of probesets declared "positive" in the permuted expression dataset
+sum(perm.matrix.welch$E.value <= threshold)  ## This returns 0 in our case (but can be different for you)
+min(perm.matrix.welch$E.value) ## 0.29 in our case (can differ in your case)
+
+## Count the number of probesets declared "positive" in the permuted labels dataset
+sum(perm.labels.welch$E.value <= threshold) ## This returns 0 in our case (but can be different for you)
+min(perm.labels.welch$E.value) ## 2.97 in our case (can differ in your case)
+
+## Count the number of probesets declared "positive" in DenBoer 2009 expression dataset
+sum(denboer.welch$E.value <= threshold)  ## This returns 873 positives, much more than any of the 3 controls above
+min(denboer.welch$E.value) ## 5.29e-27 (this should be identical for you)
+```
+
+### Interpretation
+
+A threshold at 1% on the E-value is very stringent: we did not get a single false positive for any of the three negative controls. This is a rather good news: it suggests that the 873 probesets declared "positive" in the real expression set are likely to be correct (i.e. belong to the alternative hypothesis : $m_{hyper} \neq m_{TEL-AML1}</sub></i>.
+ 
+However, we have good reasons to suspect that this level of control is too stringent. Indeed, on the density plot we observed that the number of genes with p-value &le; 5% is **much** higher than the random expectation: we can see that the first bar of the histogram exceeds 6,000, whereas under the null hypothesis we would expect ~1,100 probesets per 5% chunk of p-value density. In a first approximation, we could thus expect that the dataset contains ~5,500 differentially expressed genes (this is a very rough approximation, we will see below how Storey and Tibshirani propose to estimate the proportions of null and alternative hypotheses in a multiple testing configuration).
+
+</div>
+
+-----------------------------------------------------------------------
+
+## Family-Wise Error Rate (FWER)
+    
+
+### Context
+    
+The **Family-Wise Error Rate (FWER)** is the probability to obtain at least one false positive by chance: P(FP >= 1), for a given threshold on p-value and taking into account the number of tests performed.</p>
+
+### Exercise
+
+<div class='exo'>
+  1.  For each one of the datasets analyzed above, add to the t.test.multi() a column indicating the FWER.
+	2.  Count the number of probesets declared "positive" with a threshold of 1% on FWER. Compare it with the number of false positives when the control was exerted at the level of
+	  nominal p-value, and E-value, respectively. 
+  3.  Draw a plot comparing the E-value and FWER to the nominal p-value, for all the probesets of the DenBoer dataset.
+</div>
+
+<a href="javascript:sizeTbl2('block','sol_fwer')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_fwer')">Hide solution</a>
+<div id='sol_fwer' class='solution' style="overflow:hidden;display:none">
+
+#### Solutions
+
+The reasoning for computing the FWER is the following. Let us	consider a particular probest, which returns a p-value $p$ (for example $p=1e-4$). Under the null hypothesis:
+
+
+  1.  The probability for one specific probeset to return a false positive equals $p$. This is the $nominal$ p-value (i.e. the p-value attached to a given individual
+	  test).
+  2.  For the same particular probeset, the probability **not** to return a false positive is $1 - p$.  
+	3.  If we perform <i>n</i> tests in parallel, the probability for **not** returning a single false positive is 
+	  $$P(FP = 0) = (1-p)^n = (1-p) * (1-p) * ... * (1-p) $$ (n products)
+	4.  The probability of observing at least one false positive: 
+	  $$P(FP \gt 1) = 1 - P(FP=0) = 1 - (1-p)^n$$
+
+```{r eval=TRUE}
+## The computation of the raw formula is imprecise (cannot report values << 1e-16)
+## rnorm.welch$FWER <- 1 - (1 - rnorm.welch$P.value)^n.probesets
+rnorm.welch$FWER <- pbinom(q=0, size=n.probesets, prob=rnorm.welch$P.value, lower.tail=FALSE)
+sum(rnorm.welch$FWER <= threshold) ##  0
+min(rnorm.welch$FWER) ## 0.97 (this may vary between trials)
+
+## perm.matrix.welch$FWER <- 1 - (1 - perm.matrix.welch$P.value)^n.probesets
+perm.matrix.welch$FWER <- pbinom(q=0, size=n.probesets, prob=perm.matrix.welch$P.value, lower.tail=FALSE)
+sum(perm.matrix.welch$FWER <= threshold) ##  0
+min(perm.matrix.welch$FWER) ## 0.25
+
+##perm.labels.welch$FWER <- 1 - (1 - perm.labels.welch$P.value)^n.probesets
+perm.labels.welch$FWER <- pbinom(q=0, size=n.probesets, prob=perm.labels.welch$P.value, lower.tail=FALSE)
+sum(perm.labels.welch$FWER <= threshold) ##  0
+min(perm.labels.welch$FWER) ## 0.95
+
+##denboer.welch$FWER <- 1 - (1 - denboer.welch$P.value)^n.probesets
+denboer.welch$FWER <- pbinom(q=0, size=n.probesets, prob=denboer.welch$P.value, lower.tail=FALSE)
+sum(denboer.welch$FWER <= threshold) ##  873
+min(denboer.welch$FWER) ## 0 !
+
+## Compare the E-value and FWER
+plot(denboer.welch$E.value, denboer.welch$FWER, log="xy", panel.first=grid())
+
+## Compare E-value and FWER to P-value
+plot(denboer.welch$P.value, denboer.welch$E.value, log="xy", panel.first=grid(), pch=20)
+lines(denboer.welch$P.value, denboer.welch$FWER, type="p", pch=1, col='grey')
+```
+
+</div>
+
+-------------------------------------------------------------------------
+
+
+##  Controlling the False Discovery Rate (FDR) with the q-value
+
+### Context
+
+The **q-value** estimates the **False discovery rate (FDR)**, i.e. the expected proportion of false positives <i>among the cases declared positives</i>. This makes an essential distinction with the **False Positive Rate (FPR)**, which indicates the proportion of false positves among all the tests performed. 
+
+Under the null hypothesis, the FDR can be estimated in the following way (hochberg and Benjamini):
+
+  1.  sort elements by increasing p-value,
+	2.  for each rank $i$ of the sorted list, compute $q(i) = \pi_0 * Pval * m / i$,
+	3. choose a given significance level $q^{*}$ (in our case, let us chose $q^{*}= 1%$). Let $k$ be the largest $i$ for which $q(i) <= q^{*}$. Reject all hypotheses $H_{(i)}$ with $i = 1, 2, ...,k$.
+  
+
+
+### Exercise
+
+<div class='exo'>
+1.  Compute the q-value for the DenBoer dataset and for the three control tests described above.
+2.  Generate a plot comparing the nominal p-value (abscissa) with the different corrections (E-value, FWER, q-value).
+3.  Count the number of probesets declared significant at a level of 1%, and compare it to the numbers of positives detected above, when the control was performed at the level of
+	  the p-value, E-value or FWER. 
+</div>
+
+<a href="javascript:sizeTbl2('block','sol_q_value')">View solution</a>| 
+<a href="javascript:sizeTbl2('none','sol_q_value')">Hide solution</a>
+<div id='sol_q_value' class='solution' style="overflow:hidden;display:none">
+
+### Solutions
+
+```{r eval=TRUE}
+## Sort the Welch test result table set by increasing p-values
+denboer.welch.sorted <- denboer.welch[order(denboer.welch$P.value, decreasing=FALSE),]
+
+## Check that the lowest p-values come on top of the sorted table ...
+head(denboer.welch.sorted)
+
+## ... and that the highest p-values come on the bottom of the sorted table
+tail(denboer.welch.sorted)
+
+## Add a column with the rank
+denboer.welch.sorted$i <- 1:nrow(denboer.welch.sorted)
+
+## Use the function defined above to estimate pi0
+denboer.param <- estimate.pi0(denboer.welch$P.value, lambda=0.5)
+
+## Compute the q.value
+denboer.welch.sorted$q.value <- denboer.param$pi0 * denboer.welch.sorted$P.value * n.probesets / denboer.welch.sorted$i
+
+
+## Draw a plot comparing the nominal p-value and the q-value
+plot(denboer.welch.sorted$P.value, denboer.welch.sorted$q.value, panel.first=grid(), xlim=c(0,1), ylim=c(0,1), pch=2, xlab="Nominal p-value", ylab="q-value", col="orange")
+abline(a=0, b=1, col="violet") ## Draw the diagonal
+abline(h=denboer.param$pi0, col='blue', lwd=2) ## Draw the pi0 estimtate
+
+## Draw a plot comparing the nominal p-value and the different multiple testing corrections.
+## Use logarithmic axes to highlight low values (high significance).
+plot(denboer.welch.sorted$P.value, denboer.welch.sorted$E.value, panel.first=grid(), pch=1, xlab="Nominal p-value", ylab="Multiple testing corrected", log="xy", xlim=c(min(denboer.welch.sorted$P.value), 1), col="grey", main="multiple testing corrections")
+abline(a=0, b=1, col="violet") ## Mark the diagonal
+abline(h=1, col='blue', lwd=2) ## Mark the max possible probability value (1)
+lines(denboer.welch.sorted$P.value, denboer.welch.sorted$FWER, type="p", pch=20)
+lines(denboer.welch.sorted$P.value, denboer.welch.sorted$q.value, type="p", pch=2, col="orange")
+legend("bottomright", legend=c("e-value", "FWER", "q-value"), pch=c( 1, 20, 2), col=c("grey", "black", "orange"))
+abline (h=threshold, col="red", lwd=2) ## Mark the significance threshold
+
+## Count number of probesets declared significant with different control types
+threshold <- 0.01
+sum(denboer.welch.sorted$P.value <= threshold) ## 4456 probesets
+sum(denboer.welch.sorted$E.value <= threshold) ## 873 probesets
+sum(denboer.welch.sorted$FWER <= threshold) ## 873 probesets
+sum(denboer.welch.sorted$q.value <= threshold) ## 3355 probesets
+
+## Recall the first estimate of m1 (number of truly alternative probesets)
+print(denboer.param$m1) ## 8249
+```
+
+</div>
+
+---------------------------------------------------------------------------------------------
+
+## Bibliographic references
+
+  1.  <a name='denboer_2009'></a> Den Boer ML, van Slegtenhorst M, De Menezes RX, Cheok MH, Buijs-Gladdines JG, Peters ST, Van Zutven LJ, Beverloo HB, Van der Spek PJ, Escherich G et
+	al. 2009. A subtype of childhood acute lymphoblastic leukaemia with poor treatment outcome: a genome-wide classification study. Lancet Oncol 10(2): 125-134.
+  2.  <a name='benjamini_hochberg_1995'></a>Benjamini Y, Hochberg Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. JRStatistSocB 57(1):289-300.
+  3.  <a name='storey_tibshirani_2003'></a> Storey JD, Tibshirani R. (2003). Statistical significance for genomewide studies. Proc Natl Acad Sci U S A 100(16): 9440-9445. [[PMID 12883005](http://www.ncbi.nlm.nih.gov/pubmed/12883005)][[free article](http://www.pnas.org/content/100/16/9440.long)]
+
+-----------------------------------------------------------------
+<address>
+      [Denis Puthier](http://tagc.univ-mrs.fr/tagc/index.php/research/developmental-networks/d-puthier) ([TAGC](http://tagc.univ-mrs.fr/>TAGC), Aix-Marseille Université).
+      & [Jacques van Helden](http://jacques.van-helden.perso.luminy.univmed.fr) ([TAGC](http://tagc.univ-mrs.fr/>TAGC), Aix-Marseille Université).
+    </address>
+
+  
+  
