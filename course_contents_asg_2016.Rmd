@@ -26,21 +26,21 @@
 |[R](http://www.r-project.org/) |	A free software environment for statistical computing and graphics |
 |[R markdown](http://rmarkdown.rstudio.com/) |	Documentation for R markdown language (used for the practicals) |
 |[Bioconductor](http://www.bioconductor.org) |	A set of R libraries dedicated to statistical analysis of genomics data.|
-| [MeV: MultiExperiment Viewer](http://www.tm4.org/mev.html) |	A Java application designed to allow the analysis of expression data |
+| [MeV: MultiExperiment Viewer](http://www.tm4.org/) |	A Java application designed to allow the analysis of expression data |
 |[Cluster 3.0](http://bonsai.hgc.jp/~mdehoon/software/cluster/software.htm) | Implements the most commonly used clustering methods for gene expression |
 | [java Treeview](http://jtreeview.sourceforge.net) |	Java-based tool to visualize trees prodced by hierarchical clustering togeter with a heatmap with expression proviles.|
 
 ## Schedule
 
-| Date | From  | To    | Subject | Teacher | Practicals  |
-|------------|-------|--------------------------------|---------|-------------|----------|
-| Fri 04/11 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
-| Mon 07/11 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
-| Tue 08/11 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
-| Tue 15/11 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
-| Mon 12/12 | 09:00 | 13:00 |  | DP/JvH | [[]]()<br>[[]]() |
-| Mon 12/12 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
-| Wed 14/12 | 09:00 | 13:00 |  | DP/JvH | [[]]()<br>[[]]() |
+| Date | From  | To    | Subject | Teacher | Concepts |Material  |
+|------------|-------|----------------------|----------|---------|-------------|----------|
+| Fri 04/11 | 14:00 | 18:00 |  | DP | - Hypothese testing <br> - The Student t statistics <br> - Unbiased estimator of variance <br> - MA plot <br> - Volcano plot <br> - E-value | - [Basics about Student and Welch’s t test](practicals/microarrays_student_test/Student_test_info.html) <br> - [Detecting differentially expressed genes in microarray data](practicals/microarrays_student_test/DenBoer_Student_test.html)|
+| Mon 07/11 | 14:00 | 18:00 |  | DP | - Functional enrichment statistics <br> - The hypergeometric distribution <br> | - Theory : on white board <br> - [Hypergeometric distribution and enrichment statistics. An example application: DAVID (practical)](practicals/go_statistics_td/go_statistics_td_2015.html)<br>|
+| Tue 08/11 | 14:00 | 18:00 |  | JvH | - False positive risk (FPR) <br> - Expected number of false positives (E-value) <br> - Family-Wise Error Rate (FWER) <br> - False Discovery Rate (FDR) | - [Multiple testing corrections  (slides)](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/pdf_files/06.04.multitesting_corrections.pdf) <br> - [Multiple testing corrections (practical)](practicals/multiple_testing_td/multiple_testing_corrections.html) |
+| Tue 15/11 | 14:00 | 18:00 |  | DP/JvH | - Differential expression with RNA-Seq data <br>- The negative binomial distribution <br>| |
+| Mon 12/12 | 09:00 | 13:00 |  | JvH | - Supervised classification <br> - | - [Introduction to multivariate analysis](pdf_files/07.00.multiv_intro.pdf) <br> - [Discriminant analysis (slides)](pdf_files/11.discriminant_analysis.pdf) |
+| Mon 12/12 | 14:00 | 18:00 |  | DP/JvH | | [[]]()<br>[[]]() |
+| Wed 14/12 | 09:00 | 13:00 |  | DP/JvH | | [[]]()<br>[[]]() |
 | Wed 14/12 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |
 
 
@@ -49,10 +49,10 @@
 | Concept | Description |
 |----------------|--------------------|
 |Introduction to R | - [First steps with R and Siméon Denis Poisson  (practical)](http://jvanheld.github.io/EBA15_stats_RStudio/practicals/01_first_steps_with_R/01_first_steps_with_R.html)<br> - [R language: A quick tutorial (practical)](practicals/r_intro_td/index.html)<br> - [R language: A quick tutorial (practical)](practicals/r_intro_en/RQuickTutorial.pdf)|
-|Occurrence statistics| - [The Poisson distribution in the context of Peak-calling (practical)](http://jvanheld.github.io/EBA15_stats_RStudio/practicals/02_peak-calling/peak-calling_stats_practical.html)<br>- [The Poisson distribution in the context of k-mers occurence statistics (practical)](http://dputhier.github.io/STAT1_R/practical/R_intro.html)<br> - [Read mapping statistics and the binomial distribution (practical)](practicals/chip-seq_read_mapping/read_mapping_solutions.html)<br> - [Hypergeometric distribution and enrichment statistics.An example application: DAVID (practical)](practicals/go_statistics_td/go_statistics_td_2015.html) <br> - [Application example: K-mer occurrences in ChIP-seq peaks (practical)](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/practicals/kmer_occurrences/kmer_occurrences_chip-seq_peaks.html)|
-|Microarray analysis | - [Introduction to multivariate analysis (slides)](pdf_files/07.00.multiv_intro.pdf)<br> - [Transcriptome microarrays: study cases (slides)](pdf_files/07.01.multiv_study_cases.pdf)<br> - [Differential_expression (slides)](pdf_files/07.04.differential_expression.pdf) <br> - [Microarray data: selecting differentially expressed genes with R or TmeV (practical)](practicals/affy_selection_td/affy_selection_td.html) <br> - [Sampling distributions (practical)](practicals/sampling_distrib.html)|
+|Occurrence statistics| - [The Poisson distribution in the context of Peak-calling (practical)](http://jvanheld.github.io/EBA15_stats_RStudio/practicals/02_peak-calling/peak-calling_stats_practical.html)<br>- [The Poisson distribution in the context of k-mers occurence statistics (practical)](http://dputhier.github.io/STAT1_R/practical/R_intro.html)<br> - [Read mapping statistics and the binomial distribution (practical)](practicals/chip-seq_read_mapping/read_mapping_solutions.html)<br> - [Hypergeometric distribution and enrichment statistics. An example application: DAVID (practical)](practicals/go_statistics_td/go_statistics_td_2015.html) <br> - [Application example: K-mer occurrences in ChIP-seq peaks (practical)](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/practicals/kmer_occurrences/kmer_occurrences_chip-seq_peaks.html)|
+|Microarray analysis | - [Introduction to multivariate analysis (slides)](pdf_files/07.00.multiv_intro.pdf)<br> - [Transcriptome microarrays: study cases (slides)](pdf_files/07.01.multiv_study_cases.pdf)<br> - [Normalization of Affymetrix DNA chip (slides)](practicals/affynorm_slides/index.html) - <br> - [Handling and normalizing affymetrix data with bioconductor (practical)](practicals/affynorm_td/index.html) <br> - [Differential_expression (slides)](pdf_files/07.04.differential_expression.pdf) <br> - [Basics about Student and Welch’s t test](practicals/microarrays_student_test/Student_test_info.html) <br> - [Microarray data: selecting differentially expressed genes with R or TmeV (practical)](practicals/affy_selection_td/affy_selection_td.html) <br> - [Sampling distributions (practical)](practicals/sampling_distrib.html) - [Detecting differentially expressed genes in microarray data. Part I: exploring Student t statistics](practicals/microarrays_student_test/DenBoer_Student_test.html)|
 |The multiple ways to correct multiple testing| - [Multiple testing corrections  (slides)](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/pdf_files/06.04.multitesting_corrections.pdf) <br> - [Multiple testing corrections (practical)](practicals/multiple_testing_td/multiple_testing_corrections.html)|
-|Clustering (unsupervised classification)| - [Correlation analysis (slides)](pdf_files/07.03.correlation_analysis.pdf) <br> - [Clustering (slides)](pdf_files/09.clustering.pdf) <br> - [Clustering (slides DP)](practicals/unsup_classif_slides/unsup_classification.pdf)<br> - [Handling clustering methods: artificial datasets (practical)](unsup_classification_sim_td/index.html) <br> - [Clustering of microarray data](practicals/unsup_classification_td/index.html)|
+|Clustering (unsupervised classification)| - [Correlation analysis (slides)](pdf_files/07.03.correlation_analysis.pdf) <br> - [Clustering (slides)](pdf_files/09.clustering.pdf) <br> - [Clustering (slides DP)](practicals/unsup_classif_slides/unsup_classification.pdf)<br> - [About distances](practicals/distances/distances.html) <br> - [Handling clustering methods: artificial datasets (practical)](unsup_classification_sim_td/index.html) <br> - [Clustering of microarray data](practicals/unsup_classification_td/index.html)|
 |RNA-seq data analysis| - [RNA-Seq method (slides)](pdf_files/Rnaseq_2016.pdf) <br> - [RNA-seq read mapping (practical)](practicals/rnaseq_td/rnaseq_td.html)<br> - [The negative binomial and DESeq bioC package](practicals/rnaseq_diff/DESeqTuto.html) <br> - [The negative binomial and DESeq bioC package](practicals/rnaseq_diff/rnaseq_diff.html)|
 |Supervised classification| - [Introduction to multivariate analysis](pdf_files/07.00.multiv_intro.pdf) <br> - [Discriminant analysis (slides)](pdf_files/11.discriminant_analysis.pdf)|
 |Visualization| - [Dimension reduction and PCA](pdf_files/10.visualization.pdf)|
@@ -60,3 +60,4 @@
 ## Travaux personnels
 
 [Description des travaux personnels](cisreg_personal_work_2016.html)
+

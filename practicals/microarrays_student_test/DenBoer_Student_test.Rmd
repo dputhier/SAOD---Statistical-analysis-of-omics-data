@@ -1,21 +1,19 @@
 ---
-title: 'Exploring Student test with microarray data
-  Student *t* statistics'
+title: "Exploring Student test with microarray data Student *t* statistics"
 author: "Jacques van Helden"
 date: '`r Sys.Date()`'
 output:
+  html_document:
+    fig_caption: yes
+    highlight: tango
+    theme: cerulean
+    toc: yes
+    toc_depth: 4
   pdf_document:
     fig_caption: yes
     highlight: zenburn
     toc: yes
     toc_depth: 4
-  html_document:
-    fig_caption: yes
-    highlight: zenburn
-    theme: cerulean
-    toc: yes
-    toc_depth: 4
-css: ../../html/course.css
 bibliography: ../../bibliography/ASG1_references.bib
 ---
 
@@ -57,11 +55,27 @@ In their original article, Den Boer and co-workers defined a ***transcriptomic s
 
 An advantage of this dataset is that we dispose of relatively large samples (>30 individuals per group), relative to many other publications of transcriptome analysis.
 
+### Pre-requesite: installing Bioconductor
+
+We will need to use some [Bioconductor](https://bioconductor.org/) libraries in the subsequent steps (e.g the [qvalue](https://bioconductor.org/packages/release/bioc/html/qvalue.html) library). Bioconductor is a project offering open source libraries for R environnement dedicated to analysis of high-throughput genomic data. If Bioconductor is not already installed on your computer, copy and paste the following instructions in R:
+
+
+```{r eval=FALSE}
+## Install base libraries for Bioconductor
+## If you are asked to create a personnal library answer "YES".
+source("https://bioconductor.org/biocLite.R")
+biocLite()
+
+## Install specifically the qvalue library
+biocLite("qvalue")
+```
+
+
 ### Pre-processing of the data
 
 The full dataset is available in the the [Gene Expression Omnibus](http://www.ncbi.nlm.nih.gov/geo/) ([GEO](http://www.ncbi.nlm.nih.gov/geo/)) database, as a series with ID [GSE13425](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE13425). However we do not need to download the raw dataset. Instead, we will provide on this web site the normalized matrix expression profiles in the form of tab-delimited files. 
 
-Data were produced using Affymetrix geneChips (Affymetrix Human Genome U133A Array, HGU133A). Information related to this platform are available on GEO website under identifier [GPL96](http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=GPL96).
+Data were produced using Affymetrix geneChips (Affymetrix Human Genome U133A Array, HGU133A). Information related to this platform are available on GEO website under identifier [GPL96](http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=GPL96). More information related to Affymetrix microarrays normalization can be obtained in the section [Normalization of Affymetrix DNA chip (slides)](../../practicals/affynorm_slides/index.html) and [Handling and normalizing affymetrix data with bioconductor (practical)](../../practicals/affynorm_td/index.html)). 
 
 * * * * * * 
 
@@ -194,8 +208,9 @@ The global distribution of RMA-normalized expression values across for all sampl
 
 2. Since the gene-wise group means were computed on log2-transformed values, they correspond to the ***geometric mean*** rather than the arithmetic mean. 
 
-\bar{x}_{i,g} = \frac{1}{n_g} \sum_{j \in g} (x_{i,j}) = \frac{1}{n_g} \sum_{j \in g} (log_2(I_{i,j})) = \frac{1}{n_g} log_2(\prod_{j \in g} (I_{i,j}))
-= log_2(\sqrt[n_g]{\prod_{j \in g} (I_{i,j})})
+$$\bar{x}_{i,g} = \frac{1}{n_g} \sum_{j \in g} (x_{i,j}) = \frac{1}{n_g} \sum_{j \in g} (log_2(I_{i,j})) = \frac{1}{n_g} log_2(\prod_{j \in g} (I_{i,j}))
+= log_2(\sqrt[n_g]{\prod_{j \in g} (I_{i,j})})$$
+
 
 
 3. For a given gene $i$, the ***difference between group means*** is equivalent to a log-ratio between the non-log2-transformed values. It should be interpreted as a ***log2-fold change***. 
@@ -279,7 +294,7 @@ We can also nicely format the result table using the knitr *kable()* function. H
 
 ```{r count_cancer_types_kable}
 ## We can also the number of samples per subtype of leukemia in a well-formated table 
-kable(as.data.frame(cancer.type.counts),col.names="Samples per type",
+kable(as.data.frame(cancer.type.counts),
       caption = "Number of biological samples per subtype of acute lymphoblastic leukemia in Den Boer dataset. ")
 
 ```
