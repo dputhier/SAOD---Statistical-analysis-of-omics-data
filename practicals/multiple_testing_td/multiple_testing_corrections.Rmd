@@ -1,21 +1,27 @@
-
 ---
 title: "Statistics for Bioinformatics - Practicals - Multiple testing corrections"
 author: "Jacques van Helden"
 date: '`r Sys.Date()`'
 output:
   html_document:
-    highlight: tango
-    theme: united
+    fig_caption: no
+    highlight: zenburn
+    theme: cerulean
     toc: yes
     toc_depth: 3
+    toc_float: yes
+  md_document:
+    variant: markdown_github
   pdf_document:
+    fig_caption: no
     highlight: zenburn
     toc: yes
-    toc_depth: 3
-css: ../../html/course.css
+    toc_depth: 2
+  word_document:
+    toc: no
+    toc_depth: 2
+#css: ../../html/course.css
 ---
-
 
 <body>
   <script language="JavaScript" type="text/javascript">
@@ -30,7 +36,7 @@ css: ../../html/course.css
 
 ## Introduction
 
-Most analyses in current bioinformatics consist in performing thousands, or even millions of statistical tests in parallel. This applies to the microarrays or RNA-Seq analysis (e.g. differentially expressed genes), motif detection (e.g. discovering motifs in promoters of co-expressed genes), sequence similarity searches (comparing a query sequence against the millions of peptidic sequences currently available in Uniprot), genome-wise association studies (GWAS), and many other applications.
+Most analyses in current bioinformatics consist in performing thousands, millions or even billions of statistical tests in parallel. This applies to the microarrays or RNA-Seq analysis (e.g. differentially expressed genes), motif detection (e.g. discovering motifs in promoters of co-expressed genes), sequence similarity searches (comparing a query sequence against the millions of peptidic sequences currently available in Uniprot), genome-wise association studies (GWAS), and many other applications. A standard search for similarity with BLAST against the whole Uniprot databases amounts to evaluate billions of possible alignments. 
 
 In a previous practical ([Selecting differentially expressed genes](../affy_selection_td/affy_selection_td.html)), we applied a Welch's $t$ test to select differentially expressed genes from a microarray series containing 190 ALL samples. By doing this, we successively tested for more than 22,283 probesets the equality of the mean expression values, between two classes of ALL. For each gene, we computed a **nominal p-value**, which indicates the probability to obtain by chance a difference at least as large as the one observed in the data. This p-value can be interpreted as an estimate of the **False positive risk** (**FPR**): the probability of considering an observation as significant whereas it is not. However, we did not take into account an important factor: since the same test was successively applied to 22,283 probeset, the risk of false positives was thus repeated for each probeset. This situation is classically denoted as **multiple testing**. For example, if we accept an individual risk of 1%, we expect to observe $1% \cdot 22,283=223$ false positives when the same risk is taken for each probe of the microarray series.
 

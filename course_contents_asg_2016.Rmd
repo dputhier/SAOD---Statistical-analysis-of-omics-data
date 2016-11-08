@@ -32,13 +32,13 @@
 
 ## Schedule
 
-| Date | From  | To    | Subject | Teacher | Concepts |Material  |
-|------------|-------|----------------------|----------|---------|-------------|----------|
-| Fri 04/11 | 14:00 | 18:00 |  | DP | - Hypothese testing <br> - The Student t statistics <br> - Unbiased estimator of variance <br> - MA plot <br> - Volcano plot <br> - E-value | - [Basics about Student and Welch’s t test](practicals/microarrays_student_test/Student_test_info.html) <br> - [Detecting differentially expressed genes in microarray data](practicals/microarrays_student_test/DenBoer_Student_test.html)|
-| Mon 07/11 | 14:00 | 18:00 |  | DP | - Functional enrichment statistics <br> - The hypergeometric distribution <br> | - Theory : on white board <br> - [Hypergeometric distribution and enrichment statistics. An example application: DAVID (practical)](practicals/go_statistics_td/go_statistics_td_2015.html)<br>|
-| Tue 08/11 | 14:00 | 18:00 |  | JvH | - False positive risk (FPR) <br> - Expected number of false positives (E-value) <br> - Family-Wise Error Rate (FWER) <br> - False Discovery Rate (FDR) | - [Multiple testing corrections  (slides)](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/pdf_files/06.04.multitesting_corrections.pdf) <br> - [Multiple testing corrections (practical)](practicals/multiple_testing_td/multiple_testing_corrections.html) |
-| Tue 15/11 | 14:00 | 18:00 |  | DP/JvH | - Differential expression with RNA-Seq data <br>- The negative binomial distribution <br>| |
-| Mon 12/12 | 09:00 | 13:00 |  | JvH | - Supervised classification <br> - | - [Introduction to multivariate analysis](pdf_files/07.00.multiv_intro.pdf) <br> - [Discriminant analysis (slides)](pdf_files/11.discriminant_analysis.pdf) |
+| Date   | From | To   | Subject         | Teacher | Concepts   | Material            |
+|-------|-----|-----|-----------------|-----|-------------------------|---------------------------|
+| Fri 04/11 | 14:00 | 18:00 | Detecting differentially expressed genes (DEG) with microrarrays | DP |- Hypothesis testing<br>- Student $t$ statistics<br>- Unbiased estimation of variance<br>- MA plot<br>- Volcano plots<br> -P-value distribution <br>- E-value| - [Basics about Student and Welch’s t test](practicals/microarrays_student_test/Student_test_info.html) <br> - [Detecting differentially expressed genes in microarray data](practicals/microarrays_student_test/DenBoer_Student_test.html)|
+| Mon 07/11 | 14:00 | 18:00 | Functional enrichment of DEG | DP | - Functional enrichment statistics <br> - The hypergeometric distribution <br> | - Theory : on white board <br> - [Hypergeometric distribution and enrichment statistics. An example application: DAVID (practical)](practicals/go_statistics_td/go_statistics_td_2015.html)<br>|
+| Tue 08/11 | 14:00 | 18:00 | The multiple ways to correct for multiple testing | JvH | - False positive risk (FPR) <br> - Expected number of false positives (E-value) <br> - Family-Wise Error Rate (FWER) <br> - False Discovery Rate (FDR) | - [Multiple testing corrections  (slides)](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/pdf_files/06.04.multitesting_corrections.pdf) <br> - [Multiple testing corrections (practical)](practicals/multiple_testing_td/multiple_testing_corrections.html) |
+| Tue 15/11 | 14:00 | 18:00 | Detecting differentially expressed genes (DEG) with RNA-seq | DP/JvH | - RNA-Seq principles <br>- Normalizing RNA-seq counts <br>-The negative binomial distribution| |
+| Mon 12/12 | 09:00 | 13:00 | Supervised classification  | JvH | - Discriminant analysis <br>- Cross-validation (k-fold, LOO) <br>- Data dimensionality and overfitting <br>- Variable selection | - [Introduction to multivariate analysis](pdf_files/07.00.multiv_intro.pdf) <br> - [Discriminant analysis (slides)](pdf_files/11.discriminant_analysis.pdf) |
 | Mon 12/12 | 14:00 | 18:00 |  | DP/JvH | | [[]]()<br>[[]]() |
 | Wed 14/12 | 09:00 | 13:00 |  | DP/JvH | | [[]]()<br>[[]]() |
 | Wed 14/12 | 14:00 | 18:00 |  | DP/JvH | [[]]()<br>[[]]() |

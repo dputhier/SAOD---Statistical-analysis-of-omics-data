@@ -1,19 +1,25 @@
 ---
-title: "Exploring Student test with microarray data Student *t* statistics"
+title: "Exploring Student test with microarray data - Student $t$ statistics"
 author: "Jacques van Helden"
 date: '`r Sys.Date()`'
 output:
   html_document:
-    fig_caption: yes
-    highlight: tango
+    fig_caption: no
+    highlight: zenburn
     theme: cerulean
     toc: yes
-    toc_depth: 4
+    toc_depth: 3
+    toc_float: yes
+  md_document:
+    variant: markdown_github
   pdf_document:
-    fig_caption: yes
+    fig_caption: no
     highlight: zenburn
     toc: yes
-    toc_depth: 4
+    toc_depth: 2
+  word_document:
+    toc: no
+    toc_depth: 2
 bibliography: ../../bibliography/ASG1_references.bib
 ---
 
@@ -67,7 +73,9 @@ source("https://bioconductor.org/biocLite.R")
 biocLite()
 
 ## Install specifically the qvalue library
-biocLite("qvalue")
+if (!require("qvalue")) {
+  biocLite("qvalue")
+}
 ```
 
 
@@ -897,7 +905,7 @@ par(mfrow=c(1,1))
 
 ```{r pvalue_distribution}
 ## Histogram of the p-value distribution
-hist(result.table$p.value, breaks=20)
+hist(result.table$p.value, breaks=20, main="P-value histogram", xlab="Pvalue", ylab="Number of probesets")
 ```
 
 ```{r check_validity}
