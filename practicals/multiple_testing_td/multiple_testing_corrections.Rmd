@@ -23,7 +23,6 @@ output:
 #css: ../../html/course.css
 ---
 
-<body>
   <script language="JavaScript" type="text/javascript">
     <!--
         function sizeTbl2(h,i) {
@@ -576,9 +575,9 @@ The **q-value** estimates the **False discovery rate (FDR)**, i.e. the expected 
 
 Under the null hypothesis, the FDR can be estimated in the following way (hochberg and Benjamini):
 
-  1.  sort elements by increasing p-value,
-	2.  for each rank $i$ of the sorted list, compute $q(i) = \pi_0 * Pval * m / i$,
-	3. choose a given significance level $q^{*}$ (in our case, let us chose $q^{*}= 1%$). Let $k$ be the largest $i$ for which $q(i) <= q^{*}$. Reject all hypotheses $H_{(i)}$ with $i = 1, 2, ...,k$.
+1. Sort features by increasing p-value (the most significant genes appear in the top of the sorted table).
+2. For each rank $i$ of the sorted list, compute $q(i) = \pi_0 * Pval * m / i$.
+3. Choose a given significance level $q^{*}$ (in our case, let us chose $q^{*}= 1%$). Let $k$ be the largest $i$ for which $q(i) <= q^{*}$. Reject all hypotheses $H_{(i)}$ with $i = 1, 2, ...,k$.
   
 
 
@@ -649,16 +648,18 @@ print(denboer.param$m1) ## 8249
 
 ## Bibliographic references
 
-  1.  <a name='denboer_2009'></a> Den Boer ML, van Slegtenhorst M, De Menezes RX, Cheok MH, Buijs-Gladdines JG, Peters ST, Van Zutven LJ, Beverloo HB, Van der Spek PJ, Escherich G et
+1.  <a name='denboer_2009'></a> Den Boer ML, van Slegtenhorst M, De Menezes RX, Cheok MH, Buijs-Gladdines JG, Peters ST, Van Zutven LJ, Beverloo HB, Van der Spek PJ, Escherich G et
 	al. 2009. A subtype of childhood acute lymphoblastic leukaemia with poor treatment outcome: a genome-wide classification study. Lancet Oncol 10(2): 125-134.
-  2.  <a name='benjamini_hochberg_1995'></a>Benjamini Y, Hochberg Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. JRStatistSocB 57(1):289-300.
-  3.  <a name='storey_tibshirani_2003'></a> Storey JD, Tibshirani R. (2003). Statistical significance for genomewide studies. Proc Natl Acad Sci U S A 100(16): 9440-9445. [[PMID 12883005](http://www.ncbi.nlm.nih.gov/pubmed/12883005)][[free article](http://www.pnas.org/content/100/16/9440.long)]
+
+2.  <a name='benjamini_hochberg_1995'></a>Benjamini Y, Hochberg Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. JRStatistSocB 57(1):289-300.
+
+3.  <a name='storey_tibshirani_2003'></a> Storey JD, Tibshirani R. (2003). Statistical significance for genomewide studies. Proc Natl Acad Sci U S A 100(16): 9440-9445. [[PMID 12883005](http://www.ncbi.nlm.nih.gov/pubmed/12883005)][[free article](http://www.pnas.org/content/100/16/9440.long)]
 
 -----------------------------------------------------------------
-<address>
-      [Denis Puthier](http://tagc.univ-mrs.fr/tagc/index.php/research/developmental-networks/d-puthier) ([TAGC](http://tagc.univ-mrs.fr/>TAGC), Aix-Marseille Université).
-      & [Jacques van Helden](http://jacques.van-helden.perso.luminy.univmed.fr) ([TAGC](http://tagc.univ-mrs.fr/>TAGC), Aix-Marseille Université).
-    </address>
 
+<address>
+- [Denis Puthier](http://tagc.univ-mrs.fr/tagc/index.php/research/developmental-networks/d-puthier) ([TAGC](http://tagc.univ-mrs.fr/>TAGC), Aix-Marseille Université).
+- [Jacques van Helden](http://jacques.van-helden.perso.luminy.univmed.fr) ([TAGC](http://tagc.univ-mrs.fr/>TAGC), Aix-Marseille Université).
+</address>
   
   
