@@ -4,16 +4,24 @@ author: "Jacques van Helden"
 date: '`r Sys.Date()`'
 output:
   html_document:
-    highlight: tango
-    theme: united
+    fig_caption: yes
+    highlight: zenburn
+    theme: cerulean
     toc: yes
     toc_depth: 3
+    toc_float: yes
+  md_document:
+    variant: markdown_github
   pdf_document:
+    fig_caption: yes
     highlight: zenburn
     toc: yes
-    toc_depth: 3
-css: ../../html/course.css
+    toc_depth: 2
+  word_document:
+    toc: no
+    toc_depth: 2
 bibliography: ../../bibliography/ASG1_references.bib
+#css: ../../html/course.css
 ---
 
 
@@ -258,7 +266,7 @@ It is thus essential, for both unsupervised and unsupervised classification, to 
     
 To get some feeling about the data, we will compare the expression levels of two genes selected in an arbitrary way (resp. $236^{th}$ and $1213^{th}$ rows of the profile table).
 
-``` {r fig.width=8, fig.height=8}
+``` {r fig.width=7, fig.height=7, fig.cap="**Comparison of expression values per sample for two arbitrary genes**. Each dot corresponds to one sample, showe color and label denotes the ALL group of the patient. "}
 ## Plot the expression profiles of two arbitrarily selected genes
 g1 <- 236
 g2 <- 1213
@@ -286,15 +294,15 @@ The <span class="program">R</span> function <tt>apply()</tt> can be used to appl
 
 #### Variance per gene
 
-``` {r fig.width=10, fig.height=5}
+``` {r fig.width=10, fig.height=5, fig.cap="**Gene-wise distributions of expression variance and standard deviation**. "}
 ## Compute gene-wise variance
 var.per.gene <- apply(denboer2009.expr, 1, var)
 sd.per.gene <- apply(denboer2009.expr, 1, sd)
 
 ## Inspect the distribution of gene-wise variance and standard deviation (more readable)
 par(mfrow=c(1,2))
-hist(var.per.gene, breaks=100, col="#BBFFDD")
-hist(sd.per.gene, breaks=100, col="#BBFFDD")
+hist(var.per.gene, breaks=100, col="#BBFFDD", main="Gene-wise distribution of variance", xlab="Variance", ylab="Number of genes")
+hist(sd.per.gene, breaks=100, col="#BBFFDD", main="Gene-wise distribution of standard deviation", xlab="Standard deviation", ylab="Number of genes")
 silence <- dev.copy2pdf(file=file.path(dir.figures, "denboer2009_variance_per_gene.pdf"), width=10,height=5)
 par(mfrow=c(1,1))
 
@@ -363,7 +371,7 @@ kable(gene.ranks[names(tail(genes.by.decr.var)),], caption = "Five genes with th
 
 We have no specific reason to think that genes having a high variance will be specially good at discriminating ALL subtypes. Indeed, a high variance might *a priori* either reflect cell-type specificities, or unrelated differences between samples resulting from various effects (individual patient genomes, transcriptome, condition, ...). For the sake of curiosity, let us plot samples on a XY plot where the abcsissa represents the top-raking, and the ordinate the second top-ranking gene in the variance-ordered list.
 
-``` {r fig.width=8, fig.height=8}
+``` {r fig.width=8, fig.height=8, fig.cap="**Expression values for the two genes with the highest variance**. Labels and colors indicate the ALL group of each patient. Note that some groups appear more or less separated (T, Bt, Bo). "}
 ## Select the gene with the highest variance
 maxvar.g1 <- names(genes.by.decr.var[1])
 print(maxvar.g1)
@@ -392,7 +400,7 @@ silence <- dev.copy2pdf(file="denboer2009_2_maxvar_genes.pdf", width=8, height=8
 
 We can draw boxplots per subtype of ALL to highlight the inter-group differences between expression measurements.
 
-```{r}
+```{r fig.width=12, fig.height=6, fig.cap="**Expression per ALL classes for the two genes with the highest variance.** "}
 par(mfrow=c(1,2))
 boxplot(x ~ sample.labels, las=1,
 #       col=group.colors,
@@ -408,17 +416,11 @@ par(mfrow=c(1,1))
 ```
 
 
-Somewhat surprizingly, the plot shows that, despite the roughness of our ranking criterion (variance across all cancer types), the two top-ranking gnes already discriminate several sample types.
+Somewhat surprizingly, the plot shows that, despite the roughness of our ranking criterion (variance across all cancer types), the two top-ranking genes already discriminate several sample types.
 
-  * The expression level of CD9 (abcsissa of the plot) gives a
-	  pretty good separation between some cancer types with low
-	  expression levels (T and Bt), and some other types
-	  characterized by a high expression level (Bh, BEs,
-	  BEp). Cancer type Bo is however dispersed over the whole
-	  range of CD9 expression.
+- The expression level of CD9 (abcsissa of the plot) gives a  pretty good separation between some cancer types with low expression levels (T and Bt), and some other types characterized by a high expression level (Bh, BEs, BEp). Cancer type Bo is however dispersed over the whole range of CD9 expression.
   
-  * IL23A clearly separates the subtype "T" (high levels) from
-	  all other cancer subtypes (low levels).
+- IL23A clearly separates the subtype "T" (high levels) from all other cancer subtypes (low levels).
 
 ### Variable ordering by Welch t-test (2-groups test)
 
@@ -470,7 +472,6 @@ kable(head(welch.one.vs.others), caption = "Head of the Welch result table. Each
 
 ```
 
-
 We will compute a new rank, based on the (decreasing) significance of the Welch test. We will then successively perform the same analysis by selecting as group of interest the 4 subtypes of leukemia represented by at least 30 patients in Den Boer 2009. 
 
 ``` {r}
@@ -518,33 +519,38 @@ write.table(gene.ranks, file=file.path(dir.results, 'DenBoer_gene_ranks.tab'),
             sep='\t', quote=F, col.names=NA)
 ```
 
-``` {r fig.width=12, fig.height=12}
+``` {r fig.width=12, fig.height=12, fig.cap="**Comparison between global variance and Welch test significance**. The plots highlight the strong difference between the global sorting criterion (variance computed across all samples) and a subtype-specific criterion (Welch test significance for one ALL subtype versus all others). The ranking . "}
+par(mfrow=c(1,2))
 ## Plot variance against significance of the Welch test 
 ## for the Bh versus other groups
 plot(gene.ranks[,c("var", "Bh.vs.others.sig")], col="grey",
-     xlab="Rank by global variance", ylab="Rank by t-test Bh versus others",
-     main="Global versus specific variable ordering")
+     xlab="Global variance", ylab="Significance of Welch t-test Bh versus others",
+     main="Global versus group-specific scores")
 silence <- dev.copy2pdf(file="denboer2009_var_vs_welch_Bh_plot.pdf", width=12, height=12)
 
 
 ## Plot ranks of variance against significance of the Welch test 
 ## for the 4 different groups
-plot(gene.ranks[,c("var.rank", "Bh.vs.others.sig.rank")], col="grey")
+plot(gene.ranks[,c("var.rank", "Bh.vs.others.sig.rank")], 
+     xlab="Rank by global variance", ylab="Rank by t-test Bh versus others",
+     main="Global versus group-specific ranks",
+     col="grey")
 silence <- dev.copy2pdf(file="denboer2009_var_vs_welch_Bh_rank_plot.pdf", width=12, height=12)
+par(mfrow=c(1,1))
 ```
 
 An obvious observation: the gene-wise variance and the 4 results of Welch tests (one cancer type against all other types) return very different values, and assign gene ranks in completely different ways. This is not surprizing, the variance and the 4 significances indicate different properties of the genes. 
 
-* the variance is a global property of the genes, and has not specifically to be related to a given subtype of cancer;
-  * the other ranking criteria should  rank genes in different orders by construction, since each one was based on a different group-specific DEG test.
+- The variance is a global property of the genes, and has not specifically to be related to a given subtype of cancer.
+- The other ranking criteria should  rank genes in different orders by construction, since each one was based on a different group-specific DEG test.
 
-Gene selection will thus have to be adapted to the specific purpose of the classification.
+Gene selection will thus have to be adapted to the specific purpose of the classification (e.g. recognizing one particular subtype of ALL).
 
-In summary, so far we defined 5 different gene sorting criteria that could be used to select subsets of features (genes) in order to train a classifier: one general criterion (variance), and 4 group-specific criteria (Welch test results). A priori, we would expect to achieve better results with group-specific feature selection.
+In summary, so far we defined 5 different gene sorting criteria that could be used to select subsets of features (genes) in order to train a classifier: one general criterion (variance), and 4 group-specific criteria (Welch test results for a comparison between one specific group and all the other ones). A priori, we would expect to achieve better results with group-specific feature selection.
 
 ### ANOVA-based variable ordering (multiple subtypes)
 
-The <span class="concept">ANOVA</span> test allows to select genes whose inter-group variation is significantly higher than te intra-group variation. ANOVA can be thought of as generalization of the Welch test. Welch test (and Student test) are used to test equality between two groups (for example one subtype of interest and all the other subtypes), whereas ANOVA simultaneously tests the equality between multiple groups. We could thus use ANOVA to establish a general ranking criterion that would select the genes showing higest differences between ALL subtypes, without specifying a priori which particular subtypes have to be different. 
+The <span class="concept">ANOVA</span> test allows to select genes whose inter-group variation is significantly higher than te intra-group variation. ANOVA can be thought of as generalization of the Welch test. Welch test (and Student test) are used to test the equality of the mean between two groups (for example one subtype of interest and all the other subtypes), whereas ANOVA simultaneously tests the equality of the mean for multiple groups. We could thus use ANOVA to establish a general ranking criterion that would select the genes showing higest differences between ALL subtypes, without specifying a priori which particular subtypes have to be different. 
 
 In a first time, we will apply the ANOVA test to one arbitrarily selected gene. We will then see how to run this test on each row of the expression matrix.
 
@@ -553,11 +559,13 @@ Some remarks about the implementation.
 
 1. In contrast with the Welch test, which was a 2-groups test, ANOVA can be used to compare multiple groups in a single analysis. For ANOVA, we will use the original sample labels (with all the ALL subtypes explicitly named), rather than the *one.vs.other* vector that we created for 2-groups analysis.
 
-2. We will runa  single-factor anova, with gene expression as values, and sample labels as grouping.
+2. We will run a  single-factor ANOVA, with gene expression as values, and sample labels as grouping.
 
 3. The R methods *aov()* and *anova()* take as input a data frame with the values (gene expression values) in the first column, and the groupings (sample labels) in the second one.
 
-4. *R* proposes two methods for the ANOVA test. The *aov()* function automatically fits the linear model and runs the anova test. However it is conceived for balanced groups, which is not our case (some of the ALL subtypes have very few samples) gives a warning "Estimated effects must be unbalanced". Hereafter we will run both approaches to illustrate their implementation, but the second one (*anova()*) is the most appropriate for our data.
+4. *R* proposes two methods for the ANOVA test. The *aov()* function automatically fits the linear model and runs the anova test. However it is conceived for balanced groups, which is not our case (some of the ALL subtypes have very few samples). With our data, it returns a warning *"Estimated effects must be unbalanced"*. Hereafter we will run both approaches to illustrate their implementation., but the second one (*anova()*) is the most flexible.
+
+5. Even though *anova()* can handle unbalanced groups, we should keep in mind that the power of the test depends on the fact that we dispose of a sufficient number of samples per group. It might thus be wise to restrict the analysis to the groups containing a minimum number of samples (for example at least 4, or 8). 
 
 ```{r}
 ## Build a data frame with gene expression values in the first column, 
@@ -623,7 +631,7 @@ The <span class="program">R</span> method <tt>stats::prcomp()</tt> performs a PC
 library(stats) 
 
 ## Perform the PCA transformation
-expr.prcomp <- prcomp(t(denboer2009.expr),cor=TRUE)
+expr.prcomp <- prcomp(t(denboer2009.expr))
 
 ## Analyze the content of the prcomp result: 
 ## the result of the method prcomp() is an object 
@@ -935,7 +943,7 @@ welch.Bo.vs.others[sorted.names[0:20], c("E.value","sig")]
 
 For the sake of curiosity, we can draw a plot with the two top-ranking genes in order to see how well they separate our group of interest (pre-B all) from all the other ALL subtypes.
 
-``` {r fig.width=8, fig.height=8}
+```{r fig.width=8, fig.height=8, fig.cap='**Expression values for the two top-ranking genes from the Welch test (one ALL subtype versus others).** The labels indicate the group used for the Welch test (o stands for "others"), the color indicates the subtype of cancer. '}
 ## Print a plot with the two top-ranking genes with the Bo versus other Welch test
 g1 <- sorted.names[1]
 g2 <- sorted.names[2]
@@ -1088,7 +1096,7 @@ A random assignation would thus assign correctly $23\%$ of pre-ALL samples, and 
 
 $$\hat{hits}_{GOI} = n_{GOI} \cdot p_{GOI} + n_{others} \cdot p_{others} = 44 \cdot 0.232 + 146 \cdot 0.768 = 122.54$$
 
-$$\had{hit rate}_{GOI} = \hat{hits}_{GOI} / n = 122.54/190 = 0.64 = 64%$$
+$$\hat{hit rate}_{GOI} = \hat{hits}_{GOI} / n = 122.54/190 = 0.64 = 64%$$
 
 Note the same result is obtained directly by taking the sum of squares of prior probabilities: 
 
