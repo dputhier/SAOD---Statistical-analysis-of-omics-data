@@ -1,6 +1,6 @@
 ---
 title: "Practical - Supervised classification of microarray data"
-author: "Jacques van Helden"
+author: "Jacques van Helden and Denis Puthier"
 date: '`r Sys.Date()`'
 output:
   html_document:
@@ -25,7 +25,7 @@ bibliography: ../../bibliography/ASG1_references.bib
 ---
 
 
-## Abbreviations
+# Abbreviations
 
 Abbrev   Meaning
 ------   ----------------------------
@@ -96,7 +96,7 @@ source(file.path(url.stats4bioinfo, 'R-files/util/util_student_test_multi.R'))
 
 
 
-## Goal of this tutorial
+# Goal of this tutorial
 
 In this tutorial, we will put in practice some fundamental concepts of supervised classification.
 
@@ -107,14 +107,14 @@ In this tutorial, we will put in practice some fundamental concepts of supervise
 5. Feature selection methods
 
   
-## Study case
+# Study case
 
 For the practical, we will use a cohort comprized of 190 samples from patients suffering from Acute Lymphoblastic Leukemia (**ALL**) from DenBoer (2009). The raw data has previously been retrieved from the Gene Expression Omnibus (**GEO**) database ([http://www.ncbi.nlm.nih.gov/geo/](http://www.ncbi.nlm.nih.gov/geo/)).
 
 
 * * * * * * * * 
 
-## R configuration
+# R configuration
 
 <div class="protocol">
 * Open a terminal
@@ -149,7 +149,7 @@ print(paste("Result directory", dir.results))
 * * * * * * *
 
 
-## Data loading
+# Data loading
 
 We can now load the profile table and check its dimensions. Beware: this expression matrix weights 20Mb. The download can thus take time, depending on your internet connection.
 
@@ -252,7 +252,7 @@ group.legend <- paste(sep=" = ",group.labels, row.names(group.descriptions))
 ```
 
 
-## Reducing the dimensionality of the data - feature selection
+# Reducing the dimensionality of the data - feature selection
 
 An recurrent problem with microarray data is the large dimensionality of the data space. The dataset we are analyzing contains 190 samples (the <span class="concept">subjects</span>), each characterized by 22,283 gene expression values (the <span class="concept">variables</span>).
 
@@ -262,7 +262,7 @@ In unsupervised classification (clustering), the relationships between objects w
 
 It is thus essential, for both unsupervised and unsupervised classification, to perform some <span class="concept">feature selection</span> before applying the actual classification. 
 
-### An arbitrary pair of genes
+## An arbitrary pair of genes
     
 To get some feeling about the data, we will compare the expression levels of two genes selected in an arbitrary way (resp. $236^{th}$ and $1213^{th}$ rows of the profile table).
 
@@ -286,13 +286,13 @@ silence <- dev.copy2pdf(file="two_arbitrary_genes_plot.pdf", width=8, height=8)
 
 Each dot corresponds to one sample. Since the genes were initially selected at random, we don't expect them to be particularly good at discriminating the different subtypes of ALL. However, we can already see some emerging patterns: the T-ALL (labelled "T") show a trends to strongly express the $236^{th}$ gene, and, to a lesser extent, several hyperdiploid B-cells (label "Bh") show a high expression of the $1213^{th}$ gene. Nevertheless, it would be impossible to draw a boundary that would perfectly separate two subtypes in this plot.
 
-### Variance filter
+## Variance filter
     
 In order to reduce the dimensionality of the data set, we will sort the genes according to their variance, and retain a defined number of the top-ranking genes. Note that this ranking is a very rudimentary way to select a subset of genes. Indeed, nothing guarantees us that the genes showing the largest inter-individual fluctuations of expression have anything related to cancer type. In further sections, we will present alternative methods of variable ordering, which will explicitly take into account the inter-group variance.
 
 The <span class="program">R</span> function <tt>apply()</tt> can be used to apply any function to each row (or alternatively each column) of a data table. We set the second argument (margin) to 1, thereby indicating that the function (third argument) must be applied to each row of the input table (first argument).
 
-#### Variance per gene
+### Variance per gene
 
 ``` {r fig.width=10, fig.height=5, fig.cap="**Gene-wise distributions of expression variance and standard deviation**. "}
 ## Compute gene-wise variance
@@ -333,11 +333,11 @@ head(genes.selected.by.var, n=top.nb)
 
 ```
 
-## Assigning ranks to genes according to some sorting criterion
+# Assigning ranks to genes according to some sorting criterion
 
 In the next sections, we will compare methods for selecting genes on the basis of different criteria (variance, T-test, ANOVA test, step-forward procedure in Linear Discriminant Analysis). For this purpose, we will create a table indicating the values and the rank of each gene (rows of the table) according to each selection criterion (columns).
 
-### Ranking genes by inter-sample variance
+## Ranking genes by cross-sample variance
 
 We first instantiate this table with two columns indicating the name and variance of each gene. We will then add columns indicating the rank of each gene according to its variance, and to other criteria. 
 
@@ -422,7 +422,7 @@ Somewhat surprizingly, the plot shows that, despite the roughness of our ranking
   
 - IL23A clearly separates the subtype "T" (high levels) from all other cancer subtypes (low levels).
 
-### Variable ordering by Welch t-test (2-groups test)
+## Variable ordering by Welch t-test (2-groups test)
 
 The <span class="concept">t-test</span> tests the hypothesis of equality between the means of two populations. We can use the Welch version of the t-test (which assumes that groups can have different variances) in order to select genes differentially expressed between two goups of samples.
 
@@ -548,7 +548,7 @@ Gene selection will thus have to be adapted to the specific purpose of the class
 
 In summary, so far we defined 5 different gene sorting criteria that could be used to select subsets of features (genes) in order to train a classifier: one general criterion (variance), and 4 group-specific criteria (Welch test results for a comparison between one specific group and all the other ones). A priori, we would expect to achieve better results with group-specific feature selection.
 
-### ANOVA-based variable ordering (multiple subtypes)
+## ANOVA-based variable ordering (multiple subtypes)
 
 The <span class="concept">ANOVA</span> test allows to select genes whose inter-group variation is significantly higher than te intra-group variation. ANOVA can be thought of as generalization of the Welch test. Welch test (and Student test) are used to test the equality of the mean between two groups (for example one subtype of interest and all the other subtypes), whereas ANOVA simultaneously tests the equality of the mean for multiple groups. We could thus use ANOVA to establish a general ranking criterion that would select the genes showing higest differences between ALL subtypes, without specifying a priori which particular subtypes have to be different. 
 
@@ -602,16 +602,16 @@ g.anova.summary <- c("g"=g,
 print(as.data.frame(g.anova.summary))
 ```
 
-#### How to interpret the ANOVA result ?
+### How to interpret the ANOVA result?
 
+TO BE COMPLETED
 
-
-#### Running ANOVA on each gene of the expression table
+### Running ANOVA on each gene of the expression table
 
 <span class="exo">We currently leave this as an exercise.</span>
 
 
-## Principal Component Analysis
+## Reducing data dimensionality by Principal Component Analysis (PCA)
 
 Before starting the proper process of supervised classification, we can apply a method called Principal Component Analysis (<span class="concept">PCA</span>) to evaluate the repartition of the information between the mutiple variables, and to inspect the "intrinsic" structure of the data, i.e. the structure inherent to the numbers in the data table, irrespective of the labels (cancer subtypes) attached to the various samples.
 
@@ -725,26 +725,27 @@ silence <- dev.copy2pdf(file="PC2_vs_PC3.pdf", width=8, height=8)
 ```
 
 
-### Exercise
+## Exercise on PCA
   
 <div class="exo">
 Generate plots of a few additional components (PC4, PC5,...) and try to evaluate if they further separate subtypes of cancers.
 </div>
 
-### Discussion of the PCA results
+## Discussion of the PCA results
 
 In the "historical" dataset from Golub (1999), three sample groups (AML, T-ALL and B-ALL) appeared almost perfectly separated by a simple display of the two first components of the PCA-transformed data. The dataset from DenBoer (2009) is less obvious to interpret, due to the nature of the data itself: firstly, all the samples come from the same cell type (lymphoblasts), whereas the main separation of Golub was between myeloblasts and lymphoblasts. Secondly, Den Boer and co-workers defined a wider variety of subtypes. However, we see that a simple PCA transformation already reveals that the raw expression data is well structured. It is quite obvious that we will have no difficulty to find a signature discriminating T-ALL from other ALL subtypes, since T-ALL are already separated on the plane of the two first components. We would however like to further refine the diagnostics, by training a classifier to discriminate between the other subtypes as well. 
 
 Note that until now we did not apply any training: PCA transformation is a "blind" (unsupervised) approach, performing a rotation in the variable space without using any information about pre-defined classes. Since we dispose of such information for the 190 samples of the training set, we can use a family of other approaches, generically called <span class="concept">supervised classification</span>, that will rely on class membership of the training samples in order to train a classifier, which will further be used to assign new samples to the same classes.
 
-### Selecting principal components as predictor variables}
+## Selecting principal components as predictor variables}
 
 Optionnally, principal components can be used as predictor variables for supervised classification. The advantage is that the first components supposedly concentrate more information than any individual variables, and the classifier is thus in principle able to achieve a better discrimination with less variables (and thus be less prone to over-fitting). However, we should keep in mind that variables showing a high variance may differ from the most discriminating ones.  
 
-## Linear Discriminant Analysis (LDA)
+****************************************************************
+# Linear Discriminant Analysis (LDA)
 
 
-### Training the classifier
+## Training the classifier
 
 We will define a vector which will associate each individual (sample) to either of two labels: Bo for pre-B ALL samples, and "o" for all the other subtypes.
 
@@ -780,6 +781,7 @@ one.vs.others.lda.allvars <- lda(t(denboer2009.expr),one.vs.others,CV=FALSE)
 The *lda()* function issues a warning, indicating that there is a collinearity between some variables. Let us ignore this warning for the time being (this problem will be solved below by selecting datasets with less variables).
 
 Let us inspect the result of lda().
+
 ```{r}
 attributes(one.vs.others.lda.allvars)
 ```
@@ -794,14 +796,15 @@ print(one.vs.others.lda.allvars$svd)
 ```
 
 
-  * **counts** indicates the number of samples belonging to the different training classes (44 pre-ALL B with label "Bo", and 146 others with label "o")
-  * **prior** gives the <span class="concept">prior probabilities</span> of each class, i.e. the probability for a sample to belong to either of the classes (in our case: 23% Bo, 77% others). By default, priors are simply estimated from the proportion of objects in the training classes, but an experienced user might decide to impose different priors based for example on additional information about the population.
+- **counts** indicates the number of samples belonging to the different training classes (44 pre-ALL B with label "Bo", and 146 others with label "o")
+
+- **prior** gives the <span class="concept">prior probabilities</span> of each class, i.e. the probability for a sample to belong to either of the classes (in our case: 23% Bo, 77% others). By default, priors are simply estimated from the proportion of objects in the training classes, but an experienced user might decide to impose different priors based for example on additional information about the population.
   
-  * **svd**, the singular value, indicates the ratio of the between-group and within-group standard deviations. We obtain a value of 11.17, suggesting that the classifier will be quite good at discriminating the Bo group from the other samples. 
+- **svd**, the singular value, indicates the ratio of the between-group and within-group standard deviations. We obtain a value of 11.17, suggesting that the classifier will be quite good at discriminating the Bo group from the other samples. 
   
 You can inspect yourself the other attributes (N, lev, call)  
 
-### Using the classifier to assign elements to classes
+## Using the classifier to assign elements to classes
 
 After having trained the classifier, we can use it to classify new samples. 
 A naive - but <span class=attention>wrong</span> - way to test the efficiency of our classifier would be to use it to predict the class of our training objects.
@@ -839,9 +842,10 @@ total <- hits + errors
 
 **Beware:** what we did above is absolutely forbidden: we used a training set to train a classifier, and we assessed the precision of this classifier based on the training set itself.
 
-## Evaluating the classifier by cross-validation
+****************************************************************
+# Evaluating the classifier by cross-validation
 
-### K-fold cross-validation
+## K-fold cross-validation
 
 A fair evaluation of a classifier requires to use separate datasets for training and testing, respectively.  
 
@@ -849,7 +853,7 @@ A simple way to achieve this is the <span class="concept">2-fold cross-validatio
 
 A more refined approach, called <span class="concept">k-fold cross-validation</span>, is to randomly split the data set in $k$ subsets. We can discard one subset, train a classifier with the $k-1$ remaining subsets, and predict the class of the $k^{th}$ subset. 
 
-### Leave-One-Out (LOO) cross-validation
+## Leave-One-Out (LOO) cross-validation
 
 The <span class="concept">Leave-one-out</span> (<span class="concept">LOO</span>) is a particular mode of cross-validation, where each element of the training set will be in turn discarded (left out) to evaluate a classifier trained with all the other elements. This is the most economical way to perform a k-fold cross-validation. Actually, LOO can be understood as "n-fold" cross-validation, if $n$ is the number of samples of the training set.
 
@@ -868,12 +872,12 @@ table(one.vs.others, one.vs.others.lda.allvars.loo$class)
 
 We have an obvious contradiction: 
 
- 1. The (biased) internal validation shows that, after training, the classifier is able to re-assign 88% of the samples to the right class, among pre-B ALL and the other subtypes.
+1. The (biased) internal validation shows that, after training, the classifier is able to re-assign 88% of the samples to the right class, among pre-B ALL and the other subtypes.
  
- 2. An unbiased validation based on the Leave-one-out test shows that the apparent accuracy is a trap: when the classifier has to assign a class to a sample not seen before (because it was left out during the training), the hit rate drops to 53%.
+2. An unbiased validation based on the Leave-one-out test shows that the apparent accuracy is a trap: when the classifier has to assign a class to a sample not seen before (because it was left out during the training), the hit rate drops to 53%.
  
  
-### Random expectation for the hit rate
+## Random expectation for the hit rate
  
 We could push further our investigation, by estimating the random expectation for the hit rate. We can test this with a very simple test: let us imagine a random classifier, which would assign labels "Bo" or "o" to each sample according to their prior probabilities (23% and 77% resp.). 
 
@@ -914,10 +918,11 @@ legend("topleft", legend=c("random", "random expectation", "LOO", "internal"),
 ```
 
 
-### The problem of over-fitting
+## The problem of over-fitting
 
+TO BE COMPLETED
 
-### Selecting a subset of the variables (feature selection)
+## Selecting a subset of the variables (feature selection)
 
 In a first attempt to discriminate genes from the Bo class (pre-B-ALL), we will select top-ranking genes according to their significance of the Welch test (Bo versus others).
 
@@ -1008,7 +1013,7 @@ one.vs.others.lda.classifier <- lda(t(denboer2009.expr[selected.genes,]),one.vs.
 ```
 
 
-### Evaluating the hit rate by Leave-One-Out (LOO) cross-validation}
+## Evaluating the hit rate by Leave-One-Out (LOO) cross-validation
 
 The *lda()* function includes an option to automatically run a cross-validation test (*cv*), which relies on the <span class="concept">Leave-one-out</span> procedure (<span class="concept">LOO</span>). 
 
@@ -1047,8 +1052,8 @@ errors <- one.vs.others  != one.vs.others.loo.predicted.class
 ```
 
 
-
-## Multi-group classification
+****************************************************************
+# Multi-group classification
 
 Linear discriminant analysis also enables to direcly classify a set of individuals into multiple groups. We could for example use the original sample labels to train a classifier, which would learn to recognize the different subtypes of ALL. 
 
@@ -1080,11 +1085,11 @@ errors <- sample.labels != multigroup.loo.predicted.class
 
 
 
-### Random expectation for the hit rate
+## Random expectation for the hit rate
 
 We could compute the random expectation of the hit rate. Let us imagine a tricky classifier that woudl assign the labels randomly, for two groups of equal sizes. Each object would have equal chances to be assigned to it correct class, and the random assignation would thus gvive 50% of correct classification.
 
-#### Random expectation for a 2-groups permutation of training labels
+### Random expectation for a 2-groups permutation of training labels
 
 However, in our case the training classes are unbalanced: $n_{GOI}=44$ samples belong to the group of interest, and $n_{others}$ to the other groups. If samples are re-assigned randomly with proportions equal to their prior frequencies, the assignation probabilities are: 
 
@@ -1121,7 +1126,7 @@ print(exp.hit.rate)
 
 A random classifier which would respect the balance of the training groups (and thus assign labels according to the group prior probabilities) would thus already achieve a hit rate of $65\%$.
 
-#### Random expectation for a multi-groups permutation of training labels
+### Random expectation for a multi-groups permutation of training labels
 
 We can extend the above idea to estiamte the expected proportion of correspondances between permuted labels in a multi-group configuration. 
 
@@ -1137,7 +1142,8 @@ $$\hat{hit rate} = \sum_{i=1}^{g}{p_i}$$
 
 Where $g$ is the number of groups (ALL subtypes) and $p_i$ the prior probability of the $i- {th}$ group.
 
-## Exercise: training a classifier with permuted labels
+****************************************************************
+# Exercise: training a classifier with permuted labels
 
 <div class="exo">
 
@@ -1147,7 +1153,7 @@ Where $g$ is the number of groups (ALL subtypes) and $p_i$ the prior probability
 
 </div>
 
-### Solutions
+## Solutions
   
 We will successively run the permutation test with two configurations: 
 1. multi-group classification (using the original sample labels)
@@ -1236,10 +1242,11 @@ In summary, we should always be **very cautious** when interpreting the results 
 
 The reliability of a classifier should thus be estimated by comparing its performances on a real dataset with the results obtained in permutation tests.
 
-## Exercises
+****************************************************************
+# Exercises
 	
 	
-###  Exercise: Impact of the number of training variables
+##  Exercise: Impact of the number of training variables
 	
 <div class="exo">
 Test the impact of the number of variables used for training the classifier. Draw a plot representing the hit rate (Y axis) as a function of the number of top genes used for the LDA classification, using different selection criteria:
@@ -1249,7 +1256,7 @@ Test the impact of the number of variables used for training the classifier. Dra
     * ANOVA
 </div>
 
-### Random expectation
+## Random expectation
 
 <div class='exo'>
 1. Generate a randomized expression matrix by sampling the values of the Den Boer dataset with the R function <tt>sample()</tt> (as we did in the practical on multiple testing corrections).
@@ -1276,10 +1283,14 @@ Test the impact of the number of variables used for training the classifier. Dra
 ### Evaluation the classifier with an independent testing set
 -->
 
+****************************************************************
+# Alternative methods for supervised classification
 
-## Other classification approaches
+So far we used the historical method for supervised classification, **Linear Discriminant Analysis (LDA)**, developed by Ronald Fisher in 1936. Many other methods have been developed to address the same problem. 
 
-### Quadratic discrminant analysis (QDA)
+As an additional exercise, we propose to estimate the accuracy of alternative classification methods and compare their performances to LDA. 
+
+## Quadratic discrminant analysis (QDA)
 
 ```{r}
 (n.variables <- length(selected.genes))
@@ -1307,16 +1318,15 @@ table(one.vs.others, one.vs.others.lda.loo$class)
 ```
 
 
-### K-nearest-neighbours (KNN) classifier}
+## K-nearest-neighbours (KNN) classifier}
 
-### Support vector machines}
+TO BE DONE
 
+## Support vector machines}
 
+TO BE DONE
 
-===========================================
+****************************************************************
 
-<address>
-[Denis Puthier](http://denis.puthier.perso.esil.univmed.fr/)
-& [Jacques van Helden](http://jacques.van-helden.perso.luminy.univmed.fr/)
-</address>
+Authors: [***Denis Puthier***](http://denis.puthier.perso.esil.univmed.fr/) & [***Jacques van Helden***](http://jacques.van-helden.perso.luminy.univmed.fr/)
 
