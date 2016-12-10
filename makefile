@@ -75,11 +75,15 @@ sync_slides:
 OPEN=open -a ${BROWSER}
 BROWSER=firefox
 local:
-	${OPEN} http://localhost/courses/ASG1/
+	${OPEN} http://localhost/courses/ASG/
 
-web:
+web_github:
+	${OPEN} https://dputhier.github.io/ASG/
+
+## The Web site was previously hosted on pedagogix. We should move it
+## but there are still some files to be transferred.
+web_tagc:
 	${OPEN} http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/
-
 
 ################################################################
 # Check R Code.
