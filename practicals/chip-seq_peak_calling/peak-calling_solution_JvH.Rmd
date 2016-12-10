@@ -4,16 +4,31 @@ author: "Jacques van Helden"
 date: '`r Sys.Date()`'
 output:
   html_document:
-    highlight: tango
-    theme: united
+    fig_caption: yes
+    highlight: zenburn
+    theme: cerulean
     toc: yes
     toc_depth: 3
+    toc_float: yes
+  md_document:
+    variant: markdown_github
   pdf_document:
+    fig_caption: yes
     highlight: zenburn
     toc: yes
-    toc_depth: 3
-css: styles.css
+    toc_depth: 2
+  word_document:
+    toc: no
+    toc_depth: 2
+#css: ../../html/course.css
 ---
+
+
+```{r knitr setup, include=FALSE, eval=TRUE, echo=FALSE, warning=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo=FALSE, eval=TRUE, cache=TRUE, message=FALSE, warning=FALSE, comment = "")
+```
+
 
 ## Objectives
 
@@ -172,8 +187,8 @@ bedtools intersect -a Escherichia_coli_K_12_MG1655_windows_200bp.bed \
 We can directly load the data from the web site.
 
 ```{r}
-#dir.base <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1"
-dir.base <- "/Users/jvanheld/ASG1" ## Temporary testing on my computer
+# dir.base <- "/Users/jvanheld/ASG" ## Temporary testing on my computer
+dir.base <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1"
 
 dir.bedg <- file.path(dir.base, "data/chipseq/Escherichia_coli_FNR_vs_input")
 
@@ -486,7 +501,7 @@ $$\lambda_i = x_{\text{norm.input},i} = x_{\text{input},i} \cdot \frac{n_{\text{
 
 
 ```{r}
-sum(read.stats$norm.input != read.stats$input.counts*m/n) == 0
+# sum(read.stats$norm.input != read.stats$input.counts*m/n) == 0
 
 read.stats$ppois <- ppois(q=read.stats$counts-1, 
                           lambda=read.stats$norm.input, 
