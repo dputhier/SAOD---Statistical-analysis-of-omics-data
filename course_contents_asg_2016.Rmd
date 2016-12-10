@@ -63,7 +63,7 @@ output:
 | Mon 07/11 | 14:00 | 18:00 | Functional enrichment of DEG | DP | - Functional enrichment statistics <br> - The hypergeometric distribution <br> | - Theory : on white board <br> - [Hypergeometric distribution and enrichment statistics. An example application: DAVID (practical)](practicals/go_statistics_td/go_statistics_td_2015.html)<br>|
 | Tue 08/11 | 14:00 | 18:00 | The multiple ways to correct for multiple testing | JvH | - False positive risk (FPR) <br> - Expected number of false positives (E-value) <br> - Family-Wise Error Rate (FWER) <br> - False Discovery Rate (FDR) | - [Multiple testing corrections  (slides)](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/pdf_files/06.04.multitesting_corrections.pdf) <br> - [Multiple testing corrections (practical)](practicals/multiple_testing_td/multiple_testing_corrections.html) |
 | Tue 15/11 | 14:00 | 18:00 | Supervised classification  | JvH | - Discriminant analysis <br>- Cross-validation (k-fold, LOO) <br>- Data dimensionality and overfitting <br>- Variable selection | - [Introduction to multivariate analysis](pdf_files/07.00.multiv_intro.pdf) <br> - [Discriminant analysis (slides)](pdf_files/11.discriminant_analysis.pdf)<br>- [Dimension reduction and PCA](pdf_files/10.visualization.pdf)<br>- [Practical: supervised classification](practicals/supervised_classification_td/supervised_classification_td.html)  |
-| Mon 12/12 | 09:00 | 13:00 | Overview of discrete distributions, with applications to NGS | DP/JvH |  - Geometric<br>- Binomial<br>- Poisson<br>-Hypergeometric | [[]]()<br>[[]]() |
+| Mon 12/12 | 09:00 | 13:00 | Overview of discrete distributions, with applications to NGS | JvH | - Geometric<br>- Binomial<br>- Poisson<br>-Hypergeometric<br>- Negative binomial | Tutorial [[html](practicals/discrete_distributions_overview/discrete_distributions.html)][[pdf](practicals/discrete_distributions_overview/discrete_distributions.pdf)][[Rmd](practicals/discrete_distributions_overview/discrete_distributions.Rmd)] |
 | Mon 12/12 | 14:00 | 18:00 | Detecting differentially expressed genes (DEG) with RNA-seq | DP/JvH | - RNA-Seq principles <br>- Normalizing RNA-seq counts <br>-The negative binomial distribution|| [[]]()<br>[[]]() |
 | Wed 14/12 | 09:00 | 13:00 |  | DP/JvH | | [[]]()<br>[[]]() |
 | Wed 14/12 | 14:00 | 18:00 |  | DP | [[]]()<br>[[]]() |
@@ -81,6 +81,8 @@ output:
 |RNA-seq data analysis| - [RNA-Seq method (slides)](pdf_files/Rnaseq_2016.pdf) <br> - [RNA-seq read mapping (practical)](practicals/rnaseq_td/rnaseq_td.html)<br> - [The negative binomial and DESeq bioC package](practicals/rnaseq_diff/DESeqTuto.html) <br> - [The negative binomial and DESeq bioC package](practicals/rnaseq_diff/rnaseq_diff.html)|
 |Supervised classification| - [Introduction to multivariate analysis](pdf_files/07.00.multiv_intro.pdf) <br> - [Discriminant analysis (slides)](pdf_files/11.discriminant_analysis.pdf)|
 |Visualization| - [Dimension reduction and PCA](pdf_files/10.visualization.pdf)|
+| Overview | - [Discrete distributions for NGS data analysis](practicals/discrete_distributions_overview/discrete_distributions.html)
+
 
 ## Travaux personnels
 
