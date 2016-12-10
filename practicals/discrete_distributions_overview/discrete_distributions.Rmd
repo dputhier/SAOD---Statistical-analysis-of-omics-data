@@ -1,13 +1,19 @@
 ---
 title: "Discrete distributions, with applications in bioinformatics"
 author: "Jacques van Helden"
-date: '`r Sys.Date()`'
+date: 'First version: 2016-12-10; Last update: `r Sys.Date()`'
 output:
-  pdf_document:
+  slidy_presentation:
     fig_caption: yes
-    highlight: zenburn
+    fig_height: 6
+    fig_width: 7
+    highlight: tango
+    incremental: no
+    keep_md: no
+    smaller: yes
+    theme: cerulean
     toc: yes
-    toc_depth: 3
+    widescreen: yes
   html_document:
     fig_caption: yes
     highlight: zenburn
@@ -28,6 +34,11 @@ output:
     theme: cerulean
     toc: yes
     widescreen: yes
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
   beamer_presentation:
     colortheme: dolphin
     fig_caption: yes
@@ -40,17 +51,6 @@ output:
     slide_level: 2
     theme: Montpellier
     toc: yes
-  slidy_presentation:
-    fig_caption: yes
-    fig_height: 6
-    fig_width: 7
-    highlight: tango
-    incremental: no
-    keep_md: no
-    smaller: yes
-    theme: cerulean
-    toc: yes
-    widescreen: yes
 font-import: http://fonts.googleapis.com/css?family=Risque
 font-family: Garamond
 transition: linear
@@ -205,6 +205,70 @@ E <- P.read * N * L
 ```
 
 In total, we expect `r E` perfect matches by chance for the whole library against the whole genome.
+
+****************************************************************
+# Binomial: global alignment with $m$ mismatches
+
+## Global alignment with mismatches
+
+What is the probability to observe a global alignment with at most $m=3$ mismatches for a given read of 25bp aligned on a particular genomic position?
+
+This question can be formulated as a Bernoulli schema, where each nucleotide is a trial, which can result in either a success (nucleotide match between the read and the genome) or a failure (mismatch). We can label each position of the alignment with a Boolean value indicating whether it maches ($1$) or not ($0$), as examplified below. 
+
+```{}
+   ATGCG ACTAG CGTAC GACTG ACTAA
+   10000 10000 11000 00000 00011
+...AGCTC AGCTA CGACT ACGAC TACAA....
+```
+
+At each position, we have a probability of success $p=0.25$, and a probability of failure $q = 1-p = 0.75$.
+
+## Probability to observe exactly $k$ matches
+
+```{r}
+n <- 25     # Number of trials, i.e. the length of the alignment
+m <- 3      # Maximal number of accepted mismatches
+p <- 1/4    # Matching probability for one nucleotide
+```
+
+Let us denote by $k$ the number of matching residues. 
+The probability to observe $k$ successes in a Bernoulli schema with $n$ trials and 
+
+$$P(X=k) = \mathcal{B}(k; n, p) = \binom{n}{k}p^k(1-p)^{n-k} = \frac{n!}{k!(n-k)!}p^k(1-p)^{n-k}$$
+
+**Remark**: the perfect match probability seen above is a particular case of the binomial. 
+
+$$P(X=n) = \frac{n!}{n!0!}p^n(1-p)^{n-n} = p^n$$
+
+## Probability of hit with at least $m$ mismatches
+
+We can sum the probabilities for all possible values of matches from $k = n -m$ ($m$ mismatches) to $k = n$ (no mismatch).
+
+$$P(M \le m) = \sum_{k=n-m}^{n} \binom{n}{k}p^k(1-p)^{n-k}$$
+
+## Binomial density
+
+```{r echo=FALSE, fig.height=4, fig.width=7, fig.cap="**Binomial density function**. Alignemnts with less than $m$ mismatches are highlighted in blue. "}
+x <- 0:n  # All possible numbers of matches
+m <- 3    # Max number of mismatches
+hits <- (n-m):n # Hits: at least n-m matches
+plot(x, dbinom(x, n, p), type="h", lwd=2, col="grey", 
+     xlab="k matching nucleotides", ylab="B(k; n,p)")
+lines(hits, dbinom(hits, n, p), type="h", lwd=2, col="blue")
+arrows(n-m, 0.02, n, 0.02, length = 0.1, lwd=2, 
+       code = 3, angle=20, col="blue")
+```
+
+## Binomial distribution
+
+```{r echo=FALSE, fig.height=4, fig.width=7, fig.cap="**Binomial p-value**. The X axis indicates the probability to obtain at least $X$ matches by chance. "}
+x <- 0:n  # All possible numbers of matches
+m <- 3    # Max number of mismatches
+hits <- (n-m):n # Hits: at least n-m matches
+plot(x, pbinom(x-1, n, p, lower=FALSE), type="l", lwd=2, col="grey", 
+     xlab="k matching nucleotides", ylab="B(k; n,p)", log="y",
+     panel.first = grid())
+```
 
 ****************************************************************
 # Negative binomial: local alignment with $m$ mismatches
