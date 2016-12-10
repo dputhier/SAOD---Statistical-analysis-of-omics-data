@@ -28,7 +28,7 @@ K-mer  occurrences in CEBPA peaks from Smith et al (2010) in the mouse genome (*
 ### 6-mers
 
 | Data type | k | repeat | Table |
-|-----------|---|--------|-------|
+|--------------|---|--------|------------------------------------------------|
 | CEBPA peaks | 6 | | [CEBPA_mm9_SWEMBL_R0.12_6nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_6nt-noov-2str.tab) |
 | genomic occurrences | 6 | full genome | [mm10_genome_6nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_6nt-noov-2str.tab) |
 | Random regions | 6 | 01 | [random-genome-fragments_mm10_repeat01_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_6nt-noov-2str.tab) |
@@ -43,7 +43,7 @@ K-mer  occurrences in CEBPA peaks from Smith et al (2010) in the mouse genome (*
 ### 7-mers
 
 | Data type | k | repeat | Table |
-|-----------|---|--------|-------|
+|--------------|---|--------|------------------------------------------------|
 | CEBPA peaks | 7 | | [CEBPA_mm9_SWEMBL_R0.12_7nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_7nt-noov-2str.tab) |
 | genomic occurrences | 7 | full genome | [mm10_genome_7nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_7nt-noov-2str.tab) |
 | Random regions | 7 | 01 | [random-genome-fragments_mm10_repeat01_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_7nt-noov-2str.tab) |
@@ -58,7 +58,7 @@ K-mer  occurrences in CEBPA peaks from Smith et al (2010) in the mouse genome (*
 ### 8-mers
 
 | Data type | k | repeat | Table |
-|-----------|---|--------|-------|
+|--------------|---|--------|------------------------------------------------|
 | CEBPA peaks | 8 | | [CEBPA_mm9_SWEMBL_R0.12_8nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_8nt-noov-2str.tab) |
 | genomic occurrences | 8 | full genome | [mm10_genome_8nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_8nt-noov-2str.tab) |
 | Random regions | 8 | 01 | [random-genome-fragments_mm10_repeat01_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_8nt-noov-2str.tab) |
@@ -117,11 +117,10 @@ hist(peaks.6nt$occ, breaks=50)
 ## Pick up a repeat number between 1 and 8
 repeat.nb <- sample(1:8, size=1)
 
-rand.url <- "http://localhost/courses/ASG1/data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat06_6nt-noov-2str.tab"
+rand.url <- file.path(course.url, "data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat06_6nt-noov-2str.tab")
 
 ## Load k-mer occurrences in random genomic regions
-rand.6nt <- read.delim(rand.url, comment.char = ";",
-                       row.names=1)
+rand.6nt <- read.delim(rand.url, comment.char = ";", row.names=1)
 # View(peaks.6nt) ## To check
 # names(peaks.6nt)
 # dim(rand.6nt)
