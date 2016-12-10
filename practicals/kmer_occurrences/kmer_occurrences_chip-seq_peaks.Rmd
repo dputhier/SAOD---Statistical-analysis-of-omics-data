@@ -75,7 +75,7 @@ K-mer  occurrences in CEBPA peaks from Smith et al (2010) in the mouse genome (*
 ### 6-mers
 
 | Data type | k | repeat | Table |
-|-----------|---|--------|-------|
+|--------------|---|--------|------------------------------------------------|
 | CEBPA peaks | 6 | | [CEBPA_mm9_SWEMBL_R0.12_6nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_6nt-noov-2str.tab) |
 | genomic occurrences | 6 | full genome | [mm10_genome_6nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_6nt-noov-2str.tab) |
 | Random regions | 6 | 01 | [random-genome-fragments_mm10_repeat01_6nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_6nt-noov-2str.tab) |
@@ -90,7 +90,7 @@ K-mer  occurrences in CEBPA peaks from Smith et al (2010) in the mouse genome (*
 ### 7-mers
 
 | Data type | k | repeat | Table |
-|-----------|---|--------|-------|
+|--------------|---|--------|------------------------------------------------|
 | CEBPA peaks | 7 | | [CEBPA_mm9_SWEMBL_R0.12_7nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_7nt-noov-2str.tab) |
 | genomic occurrences | 7 | full genome | [mm10_genome_7nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_7nt-noov-2str.tab) |
 | Random regions | 7 | 01 | [random-genome-fragments_mm10_repeat01_7nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_7nt-noov-2str.tab) |
@@ -105,7 +105,7 @@ K-mer  occurrences in CEBPA peaks from Smith et al (2010) in the mouse genome (*
 ### 8-mers
 
 | Data type | k | repeat | Table |
-|-----------|---|--------|-------|
+|--------------|---|--------|------------------------------------------------|
 | CEBPA peaks | 8 | | [CEBPA_mm9_SWEMBL_R0.12_8nt-noov-2str.tab](../../data/kmer_occurrences/CEBPA_mm9_peaks_Ballester_2010/CEBPA_mm9_SWEMBL_R0.12_8nt-noov-2str.tab) |
 | genomic occurrences | 8 | full genome | [mm10_genome_8nt-noov-2str.tab](../../data/kmer_occurrences/mm10_for_ASG_course/mm10_genome_8nt-noov-2str.tab) |
 | Random regions | 8 | 01 | [random-genome-fragments_mm10_repeat01_8nt-noov-2str.tab](../../data/kmer_occurrences/random_fragments_mm10/random-genome-fragments_mm10_repeat01_8nt-noov-2str.tab) |
