@@ -1,0 +1,211 @@
+---
+title: "Discrete distributions, with applications in bioinformatics"
+author: "Jacques van Helden"
+date: '`r Sys.Date()`'
+output:
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  ioslides_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_md: no
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+  beamer_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_tex: no
+    slide_level: 2
+    theme: Montpellier
+    toc: yes
+  slidy_presentation:
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    highlight: tango
+    incremental: no
+    keep_md: no
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+font-import: http://fonts.googleapis.com/css?family=Risque
+font-family: Garamond
+transition: linear
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE, message = FALSE, warning = FALSE)
+
+## Options to display pretty numbers
+library(knitr)
+knit_hooks$set(inline = function(x) {
+  prettyNum(x, big.mark=" ")
+})
+options(scipen = 6, digits = 3)
+
+```
+
+
+# Introduction
+
+## Discrete probabilities and NGS
+
+The advent of Next Generation Sequencing (**NGS**) technologies revived the importance of discrete distributions of probabilities for biologists. 
+
+This tutorial aims at providing a rapid overview of some discrete distributions commonly used to analyse NGS data, and highlight the relationship between them. 
+
+## Overview
+
+| Distribution |  Applications |
+|-----------------|-----------------------------------------------|
+| Geometric | Local read mapping without mismatche (read extension until first mismatch) |
+| Binomial | Global read mapping with a given number of mismatches |
+| Negative binomial | Local read mapping with $m$ mismatches (waiting time for $(m+1)^{th}$ mismatch); <br> Detection of differentially expressed genes from RNA-seq data |
+| Poisson | ChIP-seq peak calling |
+| Hypergeometric | Enrichment of a set of differentially expressed genes for functional classes |
+
+****************************************************************
+# Perfect match probability
+
+## Perfect match probability
+
+We align a library of 50 million short reads of 25 base pairs onto a genome that comprises 23 chromosomes totalling 3 Gigabases. 
+
+For the sake of simplicity, we assume that nucleotides are equiprobable and independently distributed in the genome.
+
+What is the probability to observe the following events by chance?
+
+a. A perfect match for a given read at a given genomic position.
+b. A perfect match for a given read anywhere in the genome (searched on two strands).
+c. A perfect match for any read of the library at any position of the genome.
+
+d. How many matches do we expect by chance if the whole library is aligned onto the whole genome?
+
+## Perfect match - parameters
+
+Let us define the variables of our problem.
+Since we assume equiprobable and independent nucleotides we can define $p$ as probability to observe a match by chance for a given nucleotide.
+
+$$p = P(A) = P(C) = P(G) = P(T) = 0.25$$
+
+
+```{r perfect_match_parameters}
+k <- 25    # Read length
+L <- 50e6  # Library size
+C <- 23    # Number of chromosomes
+G <- 3e9   # Genome size
+p <- 1/4   # Matching probability for a nucleotide
+```
+
+**Exercise:** use these parameters to compute the matching probability for a read (*solution is on next slide*).
+
+## Perfect match for a given read at a given genomic position
+
+Since we assume independence, the joint probability (probability to match all the nucleotides) is the product of the individual matching probabilities for each nucleotide.
+
+
+```{r perfect_match_solution}
+# Matching probabilty for a given read 
+# at a given genomic position
+P.read <- p^k  
+```
+
+$$P_{\text{read}} = P(n_1 \land n_2 \land \ldots \land n_k) = p^k = `r p`^{`r k`} = `r signif(digits=2, p^k)`$$
+
+This looks a rather small probability. However we need to take into account that this risk will be challenged many times: 
+
+- the size of the genome (`r G`)
+- the size of the sequencing library (`r L`)
+
+## Number of genomic alignments
+
+The read will be aligned to each genomic position, but we should keep in mind the following facts. 
+
+1. For each chromosome, we will skip the last `r k-1` positions, since a `r k` bp read cannot be fully aligned there. 
+2. We double the number of alignments since we try to map the read on two strands. 
+
+$$N = 2 \sum_{i=1}^C (L_i - k + 1) = 2 \left( G - C (k - 1)  \right)$$
+
+```{r number_of_alignments}
+N <- 2 * (G - C * (k - 1))
+```
+
+In total, we will thus try to align each read on `r N` genomic positions. 
+
+
+## Genome-wise matching probability for one read
+
+We reason in 3 steps, by computing the following probabilities. 
+
+| Formula | Rationale |
+|---------------------|--------------------------------------------------------|
+| $1 -P_{\text{read}}$ | no match at a given genomic position |
+| $(1 -P_{\text{read}})^N$ | not a single match in the genome |
+| $1 - (1 -P_{\text{read}})^N$ | at least one match in the genome |
+| | |
+
+```{r pm_one_read_any_position}
+P.genomic <- 1 - (1 - P.read)^N
+```
+
+This gives $P_{\text{genomic}} = `r P.genomic`$.
+
+## Library-wise probability
+
+We can apply the same reasoning for the library-wise probability. 
+
+| Formula | Rationale |
+|-------------------------------|-------------------------------------------|
+| $1 -P_{\text{genomic}} = (1 -P_{\text{read}})^G$ | no genomic match for a given read |
+| $(1 -P_{\text{read}})^{G L}$ | not a single genomic match in the library |
+| $1 - (1 -P_{\text{read}})^{G L}$ | at least one genomic match in the library |
+| | |
+
+```{r pm_any_read_any_position}
+P.library <- 1 - (1 - P.read)^(G*L)
+```
+
+This gives $P_{\text{library}} = `r P.library`$, which should however not be literally interpreted as a certainty, but as a probability so close to $1$ that it cannot be distiguished from it. 
+
+## Expected number of matches
+
+
+The expected number of matches is the read matching probability mutliplie by the number of matching trials, i.e. $G \cdot L$ since each read will be matched against each genomic position.
+
+
+$$E(X) = P_{read} \cdot N \cdot L$$
+
+```{r expected_matches}
+E <- P.read * N * L
+```
+
+In total, we expect `r E` perfect matches by chance for the whole library against the whole genome.
+
+****************************************************************
+# Negative binomial: local alignment with $m$ mismatches
+
