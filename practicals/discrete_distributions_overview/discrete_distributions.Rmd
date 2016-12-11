@@ -1,5 +1,6 @@
 ---
-title: "Discrete distributions, with applications in bioinformatics"
+title: Discrete distributions for the analysis of Next Generation Sequencing (NGS)
+  data
 author: "Jacques van Helden"
 date: 'First version: 2016-12-10; Last update: `r Sys.Date()`'
 output:
@@ -10,6 +11,8 @@ output:
     highlight: tango
     incremental: no
     keep_md: no
+    self_contained: yes
+    slide_level: 2
     smaller: yes
     theme: cerulean
     toc: yes
@@ -17,6 +20,7 @@ output:
   html_document:
     fig_caption: yes
     highlight: zenburn
+    self_contained: yes
     theme: cerulean
     toc: yes
     toc_depth: 3
@@ -24,12 +28,13 @@ output:
   ioslides_presentation:
     colortheme: dolphin
     fig_caption: yes
-    fig_height: 6
+    fig_height: 5
     fig_width: 7
     fonttheme: structurebold
     highlight: tango
     incremental: no
     keep_md: no
+    slide_level: 2
     smaller: yes
     theme: cerulean
     toc: yes
@@ -83,7 +88,7 @@ This tutorial aims at providing a rapid overview of some discrete distributions 
 
 | Distribution |  Applications |
 |-----------------|-----------------------------------------------|
-| Geometric | Local read mapping without mismatche (read extension until first mismatch) |
+| Geometric | Local read mapping without mismatch (read extension until first mismatch) |
 | Binomial | Global read mapping with a given number of mismatches |
 | Negative binomial | Local read mapping with $m$ mismatches (waiting time for $(m+1)^{th}$ mismatch); <br> Detection of differentially expressed genes from RNA-seq data |
 | Poisson | ChIP-seq peak calling |
@@ -207,6 +212,58 @@ E <- P.read * N * L
 In total, we expect `r E` perfect matches by chance for the whole library against the whole genome.
 
 ****************************************************************
+# Geometric distribution: local alignment without mismatch
+
+## Local alignment until the first mismatch
+
+A local read-mapping algorithm starts by aligning the 5' base of a read, and extends the alignment until either the first mismatch or the end of the read. In the example below, the alignment stops after 11 nucleotides.
+
+```
+    ATGCG ACTAG CATAC GAGTG ACTAA
+    11111 11111 10
+... ATGCG ACTAG CGTTC GACTG ACTAA ...
+```
+
+What is the probability to obtain by chance:
+
+a. an alignemnt of exactly $25$ nucleotides?
+b. an alignemnt of at least $25$ nucleotides?
+
+## Local alignment -- parameters
+
+
+```{r local_no_mismatch}
+p <- 0.25  # Matching probability for each nucleotide
+x <- 25    # Number of matches before the first mismatch
+P.x <- p^x * (1-p)
+Pval.x <- p^x
+```
+
+$$P(X=`r x`) = p^x (1-p) = 0.25^{`r x`} 0.75 = `r P.x`$$
+
+$$P(X \ge `r x`) = p^x = 0.25^{`r x`} = `r Pval.x`$$
+
+
+## Geometric distribution
+
+
+```{r geometric_densiy, echo=FALSE, fig.width=7, fig.height=5, fig.cap="**Geometric distribution.** "}
+x <- 0:25  # Series of X values
+
+# Geometric density function
+P.x <- dgeom(x = x, prob = p)
+
+# Geometric p-value distribution
+Pval.x <- pgeom(q = x-1, prob = p, lower.tail = FALSE)
+
+plot(x, P.x, type="h", lwd=2, col="#888888", ylim=c(0,1), las=1, panel.first=grid(), 
+     xlab="Nucleotides before first mismatch", ylab="Probabilities")
+lines(stepfun(x, c(1, Pval.x)), verticals=TRUE, col="darkgreen")
+legend("topright", legend=c("Density: P(X=x)", "P-value: P(X>=x)"), col=c("#888888", "darkgreen"), lwd=2)
+```
+
+
+****************************************************************
 # Binomial: global alignment with $m$ mismatches
 
 ## Global alignment with mismatches
@@ -215,10 +272,10 @@ What is the probability to observe a global alignment with at most $m=3$ mismatc
 
 This question can be formulated as a Bernoulli schema, where each nucleotide is a trial, which can result in either a success (nucleotide match between the read and the genome) or a failure (mismatch). We can label each position of the alignment with a Boolean value indicating whether it maches ($1$) or not ($0$), as examplified below. 
 
-```{}
-   ATGCG ACTAG CGTAC GACTG ACTAA
-   10000 10000 11000 00000 00011
-...AGCTC AGCTA CGACT ACGAC TACAA....
+```
+    ATGCG ACTAG CATAC GAGTG ACTAA
+    11111 11111 10101 11011 11111
+... ATGCG ACTAG CGTTC GACTG ACTAA ...
 ```
 
 At each position, we have a probability of success $p=0.25$, and a probability of failure $q = 1-p = 0.75$.
@@ -228,6 +285,7 @@ At each position, we have a probability of success $p=0.25$, and a probability o
 ```{r}
 n <- 25     # Number of trials, i.e. the length of the alignment
 m <- 3      # Maximal number of accepted mismatches
+k <- n -m   # Number of matches
 p <- 1/4    # Matching probability for one nucleotide
 ```
 
@@ -240,7 +298,7 @@ $$P(X=k) = \mathcal{B}(k; n, p) = \binom{n}{k}p^k(1-p)^{n-k} = \frac{n!}{k!(n-k)
 
 $$P(X=n) = \frac{n!}{n!0!}p^n(1-p)^{n-n} = p^n$$
 
-## Probability of hit with at least $m$ mismatches
+## Probability of hit with at most $m$ mismatches
 
 We can sum the probabilities for all possible values of matches from $k = n -m$ ($m$ mismatches) to $k = n$ (no mismatch).
 
@@ -248,28 +306,94 @@ $$P(M \le m) = \sum_{k=n-m}^{n} \binom{n}{k}p^k(1-p)^{n-k}$$
 
 ## Binomial density
 
-```{r echo=FALSE, fig.height=4, fig.width=7, fig.cap="**Binomial density function**. Alignemnts with less than $m$ mismatches are highlighted in blue. "}
+```{r echo=FALSE, fig.height=4, fig.width=7, fig.cap="**Binomial density function**. Alignemnts with at most $m$ mismatches are highlighted in blue. "}
 x <- 0:n  # All possible numbers of matches
 m <- 3    # Max number of mismatches
 hits <- (n-m):n # Hits: at least n-m matches
 plot(x, dbinom(x, n, p), type="h", lwd=2, col="grey", 
-     xlab="k matching nucleotides", ylab="B(k; n,p)")
+     xlab="X matching nucleotides", ylab="P(X=x)")
 lines(hits, dbinom(hits, n, p), type="h", lwd=2, col="blue")
 arrows(n-m, 0.02, n, 0.02, length = 0.1, lwd=2, 
        code = 3, angle=20, col="blue")
 ```
 
-## Binomial distribution
+## Binomial P-value
 
-```{r echo=FALSE, fig.height=4, fig.width=7, fig.cap="**Binomial p-value**. The X axis indicates the probability to obtain at least $X$ matches by chance. "}
+```{r echo=FALSE, fig.height=4, fig.width=7, fig.cap="**Binomial p-value**. The ordinate indicates the probability to obtain at least $x$ matching nucleotides by chance. "}
 x <- 0:n  # All possible numbers of matches
 m <- 3    # Max number of mismatches
 hits <- (n-m):n # Hits: at least n-m matches
-plot(x, pbinom(x-1, n, p, lower=FALSE), type="l", lwd=2, col="grey", 
-     xlab="k matching nucleotides", ylab="B(k; n,p)", log="y",
+y <- pbinom(x-1, n, p, lower=FALSE)
+plot(stepfun(x, c(1, y)), verticals = TRUE,
+#plot(x+0.5, y, type="S", lwd=2,
+     col="darkgreen", las=1, main="Binomial P-value", 
+     xlab="X", ylab="P(X >= x)", log="y",
      panel.first = grid())
+pval <- pbinom(n-m-1, n, p, lower=FALSE)
+arrows(n-m, pbinom(n-1, n, p, lower=FALSE), n-m, pval, 
+       angle = 0, length = 0.1, lwd=2, col="blue")
+arrows(n-m, pval, 0, pval, 
+       angle = 20, length = 0.1, lwd=2, col="blue")
+text(0, 10*pval, 
+     labels = paste("P(X >= ", n-m, ") = ", 
+                    signif(digits=2, pval), sep=""), pos = 4, col="blue")
 ```
+
+
 
 ****************************************************************
 # Negative binomial: local alignment with $m$ mismatches
+
+## Waiting time for the $m^{th}$ mismatch
+
+A local alignment algorithm starts aligning the 5' end of a read, and extends the alignment until either the $m^{th}$ mismatch or the end of the read. What is the probability to obtain by chance an alignemnt of at least $25$ nucleotides before the $4^{th}$ mismatch?
+
+```{r negbin, echo=FALSE, fig.width=8, fig.height=7, fig.cap="Negative binomial. "}
+x <- 0:25    # Number of successes
+
+par(mfrow=c(2,2))
+for (m in 1:4) {
+  P.x <- dnbinom(x, size = m, prob = 0.75)
+  plot(x, P.x, type="s", panel.first = grid(), ylim=c(0,1), main=paste("m = ", m))
+}
+par(mfrow=c(1,1))
+```
+
+## Simulated sequences
+
+
+```{r random_simul_local_alignment, fig.width=7, fig.height=4, echo=FALSE}
+alphabet <- c("A", "C", "G", "T")
+n <- 25
+m <- 5 # Max accepted mismatches, alignment stops at mismatch m+1
+rep <- 100000
+read <- sample(alphabet, size=n, replace = TRUE)
+seq <- matrix(nrow=rep, ncol=n, sample(alphabet, size=n * rep, replace = TRUE))
+
+ali.length <- function(seq1, seq2, max.mismatch) {
+  mismatches <- which(seq1!=seq2)
+  if (length(mismatches) > max.mismatch) {
+    return(mismatches[max.mismatch+1]-1)
+  } else {
+    return (length(seq1))
+  }
+}
+
+ali.lengths <- apply(seq, 1, ali.length, read, m)
+max.len <- max(ali.lengths)
+hist(ali.lengths, breaks=seq(from=-0.5, to=max.len+1, by=1), col="grey",
+     las=1,
+     main="Local alignment",
+     xlab="Alignment length",
+     ylab="Number of hits")
+x <- 0:max.len
+lines(x+m, rep*dnbinom(x, size = m+1, prob = 0.75), type="h", col="blue", lwd=3)
+legend("topright", 
+       c(paste("m =", m, "mismatches"),
+         paste("rep = ", rep, "random sequences"),
+         paste(sep="", "NB(",m+1,1-p,")")), 
+       lwd=3,
+       col=c("white", "grey", "blue"))
+```
+
 
