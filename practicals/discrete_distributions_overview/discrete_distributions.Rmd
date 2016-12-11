@@ -4,19 +4,18 @@ title: Discrete distributions for the analysis of Next Generation Sequencing 
 author: "Jacques van Helden"
 date: 'First version: 2016-12-10; Last update: `r Sys.Date()`'
 output:
-  slidy_presentation:
+  beamer_presentation:
+    colortheme: dolphin
     fig_caption: yes
-    fig_height: 6
-    fig_width: 7
+    fig_height: 4
+    fig_width: 6
+    fonttheme: structurebold
     highlight: tango
     incremental: no
-    keep_md: no
-    self_contained: yes
+    keep_tex: no
     slide_level: 2
-    smaller: yes
-    theme: cerulean
+    theme: Montpellier
     toc: yes
-    widescreen: yes
   html_document:
     fig_caption: yes
     highlight: zenburn
@@ -44,18 +43,19 @@ output:
     highlight: zenburn
     toc: yes
     toc_depth: 3
-  beamer_presentation:
-    colortheme: dolphin
+  slidy_presentation:
     fig_caption: yes
     fig_height: 6
     fig_width: 7
-    fonttheme: structurebold
     highlight: tango
     incremental: no
-    keep_tex: no
+    keep_md: no
+    self_contained: yes
     slide_level: 2
-    theme: Montpellier
+    smaller: yes
+    theme: cerulean
     toc: yes
+    widescreen: yes
 font-import: http://fonts.googleapis.com/css?family=Risque
 font-family: Garamond
 transition: linear
@@ -64,7 +64,8 @@ transition: linear
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE, message = FALSE, warning = FALSE,
+                      comment = "")
 
 ## Options to display pretty numbers
 library(knitr)
@@ -226,8 +227,8 @@ A local read-mapping algorithm starts by aligning the 5' base of a read, and ext
 
 What is the probability to obtain by chance:
 
-a. an alignemnt of exactly $25$ nucleotides?
-b. an alignemnt of at least $25$ nucleotides?
+a. an alignment of exactly $25$ nucleotides?
+b. an alignment of at least $25$ nucleotides?
 
 ## Local alignment -- parameters
 
@@ -247,7 +248,7 @@ $$P(X \ge `r x`) = p^x = 0.25^{`r x`} = `r Pval.x`$$
 ## Geometric distribution
 
 
-```{r geometric_densiy, echo=FALSE, fig.width=7, fig.height=5, fig.cap="**Geometric distribution.** "}
+```{r geometric_densiy, echo=FALSE, fig.width=7, fig.height=4, fig.cap="**Geometric distribution.** "}
 x <- 0:25  # Series of X values
 
 # Geometric density function
@@ -294,6 +295,8 @@ The probability to observe $k$ successes in a Bernoulli schema with $n$ trials a
 
 $$P(X=k) = \mathcal{B}(k; n, p) = \binom{n}{k}p^k(1-p)^{n-k} = \frac{n!}{k!(n-k)!}p^k(1-p)^{n-k}$$
 
+## Binomial and perfect match
+
 **Remark**: the perfect match probability seen above is a particular case of the binomial. 
 
 $$P(X=n) = \frac{n!}{n!0!}p^n(1-p)^{n-n} = p^n$$
@@ -339,6 +342,67 @@ text(0, 10*pval,
                     signif(digits=2, pval), sep=""), pos = 4, col="blue")
 ```
 
+## Simulated sequences
+
+We can generate random sequences with equiprobable and independent residues from the nucleotide alphabet. 
+
+$$\mathcal{A} = \{A, C, G, T\}$$
+
+```{r random_sequences, echo=FALSE}
+# Generate random sequences with equiprobable residues
+alphabet <- c("A", "C", "G", "T") # Nucleotide alphabet
+n <- 25    # Size of the reads
+rep <- 100000 # number of repetitions
+# Generate random "sequeences" 
+# (actually a matrix of letters)
+seq <- data.frame(matrix(nrow=rep, ncol=n, sample(alphabet, size=n * rep, replace = TRUE)))
+
+# Print the 5 first sequences to check result
+cat(c(apply(seq[1:5,], 1, paste, collapse=""), "..."), sep="\n")
+```
+
+## Counting mismatches between read and random sequences
+
+```{r count_matches, echo=FALSE}
+## Count the number of matches between a random read 
+## and random sequences of the same length
+
+# Generate a random read
+read <- sample(alphabet, size=n, replace = TRUE)
+
+# Define a function counting the number of matching
+# residues between two sequences
+count.matches <- function(seq1, seq2) {
+  return(sum(seq1==seq2))
+}
+
+dim(seq)
+length(read)
+# Compute alignment lengths
+matches.per.seq <- apply(seq, 1, count.matches, read)
+
+## Plot an histogram to compare the simulation results 
+## and the theoretical distribution
+hist(matches.per.seq, breaks=seq(from=-0.5, to=n+0.5, by=1), col="grey",
+     las=1,
+     main="Local alignment",
+     xlab="Number of matches",
+     ylab="Sequences")
+x <- 0:n
+lines(x, rep*dbinom(x, size = n, prob = 0.25), type="h", col="blue", lwd=3)
+legend("topright", 
+       c(paste(sep="", "random sequences (r=", rep, ")"),
+         paste(sep="", "B(n=",n,", p=", p,")")), 
+       lwd=3,
+       col=c("grey", "blue"))
+```
+
+## Exercise -- binomial distribution
+
+Draw 1000 random numbers from a binomial distribution (`rbinom()`) and compute the mean and standard deviation. 
+
+Each student will take a custom prior probability ($p$) among the following values: $\{0.001, 0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99, 0.999\}$.
+
 
 
 ****************************************************************
@@ -363,13 +427,16 @@ par(mfrow=c(1,1))
 
 
 ```{r random_simul_local_alignment, fig.width=7, fig.height=4, echo=FALSE}
-alphabet <- c("A", "C", "G", "T")
-n <- 25
-m <- 5 # Max accepted mismatches, alignment stops at mismatch m+1
-rep <- 100000
-read <- sample(alphabet, size=n, replace = TRUE)
-seq <- matrix(nrow=rep, ncol=n, sample(alphabet, size=n * rep, replace = TRUE))
+## Simulate local alignment with random sequences. 
+## Align a given read with random sequences and measure the 
+## length of the longest alignment with at most m mismatches. 
 
+# Max accepted mismatches.
+m <- 5     
+# Note: the alignment stops at m+1
+
+## Define a function counting the length of the alignment 
+## until the (m+1)th mismatch
 ali.length <- function(seq1, seq2, max.mismatch) {
   mismatches <- which(seq1!=seq2)
   if (length(mismatches) > max.mismatch) {
@@ -379,19 +446,22 @@ ali.length <- function(seq1, seq2, max.mismatch) {
   }
 }
 
+# Compute alignment lengths
 ali.lengths <- apply(seq, 1, ali.length, read, m)
 max.len <- max(ali.lengths)
+
+## plot an histogram
 hist(ali.lengths, breaks=seq(from=-0.5, to=max.len+1, by=1), col="grey",
      las=1,
      main="Local alignment",
      xlab="Alignment length",
-     ylab="Number of hits")
+     ylab="Number of sequences")
 x <- 0:max.len
 lines(x+m, rep*dnbinom(x, size = m+1, prob = 0.75), type="h", col="blue", lwd=3)
 legend("topright", 
-       c(paste("m =", m, "mismatches"),
-         paste("rep = ", rep, "random sequences"),
-         paste(sep="", "NB(",m+1,1-p,")")), 
+       c(paste("max", m, "accepted mismatches"),
+         paste(sep="", "random sequences (r=", rep, ")"),
+         paste(sep="", "NB(",m+1,",", 1-p,")")), 
        lwd=3,
        col=c("white", "grey", "blue"))
 ```
