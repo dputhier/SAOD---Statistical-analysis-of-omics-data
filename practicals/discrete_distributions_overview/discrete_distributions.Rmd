@@ -105,7 +105,7 @@ This tutorial aims at providing a rapid overview of some discrete distributions 
 
 The Poisson is a very simple and widely used discrete distribution. 
 
-$\frac{e^{-\lambda}\lambda^x}{x!}
+$$P(X=x) = \frac{e^{-\lambda}\lambda^x}{x!}$$
 
 - represents the probability to observe $x$ successes when expecting $\lambda$ (say "lambda"). 
 - expected mean (for a sample of infinite size): $\mu = \lambda$
