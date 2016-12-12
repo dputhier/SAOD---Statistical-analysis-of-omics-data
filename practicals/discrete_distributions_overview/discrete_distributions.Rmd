@@ -290,7 +290,7 @@ We reason in 3 steps, by computing the following probabilities.
 
 | Formula | Rationale |
 |---------------------|--------------------------------------------------------|
-| $1 -P_{\text{read}}$ | no match at a given genomic position |
+| $1 -P_{\text{read}} = 1 - p^k$ | no match at a given genomic position |
 | $(1 -P_{\text{read}})^N$ | not a single match in the genome |
 | $1 - (1 -P_{\text{read}})^N$ | at least one match in the genome |
 | | |
@@ -307,13 +307,13 @@ We can apply the same reasoning for the library-wise probability.
 
 | Formula | Rationale |
 |-------------------------------|-------------------------------------------|
-| $1 -P_{\text{genomic}} = (1 -P_{\text{read}})^G$ | no genomic match for a given read |
-| $(1 -P_{\text{read}})^{G L}$ | not a single genomic match in the library |
-| $1 - (1 -P_{\text{read}})^{G L}$ | at least one genomic match in the library |
+| $1 -P_{\text{genomic}} = (1 -P_{\text{read}})^N$ | no genomic match for a given read |
+| $(1 -P_{\text{read}})^{N L}$ | not a single genomic match in the library |
+| $1 - (1 -P_{\text{read}})^{N L}$ | at least one genomic match in the library |
 | | |
 
 ```{r pm_any_read_any_position}
-P.library <- 1 - (1 - P.read)^(G*L)
+P.library <- 1 - (1 - P.read)^(N*L)
 ```
 
 This gives $P_{\text{library}} = `r P.library`$, which should however not be literally interpreted as a certainty, but as a probability so close to $1$ that it cannot be distiguished from it. 
@@ -347,15 +347,15 @@ A local read-mapping algorithm starts by aligning the 5' base of a read, and ext
 
 What is the probability to obtain by chance:
 
-a. an alignment of exactly $25$ nucleotides?
-b. an alignment of at least $25$ nucleotides?
+a. an alignment of exactly $x=11$ nucleotides (11 matches followed by 1 mismatch)? 
+b. an alignment of at least $x=11$ nucleotides (11 matches followed by anything)?
 
 ## Local alignment -- parameters
 
 
 ```{r local_no_mismatch}
 p <- 0.25  # Matching probability for each nucleotide
-x <- 25    # Number of matches before the first mismatch
+x <- 11    # Number of matches before the first mismatch
 P.x <- p^x * (1-p)
 Pval.x <- p^x
 ```
