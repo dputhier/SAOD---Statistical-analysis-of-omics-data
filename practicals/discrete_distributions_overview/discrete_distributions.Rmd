@@ -121,9 +121,17 @@ $$P(X=x) = \frac{e^{-\lambda}\lambda^x}{x!}$$
 - each student has been assigned a $\lambda$ comprized between 0.01 and 1000
 - draw $rep=1000$ random numbers following a Poisson with this $\lambda$ value
 - compute the mean and variance
-- fill up the corresponding columns
+- fill up the corresponding columns in the collective report
 
 ## Solution -- mean and variance of a Poisson random sampling
+
+```{r poisson_sampling_solution}
+lambda <- 3
+rep <- 1000
+x <- rpois(n=rep, lambda=lambda)
+mean(x)
+var(x)
+```
 
 ## Replicating an experiment
 
@@ -137,6 +145,73 @@ $$P(X=x) = \frac{e^{-\lambda}\lambda^x}{x!}$$
 - plot the relationship between mean and variance for the Poisson distribution
 
 ## Solution -- mean to variance relationship for the Poisson distribution
+
+```{r poisson_mean_sampling_distrib}
+# ?replicate
+## Example of usage of the replicate function
+sampling.means <- replicate(n = 10000, mean(rpois(n=10, lambda=3.5)))
+
+hist(sampling.means, breaks=100)
+```
+
+
+```{r mean_var_sampling_distrib}
+# This function returns the mean and variance of a 
+# random sample drawn from a Poisson distribution
+# 
+# Parameters:
+#   n sample size (number of elements to draw)
+#   lambda expectation of the Poisson
+rpois.mean.and.var <- function(n, lambda) {
+  x <- rpois(n, lambda)
+  return(data.frame(mean=mean(x), var=var(x)))
+}
+
+rpois.mean.and.var(n=10, lambda=3.5)
+
+# Quentin Ferre's solution with lapply
+rep <- 10000
+lambda <- runif(n=rep, min = 1, max=1000)
+result <- lapply(lambda, rpois, n=10)
+```
+
+## Poisson mean vs variance
+
+```{r plot_poisson_mean_var}
+# Define a data frame with 2 columns indicating 
+# the mean and variance of the random Poisson samples.
+rpois.stats <- data.frame(
+  mean=unlist(lapply(result, mean)), 
+  var=unlist(lapply(result, var))*9/10
+)
+
+# Plot the relationship between mean and variance
+plot(x=rpois.stats$mean, 
+     y=rpois.stats$var, col="grey",
+     main="Random poisson sampling",
+     xlab="mean", ylab="variance")
+grid()
+abline(a=0, b=1, col="darkgreen", lwd=2)
+```
+
+## Poisson mean vs coefficient of variation
+
+$$V = m / s^2$$
+
+```{r plot_poisson_mean_varcoeff}
+# Compute the coefficient of variation
+rpois.stats$V <- rpois.stats$mean / rpois.stats$var
+
+# Check the mean of the coefficient of variation
+mean(rpois.stats$V)
+
+# Plot the relationship between mean and coefficient of variation
+plot(rpois.stats$mean, rpois.stats$V, col="grey",
+     main="Random poisson sampling",
+     xlab="mean", ylab="variance")
+grid()
+abline(h=1, col="darkgreen", lwd=2)
+```
 
 
 
@@ -215,7 +290,7 @@ We reason in 3 steps, by computing the following probabilities.
 
 | Formula | Rationale |
 |---------------------|--------------------------------------------------------|
-| $1 -P_{\text{read}}$ | no match at a given genomic position |
+| $1 -P_{\text{read}} = 1 - p^k$ | no match at a given genomic position |
 | $(1 -P_{\text{read}})^N$ | not a single match in the genome |
 | $1 - (1 -P_{\text{read}})^N$ | at least one match in the genome |
 | | |
@@ -232,13 +307,13 @@ We can apply the same reasoning for the library-wise probability.
 
 | Formula | Rationale |
 |-------------------------------|-------------------------------------------|
-| $1 -P_{\text{genomic}} = (1 -P_{\text{read}})^G$ | no genomic match for a given read |
-| $(1 -P_{\text{read}})^{G L}$ | not a single genomic match in the library |
-| $1 - (1 -P_{\text{read}})^{G L}$ | at least one genomic match in the library |
+| $1 -P_{\text{genomic}} = (1 -P_{\text{read}})^N$ | no genomic match for a given read |
+| $(1 -P_{\text{read}})^{N L}$ | not a single genomic match in the library |
+| $1 - (1 -P_{\text{read}})^{N L}$ | at least one genomic match in the library |
 | | |
 
 ```{r pm_any_read_any_position}
-P.library <- 1 - (1 - P.read)^(G*L)
+P.library <- 1 - (1 - P.read)^(N*L)
 ```
 
 This gives $P_{\text{library}} = `r P.library`$, which should however not be literally interpreted as a certainty, but as a probability so close to $1$ that it cannot be distiguished from it. 
@@ -272,15 +347,15 @@ A local read-mapping algorithm starts by aligning the 5' base of a read, and ext
 
 What is the probability to obtain by chance:
 
-a. an alignment of exactly $25$ nucleotides?
-b. an alignment of at least $25$ nucleotides?
+a. an alignment of exactly $x=11$ nucleotides (11 matches followed by 1 mismatch)? 
+b. an alignment of at least $x=11$ nucleotides (11 matches followed by anything)?
 
 ## Local alignment -- parameters
 
 
 ```{r local_no_mismatch}
 p <- 0.25  # Matching probability for each nucleotide
-x <- 25    # Number of matches before the first mismatch
+x <- 11    # Number of matches before the first mismatch
 P.x <- p^x * (1-p)
 Pval.x <- p^x
 ```
