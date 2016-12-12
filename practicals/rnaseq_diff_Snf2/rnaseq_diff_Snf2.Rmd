@@ -11,19 +11,18 @@ output:
     toc: yes
     toc_depth: 3
     toc_float: yes
-  slidy_presentation:
+  beamer_presentation:
+    colortheme: dolphin
     fig_caption: yes
     fig_height: 4
     fig_width: 6
+    fonttheme: structurebold
     highlight: tango
     incremental: no
-    keep_md: no
-    self_contained: yes
+    keep_tex: no
     slide_level: 2
-    smaller: yes
-    theme: cerulean
+    theme: Montpellier
     toc: yes
-    widescreen: yes
   ioslides_presentation:
     colortheme: dolphin
     fig_caption: yes
@@ -43,18 +42,19 @@ output:
     highlight: zenburn
     toc: yes
     toc_depth: 3
-  beamer_presentation:
-    colortheme: dolphin
+  slidy_presentation:
     fig_caption: yes
     fig_height: 4
     fig_width: 6
-    fonttheme: structurebold
     highlight: tango
     incremental: no
-    keep_tex: no
+    keep_md: no
+    self_contained: yes
     slide_level: 2
-    theme: Montpellier
+    smaller: yes
+    theme: cerulean
     toc: yes
+    widescreen: yes
 font-import: http://fonts.googleapis.com/css?family=Risque
 font-family: Garamond
 transition: linear
@@ -70,6 +70,22 @@ transition: linear
       }
       // -->
 </script>
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE, message = FALSE, warning = FALSE,
+                      comment = "")
+
+## Options to display pretty numbers
+library(knitr)
+knit_hooks$set(inline = function(x) {
+  prettyNum(x, big.mark=" ")
+})
+options(scipen = 6, digits = 3)
+knitr::asis_output("\\footnotesize")
+```
+
 
 ****************************************************************
 # The Snf2 dataset
