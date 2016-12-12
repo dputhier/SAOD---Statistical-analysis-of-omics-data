@@ -97,6 +97,49 @@ This tutorial aims at providing a rapid overview of some discrete distributions 
 | Poisson | ChIP-seq peak calling |
 | Hypergeometric | Enrichment of a set of differentially expressed genes for functional classes |
 
+
+****************************************************************
+# Let us experiment first
+
+## The Poisson distribution
+
+The Poisson is a very simple and widely used discrete distribution. 
+
+$\frac{e^{-\lambda}\lambda^x}{x!}
+
+- represents the probability to observe $x$ successes when expecting $\lambda$ (say "lambda"). 
+- expected mean (for a sample of infinite size): $\mu = \lambda$
+- expected variance: $\sigma^2 = \lambda$
+
+- **More info**: read the help for the Poisson distribution: `help(Poisson)`
+
+## Exercise -- Poisson distribution
+
+
+- open  [collective result table](https://docs.google.com/spreadsheets/d/1Kl_0ln0_dZycK17Nqyu44kw9R0dtVp5lflXRtN7pAhA/edit#gid=0)
+- login with the email on which you were invited
+- each student has been assigned a $\lambda$ comprized between 0.01 and 1000
+- draw $rep=1000$ random numbers following a Poisson with this $\lambda$ value
+- compute the mean and variance
+- fill up the corresponding columns
+
+## Solution -- mean and variance of a Poisson random sampling
+
+## Replicating an experiment
+
+- read the help for  `runif()` and  `replicate()` 
+- make 1000 experiments consisting of the following steps:
+
+    - select at random a $\lambda$ value between $0.5$ and $1000$
+    - draw  $n=10$ random numbers following a Poisson with this $\lambda$
+    - compute the mean and variance
+
+- plot the relationship between mean and variance for the Poisson distribution
+
+## Solution -- mean to variance relationship for the Poisson distribution
+
+
+
 ****************************************************************
 # Perfect match probability
 
