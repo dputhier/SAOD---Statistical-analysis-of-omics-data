@@ -1,24 +1,68 @@
 ---
 title: "RNA-Seq - differential expression using DESeq2"
 author: "D. Puthier (adapted From Hugo Varet, Julie Auberta and J. van Helden) "
-date: '`r Sys.Date()`'
-output:
-  html_document:
-    highlight: tango
-    theme: united
-    toc: yes
-    toc_depth: 3
-    css: style.css
-  pdf_document:
-    highlight: zenburn
-    toc: yes
-    toc_depth: 3
+date: 'First version: 2016-12-10; Last update: `r Sys.Date()`'
 css: ../../html/course.css
 bibliography: bibliography.bib
 csl: biomed-central.csl
+output:
+  slidy_presentation:
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    highlight: tango
+    incremental: no
+    keep_md: no
+    self_contained: yes
+    slide_level: 2
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    self_contained: yes
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  ioslides_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_md: no
+    slide_level: 2
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+  beamer_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_tex: no
+    slide_level: 2
+    theme: Montpellier
+    toc: yes
+font-import: http://fonts.googleapis.com/css?family=Risque
+font-family: Garamond
+transition: linear
 ---
 
--------------------------------------------------
 
 
 <script language="JavaScript" type="text/javascript">
@@ -28,9 +72,9 @@ csl: biomed-central.csl
       tbl.style.display = h;
       }
       // -->
-</script> 
-    
+</script>
 
+****************************************************************
 # The Snf2 dataset
 
 
@@ -121,17 +165,20 @@ The summary only displays a few milestone values (mean, median, quartiles). In o
 hist(as.matrix(count.table), col="blue", border="white")
 ```
 
-The histogram is not very informative so far, apparently due to the presence of a few very high count values, that impose a very large scale on the X axis. We can use a logarithmic transformation to improve the readability. Note that we will add pseudo count to avoid problems with "zero" counts observed for some genes in some samples.
+The histogram is not very informative so far, apparently due to the presence of a few very high count values, that impose a very large scale on the $X$ axis. We can use a logarithmic transformation to improve the readability. Note that we will add pseudo count to avoid problems with "zero" counts observed for some genes in some samples.
 
 
 ```{r}
 ## Data distribution in log scale.
+
+epsilon <- 1 # pseudo-count to avoid problems with log(0)
+
 ## Logarithmic transformation
-hist(as.matrix(log2(count.table + 1)), breaks=100, col="blue", border="white")
+hist(as.matrix(log2(count.table + epsilon)), breaks=100, col="blue", border="white")
 
 ## Boxplots
-boxplot(log2(count.table + 1), col=col.pheno, pch=".", las=1, 
-xaxt='n', xlab="Samples", ylab="log2(Counts +1)")
+boxplot(log2(count.table + epsilon), col=col.pheno, pch=".", 
+        las=1, xaxt='n', xlab="Samples", ylab="log2(Counts +1)")
 ```
 
 Another way to get an intuition of the value distributions is to use the *plotDensity()* function, which draws one density curve for each sample.
@@ -180,13 +227,13 @@ abline(a=0, b=1)
 
 ```
 
-# Eliminating zero-count genes
+# Eliminating undetected genes
 
-All genes from genome the S. cerevisiae where quantified. However only a fraction of them where expressed and some of them where to weakly expressed to be detected in any of the sample. As aresult the count table may contain rows with only zero values (null counts). 
+All genes from genome the *S. cerevisiae* where quantified. However only a fraction of them where expressed and some of them where to weakly expressed to be detected in any of the sample. As a result the count table may contain rows with only zero values (null counts). 
  
 <div class="exo">
 - What is the percentage of gene having null counts per sample. Draw a barplot. 
-- Some genes were not detected in any of the sample. Delete them from the **count.table** data.frame.
+- Some genes were not detected in any of the sample. Count their number, and delete them from the **count.table** data.frame.
 </div>
 
 
@@ -204,6 +251,7 @@ barplot(prop.null, main="Percentage of null counts per sample", col=col.pheno, x
 count.table <- count.table[rowSums(count.table) > 0,]
 ```
 
+<!--sample ordering ? colors ?-->
 
 # Selecting randomly samples
 
@@ -224,7 +272,7 @@ samples.Snf2 <- sample(49:96, size=nb.replicates, replace=FALSE)
 selected.samples <- c(samples.WT, samples.Snf2)
 
 # Don't forget to update colors
-col.pheno <- col.pheno[selected.samples]
+selected.col.pheno <- col.pheno[selected.samples]
 ```
 
 
@@ -324,10 +372,10 @@ all(round(estimSf(dds0),6) == round(sizeFactors(dds.norm), 6))
 
 ## Checking the normalization
 par(mfrow=c(2,2),cex.lab=0.7)
-boxplot(log2(counts(dds.norm)+1),  col=col.pheno, cex.axis=0.7, las=2)
-boxplot(log2(counts(dds.norm, normalized=TRUE)+1),  col=col.pheno,, cex.axis=0.7, las=2) 
-plotDensity(log2(counts(dds.norm)+1),  col=col.pheno, cex.lab=0.7) 
-plotDensity(log2(counts(dds.norm, normalized=TRUE)+1),  col=col.pheno, cex.lab=0.7)
+boxplot(log2(counts(dds.norm)+1),  col=col.pheno.selected, cex.axis=0.7, las=2)
+boxplot(log2(counts(dds.norm, normalized=TRUE)+1),  col=col.pheno.selected,, cex.axis=0.7, las=2) 
+plotDensity(log2(counts(dds.norm)+1),  col=col.pheno.selected, cex.lab=0.7) 
+plotDensity(log2(counts(dds.norm, normalized=TRUE)+1),  col=col.pheno.selected, cex.lab=0.7)
 ```
 
 ## Modeling read counts
