@@ -1,11 +1,16 @@
 ---
 title: "RNA-Seq - differential expression using DESeq2"
-author: "D. Puthier (adapted From Hugo Varet, Julie Auberta and J. van Helden) "
+author: 'D. Puthier (adapted From Hugo Varet, Julie Auberta and J. van Helden) '
 date: 'First version: 2016-12-10; Last update: `r Sys.Date()`'
-css: ../../html/course.css
-bibliography: bibliography.bib
-csl: biomed-central.csl
 output:
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    self_contained: yes
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
   slidy_presentation:
     fig_caption: yes
     fig_height: 4
@@ -19,14 +24,6 @@ output:
     theme: cerulean
     toc: yes
     widescreen: yes
-  html_document:
-    fig_caption: yes
-    highlight: zenburn
-    self_contained: yes
-    theme: cerulean
-    toc: yes
-    toc_depth: 3
-    toc_float: yes
   ioslides_presentation:
     colortheme: dolphin
     fig_caption: yes
@@ -272,7 +269,7 @@ samples.Snf2 <- sample(49:96, size=nb.replicates, replace=FALSE)
 selected.samples <- c(samples.WT, samples.Snf2)
 
 # Don't forget to update colors
-selected.col.pheno <- col.pheno[selected.samples]
+col.pheno.selected <- col.pheno[selected.samples]
 ```
 
 
@@ -512,7 +509,7 @@ res.DESeq2 <- res.DESeq2[order(res.DESeq2$padj),]
 head(res.DESeq2)
 
 ## Draw an histogram of the p-values
-hist(res.DESeq2$padj)
+hist(res.DESeq2$padj, breaks=20, col="grey", main="DESeq2 p-value distribution", xlab="DESeq2 P-value", ylab="Number of genes")
 ```
 
 ## Looking at the results with a MA plot
@@ -533,11 +530,11 @@ abline(h=c(-1:1), col="red")
 ```
 
 
-------------------------------------------------------------------------------
+****************************************************************
 
 ## Hierarchical clustering
 
-To ensure that the selected genes distinguish well between "treated"" and "untreated" condition we will perform a hierachical clustering using the **heatmap.2()** function from the gplots library.
+To ensure that the selected genes distinguish well between "treated"" and "untreated" condition we will perform a hierachical clustering using the **`heatmap.2()`** function from the gplots library.
 
 ```{r}
 ## We select gene names based on FDR (1%)
