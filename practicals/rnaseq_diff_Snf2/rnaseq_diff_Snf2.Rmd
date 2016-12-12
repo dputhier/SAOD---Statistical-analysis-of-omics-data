@@ -296,6 +296,9 @@ In this section we will search for genes whose expression is affected by the gen
 ```{r}
 ## Install the library if needed then load it
 if(!require("DESeq2")){
+  install.packages("lazyeval")
+  install.packages("ggplot2")
+  
   source("http://bioconductor.org/biocLite.R")
   biocLite("DESeq2")
 }
@@ -491,7 +494,7 @@ To perform diffential expression call DESeq will assume that, for each gene, the
 
 ```{r}
 ## Performing estimation of dispersion parameter
- dds.disp <- estimateDispersions(dds.norm)
+dds.disp <- estimateDispersions(dds.norm)
 
 ## A diagnostic plot which
 ## shows the mean of normalized counts (x axis)
@@ -512,7 +515,9 @@ wald.test <- nbinomWaldTest(dds.disp)
 res.DESeq2 <- results(wald.test, alpha=alpha, pAdjustMethod="BH")
 
 ## What is the object returned by nbinomTest()
+class(res.DESeq2)
 is(res.DESeq2) # a data.frame
+slotNames(res.DESeq2)
 head(res.DESeq2)
 
 ## The column names of the data.frame
