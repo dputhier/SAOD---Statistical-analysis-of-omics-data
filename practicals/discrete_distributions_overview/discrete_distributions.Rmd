@@ -27,8 +27,8 @@ output:
   ioslides_presentation:
     colortheme: dolphin
     fig_caption: yes
-    fig_height: 5
-    fig_width: 7
+    fig_height: 4
+    fig_width: 6
     fonttheme: structurebold
     highlight: tango
     incremental: no
@@ -45,8 +45,8 @@ output:
     toc_depth: 3
   slidy_presentation:
     fig_caption: yes
-    fig_height: 6
-    fig_width: 7
+    fig_height: 4
+    fig_width: 6
     highlight: tango
     incremental: no
     keep_md: no
@@ -73,6 +73,8 @@ knit_hooks$set(inline = function(x) {
   prettyNum(x, big.mark=" ")
 })
 options(scipen = 6, digits = 3)
+
+knitr::asis_output("\\footnotesize")
 
 ```
 
@@ -248,7 +250,7 @@ $$P(X \ge `r x`) = p^x = 0.25^{`r x`} = `r Pval.x`$$
 ## Geometric distribution
 
 
-```{r geometric_densiy, echo=FALSE, fig.width=7, fig.height=4, fig.cap="**Geometric distribution.** "}
+```{r geometric_densiy, echo=FALSE, fig.width=6, fig.height=4, fig.cap="**Geometric distribution.** "}
 x <- 0:25  # Series of X values
 
 # Geometric density function
@@ -295,6 +297,16 @@ The probability to observe $k$ successes in a Bernoulli schema with $n$ trials a
 
 $$P(X=k) = \mathcal{B}(k; n, p) = \binom{n}{k}p^k(1-p)^{n-k} = \frac{n!}{k!(n-k)!}p^k(1-p)^{n-k}$$
 
+## Properties of the binomial distribution
+
+- Mean = $n \cdot p$
+- Variance = $n \cdot p \cdot (1 - p)$
+- Shape: 
+
+    - i-shaped when $p$ is close to 0, 
+    - j-shaped when $p$ is close to 1,
+    - bell-shaped for intermediate values of $p$.
+
 ## Binomial and perfect match
 
 **Remark**: the perfect match probability seen above is a particular case of the binomial. 
@@ -309,7 +321,7 @@ $$P(M \le m) = \sum_{k=n-m}^{n} \binom{n}{k}p^k(1-p)^{n-k}$$
 
 ## Binomial density
 
-```{r echo=FALSE, fig.height=4, fig.width=7, fig.cap="**Binomial density function**. Alignemnts with at most $m$ mismatches are highlighted in blue. "}
+```{r echo=FALSE, fig.width=6, fig.height=4, fig.cap="**Binomial density function**. Alignemnts with at most $m$ mismatches are highlighted in blue. "}
 x <- 0:n  # All possible numbers of matches
 m <- 3    # Max number of mismatches
 hits <- (n-m):n # Hits: at least n-m matches
@@ -322,7 +334,7 @@ arrows(n-m, 0.02, n, 0.02, length = 0.1, lwd=2,
 
 ## Binomial P-value
 
-```{r echo=FALSE, fig.height=4, fig.width=7, fig.cap="**Binomial p-value**. The ordinate indicates the probability to obtain at least $x$ matching nucleotides by chance. "}
+```{r echo=FALSE, fig.width=6, fig.height=4, fig.cap="**Binomial p-value**. The ordinate indicates the probability to obtain at least $x$ matching nucleotides by chance. "}
 x <- 0:n  # All possible numbers of matches
 m <- 3    # Max number of mismatches
 hits <- (n-m):n # Hits: at least n-m matches
@@ -361,9 +373,9 @@ seq <- data.frame(matrix(nrow=rep, ncol=n, sample(alphabet, size=n * rep, replac
 cat(c(apply(seq[1:5,], 1, paste, collapse=""), "..."), sep="\n")
 ```
 
-## Counting mismatches between read and random sequences
+## Mismatch count simulation
 
-```{r count_matches, echo=FALSE}
+```{r count_matches, echo=FALSE, fig.width=6, fig.height=4, fig.cap="**Global alignment simulation**. A random read is aligned on random sequences. "}
 ## Count the number of matches between a random read 
 ## and random sequences of the same length
 
@@ -376,63 +388,80 @@ count.matches <- function(seq1, seq2) {
   return(sum(seq1==seq2))
 }
 
-dim(seq)
-length(read)
 # Compute alignment lengths
 matches.per.seq <- apply(seq, 1, count.matches, read)
 
 ## Plot an histogram to compare the simulation results 
 ## and the theoretical distribution
+par(mar=c(4,4,0.1,0.1))
 hist(matches.per.seq, breaks=seq(from=-0.5, to=n+0.5, by=1), col="grey",
      las=1,
-     main="Local alignment",
+     main="",
      xlab="Number of matches",
      ylab="Sequences")
 x <- 0:n
 lines(x, rep*dbinom(x, size = n, prob = 0.25), type="h", col="blue", lwd=3)
 legend("topright", 
        c(paste(sep="", "random sequences (r=", rep, ")"),
-         paste(sep="", "B(n=",n,", p=", p,")")), 
+         paste(sep="", "Binom(n=",n,", p=", p,")")), 
        lwd=3,
        col=c("grey", "blue"))
 ```
 
-## Exercise -- binomial distribution
-
-Draw 1000 random numbers from a binomial distribution (`rbinom()`) and compute the mean and standard deviation. 
+## Exercise -- binomial Parameters
 
 Each student will take a custom prior probability ($p$) among the following values: $\{0.001, 0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99, 0.999\}$.
 
+1. Draw 10000 random numbers from a binomial distribution (`rbinom()`) with the custom $p$ and $25$ trials. 
+2. Compute the expected mean and variance. 
+3. Compute the classical descriptive statistics: mean, variance, standard deviation. 
+4. Fill up the form on the [collective result table](https://docs.google.com/spreadsheets/d/1Kl_0ln0_dZycK17Nqyu44kw9R0dtVp5lflXRtN7pAhA/edit#gid=0)
+5. Plot an histogram of the numbers drawn.
+6. Overlay the theoretical distribution and check the consistency.
+
+## Solution -- binomial 
+
+```{r rbinom}
+rand.rep <- 10000 # Random sample size
+p <- 0.1          # Prior probability
+n <- 25           # Number of trials for the binomial
+exp.mean <- n*p   # Expected number of successes
+exp.var <- n*p*(1-p)
+
+# Generate random numbers
+x <- rbinom(n = rand.rep, size = n, prob = p)
+
+# Compute statistics
+stats <- data.frame(p = p, n = n,exp.mean=exp.mean, mean=mean(x), 
+  exp.var = exp.var, variance=var(x), sd=sd(x))
+kable(stats, digits=4)
+```
+
+## Solution -- binomial plot
+
+```{r fig.width=6, fig.height=4, fig.caption="**Random binomial sampling. **"}
+hist(x, breaks=(0:26)-0.5, col="grey", main=paste("Binomial simulation, p =", p),
+     xlab="Successes", ylab="Frequency", las=1)
+lines(0:25, rand.rep*dbinom(x = 0:25, size = n, prob = p), col="blue", lwd=3, type="h")
+```
 
 
 ****************************************************************
-# Negative binomial: local alignment with $m$ mismatches
+# Negative binomial: local alignment with at most $m$ mismatches
 
-## Waiting time for the $m^{th}$ mismatch
+## Local alignment with mismatches: problem statement
 
-A local alignment algorithm starts aligning the 5' end of a read, and extends the alignment until either the $m^{th}$ mismatch or the end of the read. What is the probability to obtain by chance an alignemnt of at least $25$ nucleotides before the $4^{th}$ mismatch?
+A local alignment algorithm starts from the 5' end of a read, and stops either at the $x^{th}$ mismatch or when the end of the read is reached. What is the probability to obtain by chance an alignemnt of exactly $25$ nucleotides with exactly $m=3$ mismatches?
 
-```{r negbin, echo=FALSE, fig.width=8, fig.height=7, fig.cap="Negative binomial. "}
-x <- 0:25    # Number of successes
+This amounts to obtain exactly $k=22$ matches and $m=3$ mismatches (in any order), followed by a mismatch at the $(k+m+1)^{th}$ position.
 
-par(mfrow=c(2,2))
-for (m in 1:4) {
-  P.x <- dnbinom(x, size = m, prob = 0.75)
-  plot(x, P.x, type="s", panel.first = grid(), ylim=c(0,1), main=paste("m = ", m))
-}
-par(mfrow=c(1,1))
-```
-
-## Simulated sequences
-
-
-```{r random_simul_local_alignment, fig.width=7, fig.height=4, echo=FALSE}
+```{r local_alignment_simul, echo=FALSE}
 ## Simulate local alignment with random sequences. 
 ## Align a given read with random sequences and measure the 
 ## length of the longest alignment with at most m mismatches. 
 
 # Max accepted mismatches.
-m <- 5     
+m <- 5
 # Note: the alignment stops at m+1
 
 ## Define a function counting the length of the alignment 
@@ -449,21 +478,152 @@ ali.length <- function(seq1, seq2, max.mismatch) {
 # Compute alignment lengths
 ali.lengths <- apply(seq, 1, ali.length, read, m)
 max.len <- max(ali.lengths)
+```
 
-## plot an histogram
-hist(ali.lengths, breaks=seq(from=-0.5, to=max.len+1, by=1), col="grey",
-     las=1,
-     main="Local alignment",
-     xlab="Alignment length",
-     ylab="Number of sequences")
-x <- 0:max.len
-lines(x+m, rep*dnbinom(x, size = m+1, prob = 0.75), type="h", col="blue", lwd=3)
-legend("topright", 
-       c(paste("max", m, "accepted mismatches"),
-         paste(sep="", "random sequences (r=", rep, ")"),
-         paste(sep="", "NB(",m+1,",", 1-p,")")), 
-       lwd=3,
-       col=c("white", "grey", "blue"))
+We show here some examples of local alignments with at most `r m` mismatches. Note that the last residue can be either a match (uppercase) or a mismatch (lowercase).
+
+```{r echo=FALSE}
+## Show the first alignments
+cat(read, sep="")
+
+## Highlight matches in uppercases and mismatches in lowercases
+match.cases <- function(seq1, seq2, max.mismatches=NA) {
+  seq1 <- unlist(seq1)
+  seq2 <- unlist(seq2)
+  result <- toupper(seq1)
+  mismatches <- seq1 != seq2
+  result[mismatches] <- tolower(seq1[mismatches])
+  if (!is.na(max.mismatches)) {
+    mismatch.pos <- which(seq1 != seq2)
+    if (length(mismatch.pos) > max.mismatches) {
+      result[mismatch.pos[max.mismatches+1]:length(seq1)] <- ""
+    }
+  }
+  return(paste(result, collapse=""))
+}
+
+result <- apply(seq[1:5,], 1, match.cases, read, m)
+cat(c(result, "..."), sep="\n")
+
 ```
 
 
+## Number of successes before the $r^{th}$ failure
+
+The **negative binomial** distribution (also called **Pascal distribution**) indicates the probability of the number of successes ($k$) before the $r^{th}$ failure, in a Bernoulli schema with success probability $p$.
+
+$$\mathcal{NB}(k|r, p) = \binom{k+r-1}{k}p^k(1-p)^r$$
+
+This formula is a simple adaptation of the binomial, with the difference that we know that the last trial must be a failure. The binomial coefficient is thus reduced to choose the $k$ successes among the $n-1 = k+r-1$ trials preceding the $r^{th}$ failure. 
+
+## Alternative formulation
+
+It can also be adapted to indicate related probabilities. 
+
+- Number of **failures** ($r$) before the $k^{th}$ **success**.
+
+$$\mathcal{NB}(r|k, p) = \binom{k+r-1}{r}p^k(1-p)^r$$
+
+- Number of **trials** ($n=k+r-1$) before the $r^{th}$ **failure**.
+
+$$\mathcal{NB}(n|r, p) = \binom{n-1}{r-1}p^{n-r}(1-p)^r$$
+
+
+## Properties of the negative binomial
+
+## Negative binomial density
+
+```{r negbin, echo=FALSE, fig.width=8, fig.height=4, fig.cap="Negative binomial. "}
+k <- 0:25    # Number of successes
+
+par(mfrow=c(2,2))
+par(mar=c(4,4,1,1))
+for (r in c(1, 2, 5, 10)) {
+  P.k <- dnbinom(k, size = r, prob = 0.75)
+  plot(k, P.k, type="h", panel.first = grid(), lwd=3, ylim=c(0,1), las=1, xlab="Number of successes (k)", ylab="P(K=k)", col="darkblue")
+  legend("topright", legend=paste("Last failure: r = ", r))
+}
+par(mfrow=c(1,1))
+```
+
+## Local alignment with simulated sequences
+
+```{r random_simul_local_alignment, fig.width=7, fig.height=4, echo=FALSE}
+read.len <- 25  # Max alignment length
+x <- m:read.len # All possible alignment lengths
+r <- m+1        # Number of failures
+n <- x+1        # Number of trials including the closing failure
+p <- 0.25       # Matching probability
+
+# Compute and draw the probability with the dnbinom function
+p1 <- dnbinom(x-m, size = m+1, prob = 1-p) 
+
+# Compute (approx) the probability manually and check
+p2 <- choose(n -1, r-1) *p^(n-r)*(1-p)^r    
+# (p1-p2) / (p1+p2) # Check the precision
+
+## plot an histogram of the alignment lengths
+hist(ali.lengths, breaks=seq(from=-0.5, to=max.len+1, by=1), col="grey",
+     las=1,
+     main=paste("Local alignemnt, at most", m, "mismatches"),
+     xlab=paste(sep="", "Nucleotides before ", r, "th mismatch"),
+     ylab="Number of sequences")
+lines(x, rep*p1, type="h", col="blue", lwd=3)
+# lines(x,rep*p2, type="h", col="red", lty="dashed")
+legend("topright", 
+       c(paste(sep="", "random sequences (r=", rep, ")"),
+         paste(sep="", "NB(", r, ",", 1-p, ")")), 
+       lwd=3,
+       col=c("grey", "blue"))
+```
+
+## Exercise -- Negative binomial
+
+Each student chooses a value for the maximal number of failures ($r$). 
+
+1. Read carefully the help of the negative binomial functions: `help(NegBinomial)`
+2. **Random sampling**: draw of $rep=100000$ random numbers from a negative binomial distribution (`rndbinom()`) to compute the distribution of the number of successes ($k$) before the $r^{th}$ failure. 
+3. Compute the expected mean and variance of the negative binomial. 
+4. Compute the mean and variance from your sampling distribution. 
+5. Draw an histogram with the number of successes before the $r^{th}$ failure. 
+6. Fill up the form on the [collective result table](https://docs.google.com/spreadsheets/d/1Kl_0ln0_dZycK17Nqyu44kw9R0dtVp5lflXRtN7pAhA/edit#gid=0)
+
+## Solution to the exercise -- negative binomial
+
+```{r}
+r <- 6       # Number of failures
+p <- 0.75     # Failure probability
+rep <- 100000
+k <- rnbinom(n = rep, size = r, prob = p)
+max.k <- max(k)
+exp.mean <- r*(1-p)/p
+rand.mean <- mean(k)
+exp.var <- r*(1-p)/p^2
+rand.var <- var(k)
+hist(k, breaks = -0.5:(max.k+0.5), col="grey", xlab="Number of successes (k)",
+     las=1, ylab="", main="Random sampling from negative binomial")
+abline(v=rand.mean, col="darkgreen", lwd=2)
+abline(v=exp.mean, col="green", lty="dashed")
+arrows(rand.mean, rep/20, rand.mean+sqrt(rand.var), rep/20, 
+       angle=20, length = 0.1, col="purple", lwd=2)
+text(x = rand.mean, y = rep/15, col="purple",
+     labels = paste("sd =", signif(digits=2, sqrt(rand.var))), pos=4)
+legend("topright", legend=c(
+  paste("r =", r), 
+  paste("mean =", signif(digits=4, rand.mean)), 
+  paste("exp.mean =", signif(digits=4, exp.mean)), 
+  paste("var =", signif(digits=4, rand.var)),
+  paste("exp.var =", signif(digits=4, exp.var))
+  ))
+kable(data.frame(r=r, 
+                 exp.mean=exp.mean, 
+                 mean=rand.mean,
+                 exp.var=exp.var,
+                 var=rand.var), digits=4)
+```
+
+****************************************************************
+# Negative binomial for over-dispersed counts
+
+
+## To be treated in the afternoon !
