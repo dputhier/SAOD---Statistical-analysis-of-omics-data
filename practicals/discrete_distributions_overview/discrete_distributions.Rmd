@@ -4,18 +4,19 @@ title: Discrete distributions for the analysis of Next Generation Sequencing 
 author: "Jacques van Helden"
 date: 'First version: 2016-12-10; Last update: `r Sys.Date()`'
 output:
-  beamer_presentation:
-    colortheme: dolphin
+  slidy_presentation:
     fig_caption: yes
     fig_height: 4
     fig_width: 6
-    fonttheme: structurebold
     highlight: tango
     incremental: no
-    keep_tex: no
+    keep_md: no
+    self_contained: yes
     slide_level: 2
-    theme: Montpellier
+    smaller: yes
+    theme: cerulean
     toc: yes
+    widescreen: yes
   html_document:
     fig_caption: yes
     highlight: zenburn
@@ -43,19 +44,18 @@ output:
     highlight: zenburn
     toc: yes
     toc_depth: 3
-  slidy_presentation:
+  beamer_presentation:
+    colortheme: dolphin
     fig_caption: yes
     fig_height: 4
     fig_width: 6
+    fonttheme: structurebold
     highlight: tango
     incremental: no
-    keep_md: no
-    self_contained: yes
+    keep_tex: no
     slide_level: 2
-    smaller: yes
-    theme: cerulean
+    theme: Montpellier
     toc: yes
-    widescreen: yes
 font-import: http://fonts.googleapis.com/css?family=Risque
 font-family: Garamond
 transition: linear
@@ -204,6 +204,12 @@ rpois.stats$V <- rpois.stats$mean / rpois.stats$var
 
 # Check the mean of the coefficient of variation
 mean(rpois.stats$V)
+median(rpois.stats$V)
+sum(rpois.stats$mean >= rpois.stats$var)/nrow(rpois.stats)
+
+## PROBLEM HERE: 
+## THE VAR IS HIGHER THAN THE MEAN IN MORE CASES THAN EXPECTED
+## THE MEAN VAR IS HIGHER THAN THE MEAN MEAN
 
 # Plot the relationship between mean and coefficient of variation
 plot(rpois.stats$mean, rpois.stats$V, col="grey",
@@ -368,7 +374,7 @@ $$P(X \ge `r x`) = p^x = 0.25^{`r x`} = `r Pval.x`$$
 ## Geometric distribution
 
 
-```{r geometric_densiy, echo=FALSE, fig.width=6, fig.height=4, fig.cap="**Geometric distribution.** "}
+```{r geometric_densiy, echo=FALSE, fig.width=8, fig.height=4, fig.cap="**Geometric distribution.** "}
 x <- 0:25  # Series of X values
 
 # Geometric density function
@@ -377,10 +383,20 @@ P.x <- dgeom(x = x, prob = p)
 # Geometric p-value distribution
 Pval.x <- pgeom(q = x-1, prob = p, lower.tail = FALSE)
 
+par(mfrow=c(1,2))
 plot(x, P.x, type="h", lwd=2, col="#888888", ylim=c(0,1), las=1, panel.first=grid(), 
      xlab="Nucleotides before first mismatch", ylab="Probabilities")
 lines(stepfun(x, c(1, Pval.x)), verticals=TRUE, col="darkgreen")
 legend("topright", legend=c("Density: P(X=x)", "P-value: P(X>=x)"), col=c("#888888", "darkgreen"), lwd=2)
+
+plot(x, P.x, type="p", lwd=2, col="#888888", las=1, 
+     panel.first=grid(), log="y",
+     xlab="Nucleotides before first mismatch", ylab="Probabilities")
+lines(stepfun(x, c(1, Pval.x)), verticals=TRUE, col="darkgreen")
+legend("topright", legend=c("Density: P(X=x)", "P-value: P(X>=x)"), col=c("#888888", "darkgreen"), lwd=2)
+
+par(mfrow=c(1,1))
+
 ```
 
 
@@ -491,7 +507,7 @@ seq <- data.frame(matrix(nrow=rep, ncol=n, sample(alphabet, size=n * rep, replac
 cat(c(apply(seq[1:5,], 1, paste, collapse=""), "..."), sep="\n")
 ```
 
-## Mismatch count simulation
+## Match count distribution in simulated sequences
 
 ```{r count_matches, echo=FALSE, fig.width=6, fig.height=4, fig.cap="**Global alignment simulation**. A random read is aligned on random sequences. "}
 ## Count the number of matches between a random read 
@@ -567,11 +583,9 @@ lines(0:25, rand.rep*dbinom(x = 0:25, size = n, prob = p), col="blue", lwd=3, ty
 ****************************************************************
 # Negative binomial: local alignment with at most $m$ mismatches
 
+
 ## Local alignment with mismatches: problem statement
 
-A local alignment algorithm starts from the 5' end of a read, and stops either at the $x^{th}$ mismatch or when the end of the read is reached. What is the probability to obtain by chance an alignemnt of exactly $25$ nucleotides with exactly $m=3$ mismatches?
-
-This amounts to obtain exactly $k=22$ matches and $m=3$ mismatches (in any order), followed by a mismatch at the $(k+m+1)^{th}$ position.
 
 ```{r local_alignment_simul, echo=FALSE}
 ## Simulate local alignment with random sequences. 
@@ -597,6 +611,10 @@ ali.length <- function(seq1, seq2, max.mismatch) {
 ali.lengths <- apply(seq, 1, ali.length, read, m)
 max.len <- max(ali.lengths)
 ```
+
+A local alignment algorithm starts from the 5' end of a read, and stops either at the $x^{th}$ mismatch or when the end of the read is reached. What is the probability to obtain by chance an alignemnt of exactly $25$ nucleotides with exactly $m=`r m`$ mismatches?
+
+This amounts to obtain exactly $k=`r n -m`$ matches and $m=`r m`$ mismatches (in any order), followed by a mismatch at the $(k+m+1)^{th}$ position.
 
 We show here some examples of local alignments with at most `r m` mismatches. Note that the last residue can be either a match (uppercase) or a mismatch (lowercase).
 
