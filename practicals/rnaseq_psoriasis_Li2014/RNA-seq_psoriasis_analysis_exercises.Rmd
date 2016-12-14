@@ -1,0 +1,108 @@
+---
+title: 'RNA-seq: analysis of Psoriasis data (Li et al, 2014)'
+author: "Denis Puthier and Jacques van Helden"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    self_contained: yes
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  slidy_presentation:
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    highlight: tango
+    incremental: no
+    keep_md: no
+    self_contained: yes
+    slide_level: 2
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+  ioslides_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_md: no
+    slide_level: 2
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+  beamer_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_tex: no
+    slide_level: 2
+    theme: Montpellier
+    toc: yes
+font-import: http://fonts.googleapis.com/css?family=Risque
+font-family: Garamond
+transition: linear
+bibliography: "RNA-seq_psoriasis_analysis_biblio.bib"
+#css: ../../html/course.css
+---
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE, message = FALSE, warning = FALSE,
+                      comment = "")
+
+## Options to display pretty numbers
+library(knitr)
+knit_hooks$set(inline = function(x) {
+  prettyNum(x, big.mark=" ")
+})
+options(scipen = 6, digits = 3)
+
+```
+
+# Exercise
+
+Li et al. [-@Li:2014dp] used RNA-seq to characterize the transcriptome of 92 skin samples of people suffering from psoriasis, and 82 control samples. We pre-processed the raw sequences (NGS reads) to obtain a data table containing the counts per gene (row) for each sample (columns).  
+
+
+## Goals of this practical
+
+1. **Detection and interpretation of differentially expressed genes:** run a statistical analysis of the read counts, in order to detect differentially expressed genes (**DEG**) between psoriasis and control samples, and to study the functional associations of these genes, and provide a biological interpretation of these results. 
+
+2. **Methodological evaluation:** 
+
+    a. **Robusntess analysis:** analyse the impact of individual particularities of the patients/controls, and measure the impact of the sample size by applying a sub-sampling approach. 
+
+    b. **Negative control:** check the reliability of the DEG detection method (DESeq2) by running the same analysis with two subset of samples belonging to the same group. 
+
+
+****************************************************************
+## Dataset
+
+Count table: [data/counts_all_sample_header.txt.gz](data/counts_all_sample_header.txt.gz)
+
+
+
+****************************************************************
+# References
+
+
+
