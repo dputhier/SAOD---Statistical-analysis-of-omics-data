@@ -66,7 +66,7 @@ output:
 | Mon 12/12 | 09:00 | 13:00 | Overview of discrete distributions, with applications to NGS | JvH | - Geometric<br>- Binomial<br>- Poisson<br>-Hypergeometric<br>- Negative binomial | Tutorial [[html](practicals/discrete_distributions_overview/discrete_distributions.html)][[pdf](practicals/discrete_distributions_overview/discrete_distributions.pdf)][[Rmd](practicals/discrete_distributions_overview/discrete_distributions.Rmd)] |
 | Mon 12/12 | 14:00 | 18:00 | Detecting differentially expressed genes (DEG) with RNA-seq | DP/JvH | - RNA-Seq principles <br>- Normalizing RNA-seq counts <br>-Detecting differentially expressed genes (DEG)| - RNA-Seq DEG with DESeq2 [[html]](practicals/rnaseq_diff_Snf2/rnaseq_diff_Snf2.html) [[pdf]](practicals/rnaseq_diff_Snf2/rnaseq_diff_Snf2.pdf) [[Rmd]](practicals/rnaseq_diff_Snf2/rnaseq_diff_Snf2.Rmd) |
 | Wed 14/12 | 09:00 | 13:00 | RNA-seq analysis (pursued) | JvH | | [[]]()<br>[[]]() |
-| Wed 14/12 | 14:00 | 18:00 | Preparation of the personal work | DP | **Homework: analysis of psoriasis data** [[html]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_exercises.html) [[Rmd]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_exercises.Rmd) [[bib]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_exercises.bib)|
+| Wed 14/12 | 14:00 | 18:00 | Preparation of the personal work | DP | **Homework: analysis of psoriasis data** [[html]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_exercises.html) [[Rmd]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_exercises.Rmd) [[bib]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_biblio.bib)|
 
 
 
