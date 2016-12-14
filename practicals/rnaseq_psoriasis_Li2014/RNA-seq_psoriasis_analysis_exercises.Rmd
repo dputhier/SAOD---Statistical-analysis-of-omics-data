@@ -66,7 +66,7 @@ bibliography: "RNA-seq_psoriasis_analysis_biblio.bib"
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE, message = FALSE, warning = FALSE,
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, cache = TRUE, message = FALSE, warning = FALSE,
                       comment = "")
 
 ## Options to display pretty numbers
@@ -80,12 +80,13 @@ options(scipen = 6, digits = 3)
 
 # Exercise
 
-Li et al. [-@Li:2014dp] used RNA-seq to characterize the transcriptome of 92 skin samples of people suffering from psoriasis, and 82 control samples. We pre-processed the raw sequences (NGS reads) to obtain a data table containing the counts per gene (row) for each sample (columns).  
+
+Li and coworkers [-@Li:2014dp] used RNA-seq to characterize the transcriptome of 92 skin samples of people suffering from psoriasis, and 82 control samples. We pre-processed the raw sequences (NGS reads) to obtain a data table containing the counts per gene (row) for each sample (columns).  
 
 
 ## Goals of this practical
 
-1. **Detection and interpretation of differentially expressed genes:** run a statistical analysis of the read counts, in order to detect differentially expressed genes (**DEG**) between psoriasis and control samples, and to study the functional associations of these genes, and provide a biological interpretation of these results. 
+1. **Detection and interpretation of differentially expressed genes:** run a statistical analysis of the read counts, in order to detect differentially expressed genes (**DEG**) between psoriasis and control samples [@Li:2014dp], and to study the functional associations of these genes, and provide a biological interpretation of these results. 
 
 2. **Methodological evaluation:** 
 
@@ -97,8 +98,30 @@ Li et al. [-@Li:2014dp] used RNA-seq to characterize the transcriptome of 92 ski
 ****************************************************************
 ## Dataset
 
+The raw data wqs downloaded from Gene Expression Omnibus series **[GSE54456](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE54456)**.
+
 Count table: [data/counts_all_sample_header.txt.gz](data/counts_all_sample_header.txt.gz)
 
+```{r}
+dir.psoriasis <- ("~/ASG/practicals/rnaseq_psoriasis_Li2014/")
+dir.counts <- file.path(dir.psoriasis, "data")
+file.counts <- file.path(dir.counts, "counts_all_sample_header.txt.gz")
+
+## Create a directory to download the dataset if it does not exist
+dir.create(dir.counts, showWarnings = FALSE, recursive = TRUE)
+
+
+## Download the psoriasis file if required
+if (!file.exists(file.counts)) {
+  url.counts <- "https://dputhier.github.io/ASG/practicals/rnaseq_psoriasis_Li2014/data/counts_all_sample_header.txt.gz"
+  download.file(url=url.counts, destfile = file.counts)
+}
+
+counts <- read.delim(file.counts)
+
+```
+
+The count table contains `r nrow(counts)` rows and `r ncol(counts)` columns.
 
 
 ****************************************************************
