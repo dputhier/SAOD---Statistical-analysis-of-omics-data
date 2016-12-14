@@ -583,6 +583,12 @@ heatmap.2(as.matrix(count.table.kept),
           labRow="",
           cexCol=0.7)
 
+# Export the DESeq2 result table
+dir.results <- "~/ASG/practicals/rnaseq_diff_Snf2/results"
+dir.create(dir.results, showWarnings = FALSE, recursive = TRUE)
+DESeq2.table <- file.path(dir.results, "yeast_Snf2_vs_WT_DESeq2_diff.tsv")
+write.table(res.DESeq2, file=DESeq2.table, col.names = TRUE, row.names = TRUE, sep="\t", quote = FALSE)
+
 ```
 
 ## Assess the effect of sample number on differential expression call
