@@ -4,19 +4,18 @@ title: Discrete distributions for the analysis of Next Generation Sequencing 
 author: "Jacques van Helden"
 date: 'First version: 2016-12-10; Last update: `r Sys.Date()`'
 output:
-  slidy_presentation:
+  beamer_presentation:
+    colortheme: dolphin
     fig_caption: yes
     fig_height: 4
     fig_width: 6
+    fonttheme: structurebold
     highlight: tango
     incremental: no
-    keep_md: no
-    self_contained: yes
+    keep_tex: no
     slide_level: 2
-    smaller: yes
-    theme: cerulean
+    theme: Montpellier
     toc: yes
-    widescreen: yes
   html_document:
     fig_caption: yes
     highlight: zenburn
@@ -44,18 +43,19 @@ output:
     highlight: zenburn
     toc: yes
     toc_depth: 3
-  beamer_presentation:
-    colortheme: dolphin
+  slidy_presentation:
     fig_caption: yes
     fig_height: 4
     fig_width: 6
-    fonttheme: structurebold
     highlight: tango
     incremental: no
-    keep_tex: no
+    keep_md: no
+    self_contained: yes
     slide_level: 2
-    theme: Montpellier
+    smaller: yes
+    theme: cerulean
     toc: yes
+    widescreen: yes
 font-import: http://fonts.googleapis.com/css?family=Risque
 font-family: Garamond
 transition: linear
@@ -164,19 +164,26 @@ hist(sampling.means, breaks=100)
 #   lambda expectation of the Poisson
 rpois.mean.and.var <- function(n, lambda) {
   x <- rpois(n, lambda)
-  return(data.frame(mean=mean(x), var=var(x)))
+  return(data.frame(mean=mean(x), var=var(x), lambda=lambda, n=n))
 }
 
 rpois.mean.and.var(n=10, lambda=3.5)
+
+## Generate a data frame with random Poisson sampling with increasing values of lambda
 poisson.stats <- data.frame()
 for (i in 1:1000) {
-  poisson.stats <- rbind(poisson.stats, rpois.mean.and.var(n=10, lambda=i))  
+  poisson.stats <- rbind(poisson.stats, rpois.mean.and.var(n=1000, lambda=i))  
 }
 
+## Compute the coefficient of variation
 poisson.stats$V <- poisson.stats$mean/poisson.stats$var
+
+head(poisson.stats)
 
 print(summary(poisson.stats))
 
+
+## Summmarize the results with various plots
 par(mfrow=c(2,2))
 par(mar=c(5,4,1,1))
 plot(poisson.stats$mean, poisson.stats$var, col=densCols(poisson.stats$mean, poisson.stats$var), panel.first = grid())
@@ -187,9 +194,13 @@ abline(a=0, b=1, lwd=2)
 plot(poisson.stats$mean, poisson.stats$V, col=densCols(poisson.stats$mean, poisson.stats$V),
      panel.first = grid())
 abline(h=1, col="brown", lwd=2)
-plot(poisson.stats$mean, poisson.stats$V, col=densCols(poisson.stats$mean, poisson.stats$V), 
-     panel.first = grid(), log="xy")
-abline(h=1, col="brown", lwd=2)
+
+# plot(poisson.stats$mean, poisson.stats$V, col=densCols(poisson.stats$mean, poisson.stats$V), 
+#      panel.first = grid(), log="xy")
+# abline(h=1, col="brown", lwd=2)
+
+hist(poisson.stats$V, breaks=100)
+
 par(mar=c(5,4,4,2))
 par(mfrow=c(1,1))
 ```
