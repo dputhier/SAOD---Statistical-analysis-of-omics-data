@@ -98,7 +98,14 @@ Li and coworkers [-@Li:2014dp] used RNA-seq to characterize the transcriptome of
 ****************************************************************
 ## Dataset
 
-The raw data wqs downloaded from Gene Expression Omnibus series **[GSE54456](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE54456)**.
+The raw datasets were downloaded from Gene Expression Omnibus series **[GSE54456](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE54456)**.
+
+### Processing
+
+(**<font color="red">Denis, please give the parameters</font>**)
+
+
+### Access to the count tbale
 
 Count table: [data/counts_all_sample_header.txt.gz](data/counts_all_sample_header.txt.gz)
 
@@ -117,11 +124,39 @@ if (!file.exists(file.counts)) {
   download.file(url=url.counts, destfile = file.counts)
 }
 
-counts <- read.delim(file.counts)
-
+counts <- read.delim(file.counts, row.names = 1)
+names(counts) <- sub(pattern="_count.txt", replacement="", x=names(counts))  
+names(counts) <- sub(pattern="__", replacement="_", x=names(counts))  
+# View(counts)
+head(names(counts))
 ```
 
 The count table contains `r nrow(counts)` rows and `r ncol(counts)` columns.
+
+```{r pheno_table}
+## Generate a "pheno" table (description of each sample) from the headers of the count table. This is a bit tricky, but since we are often led to use such tricks it is good to see how to proceed.
+
+
+## Load the limma library which implement strplit2, muech more convenient than strsplit
+if (!require(limma)) {
+  source("http://bioconductor.org/biocLite.R")
+  biocLite("limma")  
+}
+library(limma)
+
+psoriasis.pheno <- data.frame(strsplit2(names(counts), split = "_"))
+class(psoriasis.pheno)
+head(psoriasis.pheno)
+names(psoriasis.pheno) <- c("GSM_ID", "M_ID", "Group","tissue", "SRX_ID")
+row.names(psoriasis.pheno)<- names(counts)
+# head(psoriasis.pheno)
+# View(psoriasis.pheno)
+# View(counts)
+
+## Write a file with the pheno
+write.table(psoriasis.pheno, file=file.path(dir.counts, "counts_all_sample_pheno.tab"), quote=FALSE, row.names = TRUE, col.names = TRUE, sep="\t")
+
+```
 
 
 ****************************************************************
