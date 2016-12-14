@@ -533,6 +533,23 @@ head(res.DESeq2)
 hist(res.DESeq2$padj, breaks=20, col="grey", main="DESeq2 p-value distribution", xlab="DESeq2 P-value", ylab="Number of genes")
 ```
 
+## Volcano plot
+
+
+```{r volcano_plot}
+alpha <- 0.01 # Threshold on the adjusted p-value
+cols <- densCols(res.DESeq2$log2FoldChange, -log10(res.DESeq2$pvalue))
+plot(res.DESeq2$log2FoldChange, -log10(res.DESeq2$padj), col=cols, panel.first=grid(),
+     main="Volcano plot", xlab="Effect size: log2(fold-change)", ylab="-log10(adjusted p-value)",
+     pch=20, cex=0.6)
+abline(v=0)
+abline(v=c(-1,1), col="brown")
+abline(h=-log10(alpha), col="brown")
+
+```
+
+
+
 ## Looking at the results with a MA plot
 
 One popular diagram in dna chip analysis is the M versus A plot (MA plot) between two conditions $a$ and $b$. In this representation :
