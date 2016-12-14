@@ -168,16 +168,41 @@ rpois.mean.and.var <- function(n, lambda) {
 }
 
 rpois.mean.and.var(n=10, lambda=3.5)
+poisson.stats <- data.frame()
+for (i in 1:1000) {
+  poisson.stats <- rbind(poisson.stats, rpois.mean.and.var(n=10, lambda=i))  
+}
 
-# Quentin Ferre's solution with lapply
-rep <- 10000
-lambda <- runif(n=rep, min = 1, max=1000)
-result <- lapply(lambda, rpois, n=10)
+poisson.stats$V <- poisson.stats$mean/poisson.stats$var
+
+print(summary(poisson.stats))
+
+par(mfrow=c(2,2))
+par(mar=c(5,4,1,1))
+plot(poisson.stats$mean, poisson.stats$var, col=densCols(poisson.stats$mean, poisson.stats$var), panel.first = grid())
+abline(a=0, b=1, col="brown", lwd=2)
+plot(poisson.stats$mean, poisson.stats$var, col=densCols(poisson.stats$mean, poisson.stats$var),
+    panel.first = grid(), log="xy")
+abline(a=0, b=1, lwd=2)
+plot(poisson.stats$mean, poisson.stats$V, col=densCols(poisson.stats$mean, poisson.stats$V),
+     panel.first = grid())
+abline(h=1, col="brown", lwd=2)
+plot(poisson.stats$mean, poisson.stats$V, col=densCols(poisson.stats$mean, poisson.stats$V), 
+     panel.first = grid(), log="xy")
+abline(h=1, col="brown", lwd=2)
+par(mar=c(5,4,4,2))
+par(mfrow=c(1,1))
 ```
 
 ## Poisson mean vs variance
 
 ```{r plot_poisson_mean_var}
+################################################################
+# Quentin Ferre's solution with lapply
+rep <- 10000
+lambda <- runif(n=rep, min = 1, max=1000)
+result <- lapply(lambda, rpois, n=10)
+
 # Define a data frame with 2 columns indicating 
 # the mean and variance of the random Poisson samples.
 rpois.stats <- data.frame(
@@ -193,6 +218,7 @@ plot(x=rpois.stats$mean,
 grid()
 abline(a=0, b=1, col="darkgreen", lwd=2)
 ```
+
 
 ## Poisson mean vs coefficient of variation
 
