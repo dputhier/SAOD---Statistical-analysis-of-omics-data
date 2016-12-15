@@ -84,6 +84,13 @@ knit_hooks$set(inline = function(x) {
 })
 options(scipen = 6, digits = 3)
 knitr::asis_output("\\footnotesize")
+
+# Load gProfileR (install first if not done yet)
+if (!require(gProfileR)) {
+  install.packages("gProfileR")
+}
+library(gProfileR)
+
 ```
 
 
