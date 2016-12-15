@@ -553,8 +553,22 @@ abline(v=0)
 abline(v=c(-1,1), col="brown")
 abline(h=-log10(alpha), col="brown")
 
+gn.selected <- abs(res.DESeq2$log2FoldChange) > 2 & res.DESeq2$padj < alpha 
+text(res.DESeq2$log2FoldChange[gn.selected],
+     -log10(res.DESeq2$padj)[gn.selected],
+     lab=rownames(res.DESeq2)[gn.selected ], cex=0.4)
+
 ```
 
+## Check the expression levels of the most differentially expressed gene
+
+It may be important to check the validity of our analysis by simply assessing the expression level of the most highly differential gene.
+
+```{r}
+gn.most.sign <- rownames(res.DESeq2)[1]
+gn.most.diff.val <- counts(dds.norm, normalized=T)[gn.most.sign,]
+barplot(gn.most.diff.val, col=col.pheno.selected, main=gn.most.sign, las=2, cex.names=0.5)
+```
 
 
 ## Looking at the results with a MA plot
@@ -614,6 +628,41 @@ DESeq2.table <- file.path(dir.results, "yeast_Snf2_vs_WT_DESeq2_diff.tsv")
 write.table(res.DESeq2, file=DESeq2.table, col.names = TRUE, row.names = TRUE, sep="\t", quote = FALSE)
 
 ```
+
+
+## Functional enrichment
+
+We will now perform functional enrichment using the list of induced genes. This step will be performed using the gProfileR R library.
+
+```{r}
+library(gProfileR)
+
+res.DESeq2.df <- na.omit(data.frame(res.DESeq2))
+induced.sign <- rownames(res.DESeq2.df)[res.DESeq2.df$log2FoldChange >= 2 &  res.DESeq2.df$padj < alpha]
+head(induced.sign)
+
+term.induced <- gprofiler(query=induced.sign, organism="scerevisiae")
+term.induced <- term.induced[order(term.induced$p.value),]
+kable(head(term.induced[,c("p.value", "term.name","intersection")], 10))
+
+```
+
+And now using the list of repressed genes. 
+
+```{r}
+
+
+res.DESeq2.df <- na.omit(data.frame(res.DESeq2))
+repressed.sign <- rownames(res.DESeq2.df)[res.DESeq2.df$log2FoldChange <= -2 &  res.DESeq2.df$padj < alpha]
+head(repressed.sign)
+
+term.repressed <- gprofiler(query=repressed.sign, organism="scerevisiae")
+term.repressed <- term.repressed[order(term.repressed$p.value),]
+kable(head(term.induced[,c("p.value", "term.name","intersection")], 10))
+
+```
+
+
 
 ## Assess the effect of sample number on differential expression call
 
