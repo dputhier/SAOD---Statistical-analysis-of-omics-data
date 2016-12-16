@@ -107,20 +107,22 @@ The raw datasets were downloaded from Gene Expression Omnibus series **[GSE54456
 
 ### Access to the count tbale
 
-Count table: [data/counts_all_sample_header.txt.gz](data/counts_all_sample_header.txt.gz)
 
 ```{r}
+## If required, download the count table from the Web site (this is done only once).
+url.counts <- "https://dputhier.github.io/ASG/practicals/rnaseq_psoriasis_Li2014/data/counts_all_sample_header.txt.gz"
+
+## Local paths
 dir.psoriasis <- ("~/ASG/practicals/rnaseq_psoriasis_Li2014/")
 dir.counts <- file.path(dir.psoriasis, "data")
-file.counts <- file.path(dir.counts, "counts_all_sample_header.txt.gz")
+file.counts <- file.path("data", "counts_all_sample_header.txt.gz")
 
 ## Create a directory to download the dataset if it does not exist
 dir.create(dir.counts, showWarnings = FALSE, recursive = TRUE)
-
+setwd(dir.psoriasis)
 
 ## Download the psoriasis file if required
 if (!file.exists(file.counts)) {
-  url.counts <- "https://dputhier.github.io/ASG/practicals/rnaseq_psoriasis_Li2014/data/counts_all_sample_header.txt.gz"
   download.file(url=url.counts, destfile = file.counts)
 }
 
@@ -128,10 +130,11 @@ counts <- read.delim(file.counts, row.names = 1)
 names(counts) <- sub(pattern="_count.txt", replacement="", x=names(counts))  
 names(counts) <- sub(pattern="__", replacement="_", x=names(counts))  
 # View(counts)
-head(names(counts))
+# head(names(counts))
+kable(counts[101:108, 1:3], caption = "**Table 1.** Small piece of the count table. ")
 ```
 
-The count table contains `r nrow(counts)` rows and `r ncol(counts)` columns.
+The [count table](`r file.counts`) contains `r nrow(counts)` rows (one per gene) and `r ncol(counts)` columns (one per sample).
 
 ```{r pheno_table}
 ## Generate a "pheno" table (description of each sample) from the headers of the count table. This is a bit tricky, but since we are often led to use such tricks it is good to see how to proceed.
@@ -145,19 +148,47 @@ if (!require(limma)) {
 library(limma)
 
 psoriasis.pheno <- data.frame(strsplit2(names(counts), split = "_"))
-class(psoriasis.pheno)
-head(psoriasis.pheno)
 names(psoriasis.pheno) <- c("GSM_ID", "M_ID", "Group","tissue", "SRX_ID")
 row.names(psoriasis.pheno)<- names(counts)
 # head(psoriasis.pheno)
 # View(psoriasis.pheno)
-# View(counts)
 
 ## Write a file with the pheno
-write.table(psoriasis.pheno, file=file.path(dir.counts, "counts_all_sample_pheno.tab"), quote=FALSE, row.names = TRUE, col.names = TRUE, sep="\t")
+setwd(dir.psoriasis)
+file.pheno <- file.path("data", "counts_all_sample_pheno.tab")
+write.table(psoriasis.pheno, file=file.pheno, 
+            quote=FALSE, row.names = TRUE, col.names = TRUE, sep="\t")
 
 ```
 
+The [pheno table](`r file.pheno`) contains `r nrow(psoriasis.pheno)` rows (one per sample) and `r ncol(psoriasis.pheno)` columns (one per sample attribute). 
+
+```{r}
+kable(head(psoriasis.pheno), row.names = FALSE, caption = "**Table 2. First rows of the pheno table. ** Each row describes one sample. ")
+
+kable(as.data.frame(table(psoriasis.pheno$Group)), col.names = c("Group", "Number of samples"),
+      caption = "**Table 3. Number of samples per group.** ")
+```
+
+## Analyses
+
+1. **Differential analysis**. Analyse the full dataset to detect differentially expressed genes. This analysis should include the following steps.
+
+    a. Log2-transformation of the counts (with an epsilon). 
+    b. Graphical description of the data (historgrams, barplots, boxplots, ...).
+    c. Computation of summary statistics per sample (min, max, mean, median, quartiles, number of zeros, ...) for raw counts and log2-transformed counts.
+    d. Detection of differentially expressed genes (including graphical representations: volcano plot, p-value histogram, ...). 
+    e. Functional enrichment of the differentially expressed genes. 
+
+2. **Sub-sampling**. Run the same analysis on randomly selected subsets of the samples, with various subset sizes (n=2,3,4,5,10,20,40). 
+
+3. **Negative control. ** Run the same analysis with two subsets of samples belonging to the same group (psoriasis versus psoriasis, control versus control).
+
+## Reports
+
+Les rapports peuvent être rédigés en français ou en anglais.
+
+**Format:** the report can be submitted in either html or pdf format. The original Rmd file that was used to generate the report must be submitted together with the report. This file should allow the teachers to reprodue the analysis on their computers. 
 
 ****************************************************************
 # References

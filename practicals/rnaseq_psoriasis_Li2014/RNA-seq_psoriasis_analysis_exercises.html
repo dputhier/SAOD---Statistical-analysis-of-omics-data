@@ -11,7 +11,7 @@
 
 <meta name="author" content="Denis Puthier and Jacques van Helden" />
 
-<meta name="date" content="2016-12-14" />
+<meta name="date" content="2016-12-16" />
 
 <title>RNA-seq: analysis of Psoriasis data (Li et al, 2014)</title>
 
@@ -202,7 +202,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">RNA-seq: analysis of Psoriasis data (Li et al, 2014)</h1>
 <h4 class="author"><em>Denis Puthier and Jacques van Helden</em></h4>
-<h4 class="date"><em>2016-12-14</em></h4>
+<h4 class="date"><em>2016-12-16</em></h4>
 
 </div>
 
@@ -231,24 +231,166 @@ div.tocify {
 </div>
 <div id="access-to-the-count-tbale" class="section level3">
 <h3>Access to the count tbale</h3>
-<p>Count table: <a href="data/counts_all_sample_header.txt.gz" class="uri">data/counts_all_sample_header.txt.gz</a></p>
-<pre><code>[1] &quot;GSM1315790_M9132_Psoriasis_skin_SRX451477&quot;
-[2] &quot;GSM1315789_M9081_Psoriasis_skin_SRX451476&quot;
-[3] &quot;GSM1315788_M9049_Psoriasis_skin_SRX451475&quot;
-[4] &quot;GSM1315787_M9027_normal_skin_SRX451474&quot;   
-[5] &quot;GSM1315786_M9004_normal_skin_SRX451473&quot;   
-[6] &quot;GSM1315785_M9000_normal_skin_SRX451472&quot;   </code></pre>
-<p>The count table contains 23 368 rows and 174 columns.</p>
-<pre><code>[1] &quot;data.frame&quot;</code></pre>
-<pre><code>          X1    X2        X3   X4        X5
-1 GSM1315790 M9132 Psoriasis skin SRX451477
-2 GSM1315789 M9081 Psoriasis skin SRX451476
-3 GSM1315788 M9049 Psoriasis skin SRX451475
-4 GSM1315787 M9027    normal skin SRX451474
-5 GSM1315786 M9004    normal skin SRX451473
-6 GSM1315785 M9000    normal skin SRX451472</code></pre>
-<hr />
+<table>
+<caption><strong>Table 1.</strong> Small piece of the count table.</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">GSM1315790_M9132_Psoriasis_skin_SRX451477</th>
+<th align="right">GSM1315789_M9081_Psoriasis_skin_SRX451476</th>
+<th align="right">GSM1315788_M9049_Psoriasis_skin_SRX451475</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">ABHD5</td>
+<td align="right">2126</td>
+<td align="right">1519</td>
+<td align="right">1423</td>
+</tr>
+<tr class="even">
+<td align="left">ABHD6</td>
+<td align="right">434</td>
+<td align="right">263</td>
+<td align="right">407</td>
+</tr>
+<tr class="odd">
+<td align="left">ABHD8</td>
+<td align="right">319</td>
+<td align="right">418</td>
+<td align="right">598</td>
+</tr>
+<tr class="even">
+<td align="left">ABI1</td>
+<td align="right">3585</td>
+<td align="right">3004</td>
+<td align="right">2610</td>
+</tr>
+<tr class="odd">
+<td align="left">ABI2</td>
+<td align="right">652</td>
+<td align="right">518</td>
+<td align="right">521</td>
+</tr>
+<tr class="even">
+<td align="left">ABI3</td>
+<td align="right">250</td>
+<td align="right">151</td>
+<td align="right">299</td>
+</tr>
+<tr class="odd">
+<td align="left">ABI3BP</td>
+<td align="right">1956</td>
+<td align="right">850</td>
+<td align="right">1299</td>
+</tr>
+<tr class="even">
+<td align="left">ABL1</td>
+<td align="right">2769</td>
+<td align="right">3475</td>
+<td align="right">2889</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="data/counts_all_sample_header.txt.gz">count table</a> contains 23 368 rows (one per gene) and 174 columns (one per sample).</p>
+<p>The <a href="data/counts_all_sample_pheno.tab">pheno table</a> contains 174 rows (one per sample) and 5 columns (one per sample attribute).</p>
+<table>
+<caption><strong>Table 2. First rows of the pheno table. </strong> Each row describes one sample.</caption>
+<thead>
+<tr class="header">
+<th align="left">GSM_ID</th>
+<th align="left">M_ID</th>
+<th align="left">Group</th>
+<th align="left">tissue</th>
+<th align="left">SRX_ID</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">GSM1315790</td>
+<td align="left">M9132</td>
+<td align="left">Psoriasis</td>
+<td align="left">skin</td>
+<td align="left">SRX451477</td>
+</tr>
+<tr class="even">
+<td align="left">GSM1315789</td>
+<td align="left">M9081</td>
+<td align="left">Psoriasis</td>
+<td align="left">skin</td>
+<td align="left">SRX451476</td>
+</tr>
+<tr class="odd">
+<td align="left">GSM1315788</td>
+<td align="left">M9049</td>
+<td align="left">Psoriasis</td>
+<td align="left">skin</td>
+<td align="left">SRX451475</td>
+</tr>
+<tr class="even">
+<td align="left">GSM1315787</td>
+<td align="left">M9027</td>
+<td align="left">normal</td>
+<td align="left">skin</td>
+<td align="left">SRX451474</td>
+</tr>
+<tr class="odd">
+<td align="left">GSM1315786</td>
+<td align="left">M9004</td>
+<td align="left">normal</td>
+<td align="left">skin</td>
+<td align="left">SRX451473</td>
+</tr>
+<tr class="even">
+<td align="left">GSM1315785</td>
+<td align="left">M9000</td>
+<td align="left">normal</td>
+<td align="left">skin</td>
+<td align="left">SRX451472</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption><strong>Table 3. Number of samples per group.</strong></caption>
+<thead>
+<tr class="header">
+<th align="left">Group</th>
+<th align="right">Number of samples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">normal</td>
+<td align="right">82</td>
+</tr>
+<tr class="even">
+<td align="left">Psoriasis</td>
+<td align="right">92</td>
+</tr>
+</tbody>
+</table>
 </div>
+</div>
+<div id="analyses" class="section level2">
+<h2>Analyses</h2>
+<ol style="list-style-type: decimal">
+<li><p><strong>Differential analysis</strong>. Analyse the full dataset to detect differentially expressed genes. This analysis should include the following steps.</p>
+<ol style="list-style-type: lower-alpha">
+<li>Log2-transformation of the counts (with an epsilon).</li>
+<li>Graphical description of the data (historgrams, barplots, boxplots, …).</li>
+<li>Computation of summary statistics per sample (min, max, mean, median, quartiles, number of zeros, …) for raw counts and log2-transformed counts.</li>
+<li>Detection of differentially expressed genes (including graphical representations: volcano plot, p-value histogram, …).</li>
+<li>Functional enrichment of the differentially expressed genes.</li>
+</ol></li>
+<li><p><strong>Sub-sampling</strong>. Run the same analysis on randomly selected subsets of the samples, with various subset sizes (n=2,3,4,5,10,20,40).</p></li>
+<li><p><strong>Negative control. </strong> Run the same analysis with two subsets of samples belonging to the same group (psoriasis versus psoriasis, control versus control).</p></li>
+</ol>
+</div>
+<div id="reports" class="section level2">
+<h2>Reports</h2>
+<p>Les rapports peuvent être rédigés en français ou en anglais.</p>
+<p><strong>Format:</strong> the report can be submitted in either html or pdf format. The original Rmd file that was used to generate the report must be submitted together with the report. This file should allow the teachers to reprodue the analysis on their computers.</p>
+<hr />
 </div>
 </div>
 <div id="references" class="section level1 unnumbered">
