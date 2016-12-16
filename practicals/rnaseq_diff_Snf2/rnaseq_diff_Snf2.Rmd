@@ -106,10 +106,37 @@ The RNA-Seq dataset we will use in this practical has been produced by Gierlińs
 **R** enables to download data directly from the Web. The expression matrix and phenotypic information will be loaded into **R** using the **read.table** function. Both table will be converted into a data.frame object when loaded into R. The 'count.table' object will contains counts for each gene (row) and each sample (column).
 
 ```{r}
-# Load the files content in an R data.frame
-path.counts <- "http://jvanheld.github.io/stats_avec_RStudio_EBA/practicals/yeast_2x48_replicates/data/counts.txt"
-count.table <- read.table(file=path.counts, sep="\t", header=TRUE, row.names=1)
-#View(count.table)
+# Download data files from the Web site (only if not done yet)
+url.counts <- "http://jvanheld.github.io/stats_avec_RStudio_EBA/practicals/yeast_2x48_replicates/data/counts.txt"
+
+## Local paths
+dir.snf2 <- ("~/ASG/practicals/rnaseq_snf2_Schurch_2015")
+dir.counts <- file.path(dir.snf2, "data")
+file.counts <- file.path(dir.counts, "counts.txt")
+file.expDesign <- file.path(dir.counts, "expDesign.txt")
+
+## Create a directory to download the dataset if it does not exist
+dir.create(dir.counts, showWarnings = FALSE, recursive = TRUE)
+list.files(dir.counts)
+
+## Download the data files if required
+if (!file.exists(file.counts)) {
+  message("Downloading count table from ", url.counts)
+  download.file(url=file.path(url.counts, "counts.txt"), destfile = file.counts)
+}
+if (!file.exists(file.design)) {
+  message("Downloading design table from ", url.counts)
+  download.file(url=file.path(url.counts, "expDesign.txt"), destfile = file.expDesign)
+}
+
+# Load the count table
+count.table <- read.table(file=file.counts, sep="\t", header=TRUE, row.names=1)
+# View(count.table)
+
+# Load experimental design file
+expDesign <- read.table(file=file.expDesign, sep="\t", header=TRUE)
+#View(expDesign)
+
 ```
 
 
@@ -118,10 +145,6 @@ count.table <- read.table(file=path.counts, sep="\t", header=TRUE, row.names=1)
 The dataset contains RNA-Seq count data for WT and KO. All phenotypic informations are enclosed in a dedicated file. Note that the produced data.frame encodes the 'strains' columns as a factor. A factor is a vector with levels (categories). 
 
 ```{r}
-## Download phenotypic information
-path.expDesign <- "http://jvanheld.github.io/stats_avec_RStudio_EBA/practicals/yeast_2x48_replicates/data/expDesign.txt"
-expDesign <- read.table(file=path.expDesign, sep="\t", header=TRUE)
-#View(expDesign)
 
 ## The number of sample in each class
 table(expDesign$strain)
