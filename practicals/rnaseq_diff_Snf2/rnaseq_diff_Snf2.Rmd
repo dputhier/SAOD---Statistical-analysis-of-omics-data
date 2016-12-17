@@ -250,10 +250,18 @@ legend("topright", legend=names(col.strain), col=col.strain, lwd=2)
 
 Let's have a look at the scatter plots using the *pairs()* function. We will only represent 10 randomly selected samples.
 
-```{r}
-plotFun <- function(x,y){ dns <- densCols(x,y); points(x,y, col=dns, pch=".") }
-set.seed(123) # forces the random number generator to produce fixed results.
-pairs(log2(count.table[,sample(ncol(count.table),5)] + epsilon), panel=plotFun, lower.panel = NULL)
+```{r fig.width=8, fig.height=8, fig.cap="**Scatter plot of log2-counts for a random selection of samples. **"}
+## Define a function to draw a scatter plot for a pair of variables (samples) with density colors
+plotFun <- function(x,y){ 
+  dns <- densCols(x,y); 
+  points(x,y, col=dns, pch=".", panel.first=grid());  
+#  abline(a=0, b=1, col="brown")
+  }
+
+## Plot the scatter plot for a few pairs of variables selected at random
+set.seed(123) # forces the random number generator to produce fixed results
+pairs(log2(count.table[,sample(ncol(count.table),5)] + epsilon), 
+      panel=plotFun, lower.panel = NULL)
 ```
 
 The command *pairs()* draws a scatter plot for each pair of columns of the input dataset. The plot shows a fairly good reproducibility between samples of the same type (WT or KO, respectively): all points are aligned along te diagonal, with a relatively wider dispersion at the bottom, corresponding to small number fluctuations. 
@@ -270,8 +278,11 @@ mean.counts <- rowMeans(count.table)
 variance.counts <- apply(count.table, 1, var)
 
 ## Mean and variance relationship
-plot(x=log10(mean.counts), y=log10(variance.counts), pch=16, cex=0.3, main="Mean-variance relationship")
-abline(a=0, b=1)
+mean.var.col <- densCols(x=log2(mean.counts), y=log2(variance.counts))
+plot(x=log2(mean.counts), y=log2(variance.counts), pch=16, cex=0.3, 
+     col=mean.var.col, main="Mean-variance relationship",
+     panel.first = grid())
+abline(a=0, b=1, col="brown")
 
 ```
 
@@ -291,7 +302,7 @@ All genes from genome the *S. cerevisiae* where quantified. However only a fract
 <div id="1"  style="overflow:hidden;display:none">
 <h4>Solution</h4>
       
-```{r}
+```{r fig.width=6, fig.height=8, fig.cap="**Percentage of null counts per sample. **"}
 prop.null <- apply(count.table, 2, function(x) 100*mean(x==0))
 print(head(prop.null))
 barplot(prop.null, main="Percentage of null counts per sample", 
@@ -414,7 +425,7 @@ estimSf <- function (cds){
 Now, check that the results obtained with our function are the same as those produced by DESeq. The method associated with normalization for the "CountDataSet" class is **estimateSizeFactors()**.
 
 
-```{r fig.width=8, fig.height=7}
+```{r fig.width=8, fig.height=8, fig.cap="**Impact of the count normalization. ** "}
 ## Normalizing using the method for an object of class"CountDataSet" 
 dds.norm <-  estimateSizeFactors(dds0)
 sizeFactors(dds.norm)
@@ -425,10 +436,15 @@ all(round(estimSf(dds0),6) == round(sizeFactors(dds.norm), 6))
 
 ## Checking the normalization
 par(mfrow=c(2,2),cex.lab=0.7)
-boxplot(log2(counts(dds.norm)+1),  col=col.pheno.selected, cex.axis=0.7, las=2)
-boxplot(log2(counts(dds.norm, normalized=TRUE)+1),  col=col.pheno.selected,, cex.axis=0.7, las=2) 
-plotDensity(log2(counts(dds.norm)+1),  col=col.pheno.selected, cex.lab=0.7) 
-plotDensity(log2(counts(dds.norm, normalized=TRUE)+1),  col=col.pheno.selected, cex.lab=0.7)
+boxplot(log2(counts(dds.norm)+epsilon),  col=col.pheno.selected, cex.axis=0.7, 
+        las=1, xlab="log2(counts)", horizontal=TRUE, main="Raw counts")
+boxplot(log2(counts(dds.norm, normalized=TRUE)+epsilon),  col=col.pheno.selected, cex.axis=0.7, 
+        las=1, xlab="log2(normalized counts)", horizontal=TRUE, main="Normalized counts") 
+plotDensity(log2(counts(dds.norm)+epsilon),  col=col.pheno.selected, 
+            xlab="log2(counts)", cex.lab=0.7, panel.first=grid()) 
+plotDensity(log2(counts(dds.norm, normalized=TRUE)+epsilon), col=col.pheno.selected, 
+            xlab="log2(normalized counts)", cex.lab=0.7, panel.first=grid()) 
+
 ```
 
 ## Modeling read counts
