@@ -117,7 +117,6 @@ file.expDesign <- file.path(dir.counts, "expDesign.txt")
 
 ## Create a directory to download the dataset if it does not exist
 dir.create(dir.counts, showWarnings = FALSE, recursive = TRUE)
-list.files(dir.counts)
 
 ## Download the data files if required
 if (!file.exists(file.counts)) {
@@ -142,25 +141,28 @@ expDesign <- read.table(file=file.expDesign, sep="\t", header=TRUE)
 
 # Phenotypic data
 
-The dataset contains RNA-Seq count data for WT and KO. All phenotypic informations are enclosed in a dedicated file. Note that the produced data.frame encodes the 'strains' columns as a factor. A factor is a vector with levels (categories). 
+The dataset contains RNA-Seq count data for a wild type strain (**WT**) and a **Snf2** mutant, with 48 biological replicates for each genotype.
+
+All phenotypic informations are enclosed in a dedicated file. Note that the produced data.frame encodes the 'strains' columns as a factor^[A factor is a vector with levels (categories), which permits an efficient storage and indexing, but can in some cases lead to misleading effects. To circumvent this, we will sometimes have to convert the factor to a vector, with the R command `as.vector()`. ].
 
 ```{r}
-
-## The number of sample in each class
-table(expDesign$strain)
-
-## Define a strain-specific color for each sample
-col.strain <- c("WT"="green","Snf"="orange") # Choose one color per strain
-expDesign$color <- col.strain[as.vector(expDesign$strain)]
-#col.pheno <- c("green","orange")[as.numeric(expDesign$strain)]
-#unique(col.pheno)
+# Check the first and last line of the phenotypic data
 head(expDesign)
 tail(expDesign)
+
+## Count the number of sample in each class
+table(expDesign$strain)
+
+## Define a strain-specific color for each sample,
+## and add it as a supplementary column to the phenotypic data
+col.strain <- c("WT"="green","Snf"="orange") # Choose one color per strain
+expDesign$color <- col.strain[as.vector(expDesign$strain)]
+
 ```
 
 <div class="exo">
-- Draw a barplot showing the number of reads in each sample. Use the **colSums** function or the **apply** function.
-- What can you say from this diagram ?
+- Draw a barplot showing the number of reads in each sample. Use either the `colSums()` or the `apply()` function (run `help(colSums()` if you don't know this function).
+- What can you say from this diagram?
 </div>
 
 <a href="javascript:sizeTbl2('block','1a')">View solution</a>|
@@ -169,7 +171,7 @@ tail(expDesign)
 <div id="1a"  style="overflow:hidden;display:none">
 <h4>Solution</h4>
       
-```{r fig.width=5, fig.height=8, fig.cap="Million counts per sample"}
+```{r fig.width=5, fig.height=8, fig.cap="**Figure: Million counts per sample. ** "}
 barplot(colSums(count.table)/1000000, 
         main="Total number of reads per sample (million)",
         col=expDesign$color, 
@@ -179,6 +181,10 @@ barplot(colSums(count.table)/1000000,
         xlab="Million counts")
 ```
 
+The barplot indicates the library sizes (total number of reads) for each sample. We can see important differences, ranging from `r min(colSums(count.table)/1000000)` to `r max(colSums(count.table)/1000000)` million reads per sample. 
+
+This has important consequences: any read count should be interpreted relative to the sequencing depth of the corresponding sample. We will thus need to **normalise** the counts. Consequently, it makes not much sense to compute summary statistics per gene (mean counts, standard deviation, ...) before having normalized the data. 
+
 </div>
 
 
@@ -187,6 +193,7 @@ barplot(colSums(count.table)/1000000,
 ## Basic statistics
 
 Before going further in the analysis, we will compute some descriptive statistics on the dataset.
+At this stage we only compute statistics per sample, since statistics per gene are meaningful only after library-wise normalization of the counts. 
 
 ```{r}
 ## Dimensions
@@ -199,6 +206,26 @@ dim(count.table)
 ## Min, Max, median (...). 
 ## Here on the first 4 samples
 head(summary(count.table[,1:4]))
+
+## A magic trick to convert column-wise summaries into a data.frame.
+## The do.call() function produces a data frame with one col per sample, 
+## we transpose it to obtain one row per sample and one column per statistics.
+stats.per.sample <- data.frame(t(do.call(cbind, lapply(count.table, summary))))
+head(stats.per.sample)
+
+## We can now add some columns to the stats per sample
+stats.per.sample$libsum <- apply(count.table, 2, sum) ## libsum
+# Add some percentiles
+stats.per.sample$perc05 <- apply(count.table, 2, quantile, 0.05)
+stats.per.sample$perc10 <- apply(count.table, 2, quantile, 0.10)
+stats.per.sample$perc90 <- apply(count.table, 2, quantile, 0.90)
+stats.per.sample$perc95 <- apply(count.table, 2, quantile, 0.95)
+stats.per.sample$zeros <- apply(count.table==0, 2, sum)
+stats.per.sample$percent.zeros <- 100*stats.per.sample$zeros/nrow(count.table)
+
+# View(stats.per.sample)
+kable(stats.per.sample[sample(1:ncol(count.table), size = 10),],
+      caption = "**Table: statistics per sample. ** We only display a random selection of 10 samples. ")
 ```
 
 ## Distributions
@@ -268,23 +295,6 @@ The command *pairs()* draws a scatter plot for each pair of columns of the input
 
 In contrast, on all the plots comparing a WT and a KO sample, we can see some points (genes) discarding from the diagonal.
 
-## Count variance is related to mean
-
-As you can see from the following plot the relationship between variance and mean is not strictly linear. This can be shown by the poor fit that is obtained using a linear regression. 
-
-```{r warning=FALSE}
-## Computing mean and variance
-mean.counts <- rowMeans(count.table)
-variance.counts <- apply(count.table, 1, var)
-
-## Mean and variance relationship
-mean.var.col <- densCols(x=log2(mean.counts), y=log2(variance.counts))
-plot(x=log2(mean.counts), y=log2(variance.counts), pch=16, cex=0.3, 
-     col=mean.var.col, main="Mean-variance relationship",
-     panel.first = grid())
-abline(a=0, b=1, col="brown")
-
-```
 
 # Eliminating undetected genes
 
@@ -446,6 +456,49 @@ plotDensity(log2(counts(dds.norm, normalized=TRUE)+epsilon), col=col.pheno.selec
             xlab="log2(normalized counts)", cex.lab=0.7, panel.first=grid()) 
 
 ```
+
+## Count variance is related to mean
+
+As you can see from the following plot the relationship between variance and mean is not strictly linear. This can be shown by the poor fit that is obtained using a linear regression. 
+
+```{r warning=FALSE}
+## Computing mean and variance
+norm.counts <- counts(dds.norm, normalized=TRUE)
+mean.counts <- rowMeans(norm.counts)
+variance.counts <- apply(norm.counts, 1, var)
+
+## sum(mean.counts==0) # Number of completely undetected genes
+
+norm.counts.stats <- data.frame(
+  min=apply(norm.counts, 2, min),
+  mean=apply(norm.counts, 2, mean),
+  median=apply(norm.counts, 2, median),
+  max=apply(norm.counts, 2, max),
+  zeros=apply(norm.counts==0, 2, sum),
+  percent.zeros=100*apply(norm.counts==0, 2, sum)/nrow(norm.counts),
+  perc05=apply(norm.counts, 2, quantile, 0.05),
+  perc10=apply(norm.counts, 2, quantile, 0.10),
+  perc90=apply(norm.counts, 2, quantile, 0.90),
+  perc95=apply(norm.counts, 2, quantile, 0.95)
+)
+
+kable(norm.counts.stats)
+
+```
+
+
+```{r fig.width=7, fig.height=7, fig.cap="**Figure: variance/mean plot. ** The brown line highlights $x=y$, which corresponds to the expected relationship between mean and variance for a Poisson distribution. "}
+## Mean and variance relationship
+mean.var.col <- densCols(x=log2(mean.counts), y=log2(variance.counts))
+plot(x=log2(mean.counts), y=log2(variance.counts), pch=16, cex=0.5, 
+     col=mean.var.col, main="Mean-variance relationship",
+     xlab="Mean log2(normalized counts) per gene",
+     ylab="Variance of log2(normalized counts)",
+     panel.first = grid())
+abline(a=0, b=1, col="brown")
+
+```
+
 
 ## Modeling read counts
 
@@ -667,12 +720,6 @@ heatmap.2(as.matrix(count.table.kept),
           labRow="",
           cexCol=0.7)
 
-# Export the DESeq2 result table
-dir.results <- "~/ASG/practicals/rnaseq_diff_Snf2/results"
-dir.create(dir.results, showWarnings = FALSE, recursive = TRUE)
-DESeq2.table <- file.path(dir.results, "yeast_Snf2_vs_WT_DESeq2_diff.tsv")
-write.table(res.DESeq2, file=DESeq2.table, col.names = TRUE, row.names = TRUE, sep="\t", quote = FALSE)
-
 ```
 
 
@@ -685,11 +732,21 @@ library(gProfileR)
 
 res.DESeq2.df <- na.omit(data.frame(res.DESeq2))
 induced.sign <- rownames(res.DESeq2.df)[res.DESeq2.df$log2FoldChange >= 2 &  res.DESeq2.df$padj < alpha]
-head(induced.sign)
+# head(induced.sign)
+# names(term.induced)
 
 term.induced <- gprofiler(query=induced.sign, organism="scerevisiae")
 term.induced <- term.induced[order(term.induced$p.value),]
-kable(head(term.induced[,c("p.value", "term.name","intersection")], 10))
+# term.induced$p.value
+kable(term.induced[1:10,c("term.name",
+                      "term.size",
+                      "query.size",
+                      "overlap.size",
+                      "recall",
+                      "precision",
+                      "p.value", 
+                      "intersection")], 
+      format.args=c(engeneer=TRUE, digits=3), caption="**Table: functional analysis wit gProfileR. ** ")
 
 ```
 
@@ -716,4 +773,20 @@ Using a loop, randomly select 10 times  2,5,10,15..45 samples from WT and Snf2 K
 
 
 
+
+```{r save_results}
+## Create a directory to store the results that will be obtained below
+dir.results <- file.path(dir.snf2, "results")
+dir.create(dir.results, showWarnings = FALSE, recursive = TRUE)
+
+## Export the table with statistics per sample.
+write.table(stats.per.sample, file=file.path(dir.results, "stats_per_sample.tsv"),
+            quote=FALSE, sep="\t", col.names =NA, row.names = TRUE)
+
+# Export the DESeq2 result table
+DESeq2.table <- file.path(dir.results, "yeast_Snf2_vs_WT_DESeq2_diff.tsv")
+write.table(res.DESeq2, file=DESeq2.table, col.names = NA, row.names = TRUE, sep="\t", quote = FALSE)
+
+
+```
 
