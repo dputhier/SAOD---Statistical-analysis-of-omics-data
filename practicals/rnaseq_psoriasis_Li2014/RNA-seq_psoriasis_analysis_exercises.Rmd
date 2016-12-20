@@ -92,8 +92,7 @@ Li and coworkers [-@Li:2014dp] used RNA-seq to characterize the transcriptome of
 
     a. **Robusntess analysis:** analyse the impact of individual particularities of the patients/controls, and measure the impact of the sample size by applying a sub-sampling approach. 
 
-    b. **Negative control:** check the reliability of the DEG detection method (DESeq2) by running the same analysis with two subset of samples belonging to the same group. 
-
+    b. **Negative control:** check the reliability of the DEG detection method (DESeq2) by running the same analysis with two subset of samples belonging to the same group. For example, select 10 WT samples and 10 other WT samples, and run differential analysis between them. In principle, the program should return a *negative* result, i.e. declare that no gene is differentially expressed, since the samples come from the same group. Consequently, if the negative control declares genes as differentially expressed, these genes should be considered as false positives. The good answer would thus be to declare not a single DEG, or, if some genes are declared differentially expressed, it should be with a barely significant p-value. If the negative control returns many DEG and/or associates genes with very low p-values, it means that we have a problem either with the method used, or with the dataset (for example it does not comply with the underlying  assumptions for the test). More precisely, the negative control is an empirical way to measure if the actual rate of false positive coresponds to the expected rate(i.e. if the p-value, or derived statistics, can be considered as reliable indications of the significance). 
 
 3. **Usage of the good practices**. An mportant goal of this course -- and the report -- is to learn how to use good practices for the analysis of NGS data. This includes
 
