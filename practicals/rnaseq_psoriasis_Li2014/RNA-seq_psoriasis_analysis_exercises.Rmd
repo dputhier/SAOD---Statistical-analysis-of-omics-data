@@ -95,6 +95,15 @@ Li and coworkers [-@Li:2014dp] used RNA-seq to characterize the transcriptome of
     b. **Negative control:** check the reliability of the DEG detection method (DESeq2) by running the same analysis with two subset of samples belonging to the same group. 
 
 
+3. **Usage of the good practices**. An mportant goal of this course -- and the report -- is to learn how to use good practices for the analysis of NGS data. This includes
+
+    a. **Tractability:** you and other people should be able to track the origin of all your results. For this, you need to keep a trace of each step of each analysis. 
+    
+    b. **Reproducibility:** other people should be able not only to trace the origin of your results, but also to reproduce them by themselves. NGS data anlaysis lends itself particularly well to reproducibility, since everything is done on computers and managed via software (tools and scripts). 
+    
+    c. **Portability:** the analysis done on your computer should be reproducible on other computers as well. For this you need to ensure for isntance that all paths are defined relative rather than absolute, and that the path definitions rely on platform-independent methods. 
+
+
 ****************************************************************
 ## Dataset
 
@@ -184,9 +193,33 @@ kable(as.data.frame(table(psoriasis.pheno$Group)), col.names = c("Group", "Numbe
 
 3. **Negative control. ** Run the same analysis with two subsets of samples belonging to the same group (psoriasis versus psoriasis, control versus control).
 
-## Reports
 
-Les rapports peuvent être rédigés en français ou en anglais.
+****************************************************************
+# Report
+
+Les rapports peuvent être rédigés en français ou en anglais / reports can be written in either English or French. 
+
+## Format of the report
+
+1. **Source document in Rmd**. The primary report is an R markdown document (.Rmd extension) which **must** contain all the code used to run the anlayses, as well as the main tables and figures produced by the analysis, and a text structured according to the common practice for scientific articles. 
+
+    - The R code should be properly documented. 
+    - This document should enable us to reproduce your analysis on our own computer (avoid absolute paths).
+
+2. **Compiled report (html or pdf)**. This report should look like a small scientific article (see structure hereafter) with Figures, Tables, and interpretation of the results.  The **R** code should not be displayed in the compiled report (set the knitr option `echo=FALSE` when generating the last version). Think of your report as a document written for a biologists who want to understand the approach and the results, but is not interested by the technical details of the R programming. 
+
+## Structure of the report
+
+In total, the report should not exceed 5-6 pages, including figures, but without counting the bibliographic references and appendices (for which there is no limit). 
+
+1. **Introduction:** a brief summary (5-10 lines) of the biological context (the disease, the transcriptome), the biological question addressed in the report, and the general approach envisaged to answer these questions. 
+
+2. **Material and Methods:** a summary of the bioinformatics / statistical methods and libraries used for the analysis (1/2 to 1 page). If required, additional details about the methods and parameters can be provided in appendix. 
+
+3. **Results and discussion:** the results should be presented and discussed together in this section. This section contains the main figures and tables that are used to interpret the results. Additional figures and tables can be provided as appendices, or as separate files (for example full result tables with all the genes, ...).
+
+4. **Conclusion and perspective** (~1/2 page): summarize the results, show in what they did -- or did not -- enable you to answer the initial questions of the introduction, and add some perspectives about possible future extensions of the work presented here. 
+
 
 **Format:** the report can be submitted in either html or pdf format. The original Rmd file that was used to generate the report must be submitted together with the report. This file should allow the teachers to reprodue the analysis on their computers. 
 
