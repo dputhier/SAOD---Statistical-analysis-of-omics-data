@@ -44,6 +44,14 @@ output:
 - 2ème année du Master en Bioinformatique, biochimie structurale et génomique (BBSG).
 - Ecole doctorale
 
+## Travail personnel / Personal work
+
+The instructions for the 2016 personal work can be found here
+
+-  [html document (human-readable)](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_exercises.html)
+
+- [Rmd (including code to load the data)](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_exercises.Rmd)
+
 ## Resources
 
 | Tool | About |
