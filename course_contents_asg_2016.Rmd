@@ -93,7 +93,3 @@ The instructions for the 2016 personal work can be found here
 | Overview | - [Discrete distributions for NGS data analysis](practicals/discrete_distributions_overview/discrete_distributions.html)
 
 
-## Travaux personnels
-
-[Description des travaux personnels 2016]()
-

@@ -188,6 +188,7 @@ kable(as.data.frame(table(psoriasis.pheno$Group)), col.names = c("Group", "Numbe
     c. Computation of summary statistics per sample (min, max, mean, median, quartiles, number of zeros, ...) for raw counts and log2-transformed counts.
     d. Detection of differentially expressed genes (including graphical representations: volcano plot, p-value histogram, ...). 
     e. Functional enrichment of the differentially expressed genes. 
+    f. ... any other type of analysis, figure, table that you might find useful to intepret the data.
 
 2. **Sub-sampling**. Run the same analysis on randomly selected subsets of the samples, with various subset sizes (n=2,3,4,5,10,20,40). 
 
@@ -203,6 +204,7 @@ Les rapports peuvent être rédigés en français ou en anglais / reports can be
 
 1. **Source document in Rmd**. The primary report is an R markdown document (.Rmd extension) which **must** contain all the code used to run the anlayses, as well as the main tables and figures produced by the analysis, and a text structured according to the common practice for scientific articles. 
 
+    - The R code should be compliant with the following guidelines: <https://google.github.io/styleguide/Rguide.xml>
     - The R code should be properly documented. 
     - This document should enable us to reproduce your analysis on our own computer (avoid absolute paths).
 
@@ -214,14 +216,30 @@ In total, the report should not exceed 5-6 pages, including figures, but without
 
 1. **Introduction:** a brief summary (5-10 lines) of the biological context (the disease, the transcriptome), the biological question addressed in the report, and the general approach envisaged to answer these questions. 
 
-2. **Material and Methods:** a summary of the bioinformatics / statistical methods and libraries used for the analysis (1/2 to 1 page). If required, additional details about the methods and parameters can be provided in appendix. 
+2. **Material and Methods:** a summary of the bioinformatics / statistical methods and libraries used for the analysis (1/2 to 1 page), with a brief explanation about which tool was used to do what, and links to the official web page or publication about the tool. If required, additional details about the methods and parameters can be provided in appendix. 
 
-3. **Results and discussion:** the results should be presented and discussed together in this section. This section contains the main figures and tables that are used to interpret the results. Additional figures and tables can be provided as appendices, or as separate files (for example full result tables with all the genes, ...).
+3. **Data description:** a brief description of the data source (with link to the GEO record), its content (how many samples, how many groups, ...) and the data type (paired-ends or single-end, ...).
 
-4. **Conclusion and perspective** (~1/2 page): summarize the results, show in what they did -- or did not -- enable you to answer the initial questions of the introduction, and add some perspectives about possible future extensions of the work presented here. 
+4. **Results and discussion:** the results should be presented and discussed together in this section. This section contains the main figures and tables that are used to interpret the results. Additional figures and tables can be provided as appendices, or as separate files (for example full result tables with all the genes, ...).
+
+5. **Conclusion and perspective** (~1/2 page): summarize the results, show in what they did -- or did not -- enable you to answer the initial questions of the introduction, and add some perspectives about possible future extensions of the work presented here. 
+
+6. **Appendices:* any additional information or result that might be helpful to consult in order to get a deeper understanding of your results. 
 
 
 **Format:** the report can be submitted in either html or pdf format. The original Rmd file that was used to generate the report must be submitted together with the report. This file should allow the teachers to reprodue the analysis on their computers. 
+
+
+## Evaluation criteria
+
+The evaluation of your report will be based on multiple criteria.
+
+1. Can we reproduce your results using your Rmd file?
+2. Did you clearly formulate the biological question, and the relationship between these questions and the bioinformatics approaches used to answer them?
+3. Relevance of the results and your interpretation. 
+4. Clarity of the text.
+5. Clarity of the code. 
+
 
 ****************************************************************
 # References
