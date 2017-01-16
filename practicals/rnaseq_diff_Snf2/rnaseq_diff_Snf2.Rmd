@@ -3,6 +3,11 @@ title: "RNA-Seq - differential expression using DESeq2"
 author: 'D. Puthier (adapted From Hugo Varet, Julie Auberta and J. van Helden) '
 date: 'First version: 2016-12-10; Last update: `r Sys.Date()`'
 output:
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
   html_document:
     fig_caption: yes
     highlight: zenburn
@@ -11,18 +16,6 @@ output:
     toc: yes
     toc_depth: 3
     toc_float: yes
-  beamer_presentation:
-    colortheme: dolphin
-    fig_caption: yes
-    fig_height: 4
-    fig_width: 6
-    fonttheme: structurebold
-    highlight: tango
-    incremental: no
-    keep_tex: no
-    slide_level: 2
-    theme: Montpellier
-    toc: yes
   ioslides_presentation:
     colortheme: dolphin
     fig_caption: yes
@@ -37,11 +30,18 @@ output:
     theme: cerulean
     toc: yes
     widescreen: yes
-  pdf_document:
+  beamer_presentation:
+    colortheme: dolphin
     fig_caption: yes
-    highlight: zenburn
+    fig_height: 4
+    fig_width: 6
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_tex: no
+    slide_level: 2
+    theme: Montpellier
     toc: yes
-    toc_depth: 3
   slidy_presentation:
     fig_caption: yes
     fig_height: 4
