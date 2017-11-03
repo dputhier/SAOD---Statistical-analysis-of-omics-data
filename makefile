@@ -72,8 +72,9 @@ sync_slides:
 
 ################################################################
 ## Browse the Web site
-OPEN=open -a ${BROWSER}
-BROWSER=firefox
+#OPEN=open -a ${BROWSER}
+#BROWSER=firefox
+OPEN=open
 local:
 	${OPEN} http://localhost/courses/ASG/
 
