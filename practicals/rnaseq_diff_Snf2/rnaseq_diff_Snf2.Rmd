@@ -109,7 +109,7 @@ The RNA-Seq dataset we will use in this practical has been produced by Gierlińs
 # Download data files from the Web site (only if not done yet)
 url.counts <- "http://jvanheld.github.io/stats_avec_RStudio_EBA/practicals/yeast_2x48_replicates/data/counts.txt"
 
-## Local paths
+## Local paths: create a directory to store the results
 dir.snf2 <- ("~/ASG/practicals/rnaseq_snf2_Schurch_2015")
 dir.counts <- file.path(dir.snf2, "data")
 file.counts <- file.path(dir.counts, "counts.txt")
@@ -230,24 +230,40 @@ kable(stats.per.sample[sample(1:ncol(count.table), size = 10),],
 
 ## Distributions
 
+### Histograms of counts per gene
+
 The summary only displays a few milestone values (mean, median, quartiles). In order to get a better intuition of the data, we can draw an histogram of all values.
 
-```{r data_distrib_histogram, fig.path="figures/schurch2016_", fig.width=7, fig.height=5, fig.cap="Histogram of raw counts. The scale is determined by the gene with the highest count, which is apparently an outlier. "}
-## Data distribution
-hist(as.matrix(count.table), col="blue", border="white")
-```
 
-The histogram is not very informative so far, apparently due to the presence of a few very high count values, that impose a very large scale on the $X$ axis. We can use a logarithmic transformation to improve the readability. Note that we will add pseudo count to avoid problems with "zero" counts observed for some genes in some samples.
+```{r data_distrib_histogram, fig.path="figures/schurch2016_", fig.width=7, fig.height=9, fig.cap="Histogram of  counts per genes. **Top: raw counts. ** the scale is determined by the gene with the highest count, which is apparently an outlier.  **Middle: ** raw counts, with X axis truncated to 2000 in order to display a representative range despite outliers. **Bottom: ** log2-transformed counts (bottom) per gene, with a pseudocount of 1 to avoid minus infinitevalues resulting from zero counts. "}
 
+par(mfrow=c(3,1))
 
-```{r log2_counts_histogram, fig.path="figures/schurch2016_", fig.width=7, fig.height=5, fig.cap="Histogram of log2-transformed counts per gene. "}
-## Data distribution in log scale.
+hist(as.matrix(countTable), col="blue", border="white", breaks=100)
+
+hist(as.matrix(countTable), col="blue", border="white",
+     breaks=20000, xlim=c(0,2000), main="Counts per gene",
+     xlab="Counts (truncated axis)", ylab="Number of genes", 
+     las=1, cex.axis=0.7)
+
 epsilon <- 1 # pseudo-count to avoid problems with log(0)
+hist(as.matrix(log2(countTable + epsilon)), breaks=100, col="blue", border="white",
+     main="Log2-transformed counts per gene", xlab="log2(counts+1)", ylab="Number of genes", 
+     las=1, cex.axis=0.7)
 
-## Logarithmic transformation
-hist(as.matrix(log2(count.table + epsilon)), breaks=100, col="blue", border="white",
-     main="", xlab="log2(counts)", ylab="Number of genes")
+par(mfrow=c(1,1))
 ```
+
+### Interpretation
+
+- The top histogram is not very informative so far, apparently due to the presence of a few very high count values, that impose a very large scale on the $X$ axis. 
+- The middle histogram shows the representative range. Note the height of the first bin, which includes the zero counts. 
+- The logarithmic transformation (bottom histogram) improves the readability. Note that we added a pseudo-count of `r epsilon` to avoid problems with the log transformation of zero counts (which gives  $-\infty$).
+
+### Boxplots of gene count distributions per sample
+
+To get better insights into the distribution per sample, *boxplots* offer a good perspective.
+
 
 ```{r log2_counts_boxplots, fig.path="figures/schurch2016_", fig.width=7, fig.height=10, fig.cap="Box plots of non-normalized log2(counts) per sample. "}
 ## Boxplots
@@ -255,6 +271,8 @@ boxplot(log2(count.table + epsilon), col=expDesign$color, pch=".",
         horizontal=TRUE, cex.axis=0.5,
         las=1, ylab="Samples", xlab="log2(Counts +1)")
 ```
+
+### Density plots
 
 Another way to get an intuition of the value distributions is to use the *plotDensity()* function, which draws one density curve for each sample.
 
@@ -275,9 +293,12 @@ legend("topright", legend=names(col.strain), col=col.strain, lwd=2)
 
 ## Scatter plots
 
-Let's have a look at the scatter plots using the *pairs()* function. We will only represent 10 randomly selected samples.
 
 ```{r scatter_plot_some_samples, fig.path="figures/schurch2016_", fig.width=8, fig.height=8, fig.cap="**Scatter plot of log2-counts for a random selection of samples. **"}
+
+nb.pairs <- 6
+
+
 ## Define a function to draw a scatter plot for a pair of variables (samples) with density colors
 plotFun <- function(x,y){ 
   dns <- densCols(x,y); 
@@ -286,10 +307,13 @@ plotFun <- function(x,y){
   }
 
 ## Plot the scatter plot for a few pairs of variables selected at random
-set.seed(123) # forces the random number generator to produce fixed results
-pairs(log2(count.table[,sample(ncol(count.table),5)] + epsilon), 
+set.seed(123) # forces the random number generator to produce fixed results. Should generally not be used, except for the sake of demonstration with a particular selection. 
+pairs(log2(count.table[,sample(ncol(count.table), nb.pairs)] + epsilon), 
       panel=plotFun, lower.panel = NULL)
 ```
+
+Let's have a look at the scatter plots using the *pairs()* function. We will only represent `r nb.pairs` randomly selected samples.
+
 
 The command *pairs()* draws a scatter plot for each pair of columns of the input dataset. The plot shows a fairly good reproducibility between samples of the same type (WT or KO, respectively): all points are aligned along te diagonal, with a relatively wider dispersion at the bottom, corresponding to small number fluctuations. 
 
@@ -324,13 +348,13 @@ count.table <- count.table[rowSums(count.table) > 0,]
 
 <!--sample ordering ? colors ?-->
 
-# Selecting randomly samples
+# Selecting random samples
 
-One of the question that will drive the analysis will be to define the impact of the number of sample on the analysis. 
+One of the questions that will drive the analysis will be to define the impact of the number of biological samples on the results. 
 
 The original study contained 48 replicates per genotype, what happens if we select a smaller number?
 
-Each attendee of this course select a given number  (e.g. 3,4,5,10,15,20, 35, 40, 45...) and adapt the code below run the analysis with that number of replicates per genotype. We will at the end then compare the results (number of genes, significance, ...).
+Each attendee of this course select a given number  (e.g. 3, 4, 5, 10, 15, 20, 35, 40, 45...) and adapt the code below run the analysis with that number of replicates per genotype. We will at the end then compare the results (number of genes, significance, ...).
 
 ```{r}
 nb.replicates <- 10 ## Each attendee chooses a number (3,4,5,10,15 or 20)

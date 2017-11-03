@@ -4,18 +4,19 @@ title: Discrete distributions for the analysis of Next Generation Sequencing 
 author: "Jacques van Helden"
 date: 'First version: 2016-12-10; Last update: `r Sys.Date()`'
 output:
-  beamer_presentation:
-    colortheme: dolphin
+  slidy_presentation:
     fig_caption: yes
     fig_height: 4
     fig_width: 6
-    fonttheme: structurebold
     highlight: tango
     incremental: no
-    keep_tex: no
+    keep_md: no
+    self_contained: yes
     slide_level: 2
-    theme: Montpellier
+    smaller: yes
+    theme: cerulean
     toc: yes
+    widescreen: yes
   html_document:
     fig_caption: yes
     highlight: zenburn
@@ -43,19 +44,22 @@ output:
     highlight: zenburn
     toc: yes
     toc_depth: 3
-  slidy_presentation:
+  beamer_presentation:
+    colortheme: dolphin
     fig_caption: yes
     fig_height: 4
     fig_width: 6
+    fonttheme: structurebold
     highlight: tango
     incremental: no
-    keep_md: no
-    self_contained: yes
+    keep_tex: no
     slide_level: 2
-    smaller: yes
-    theme: cerulean
+    theme: Montpellier
     toc: yes
-    widescreen: yes
+  word_document:
+    fig_caption: yes
+    toc: yes
+    toc_depth: 3
 font-import: http://fonts.googleapis.com/css?family=Risque
 font-family: Garamond
 transition: linear

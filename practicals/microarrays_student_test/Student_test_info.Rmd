@@ -73,7 +73,7 @@ The ***sample parameters*** are computed in the same way, but with observations 
 
 | Parameter | Formula |
 |-----------|---------|
-| Sample mean | $m = \frac{1}{n}\sum_{i=1}^{n} x_i$ |
+| Sample mean | $\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$ |
 | Sample variance | $s^2 = \frac{1}{n}\sum_{i=1}^{n} (x_i - \bar{x})^2$ |
 | Sample standard deviation | $s = \sqrt{s^2}$ |
 
