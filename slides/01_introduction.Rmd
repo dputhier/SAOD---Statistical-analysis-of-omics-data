@@ -1,0 +1,127 @@
+---
+title: "Introduction to the course"
+subtitle: "Analyse Statistique des données Génomiques (ASG)"
+author: "Jacques van Helden"
+date: '`r Sys.Date()`'
+font-import: http://fonts.googleapis.com/css?family=Risque
+font-family: Garamond
+transition: linear
+output:
+  ioslides_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    fonttheme: structurebold
+    highlight: tango
+    smaller: yes
+    toc: yes
+    widescreen: yes
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  beamer_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_tex: no
+    slide_level: 2
+    theme: Montpellier
+    toc: yes
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+  slidy_presentation:
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    highlight: tango
+    incremental: yes
+    keep_md: yes
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+---
+
+```{r include=FALSE, echo=FALSE, eval=TRUE}
+options(width=300)
+knitr::opts_chunk$set(
+  fig.width = 7, fig.height = 5, 
+  fig.path='figures',
+  fig.align = "center", 
+  size = "tiny", 
+  echo = TRUE, eval=TRUE, 
+  warning = FALSE, message = FALSE, 
+  results = TRUE, comment = "")
+# knitr::asis_output("\\footnotesize")
+
+```
+
+## Prérequis
+
+En M1, nous avons revu les notions de base suivantes: 
+
+- Concepts de probabilité
+- Quelques distributions de probabilité
+- Echantillonnage et estimation
+- Test de comparaison de moyenne
+
+## Objectifs du cours
+
+- Aborder des méthodes statistiques permettant de traiter des données à haut débit (biopuces, NGS).
+
+- Appliquer à ces données différentes méthodes d'analyse multidimensionnelle (sélection de variables, PCA, clusering, classification supervisée), qui sont utilisées dans un grand nombre de publications biologiques et de bioinformatique. 
+
+- Apprendre à évaluer la qualité d'un résultat (en particulier, la précision d'un classifieur).
+
+- Approfondir la maîtrise du langage R pour le traitement de ce type de données. 
+
+# Aperçu des matières couvertes
+
+
+## Analyse multidimensionnelle
+
+En bioinformatique on est souvent confrontés à des données présentées sous la forme de tables où chaque ligne représente un objet (par exemple un patient) et chaque colonne une caractéristique (feature) de cet objet (par exemple niveau d'expression d'un gène). 
+
+**Note:** selon les cas on pourra utiliser les lignes pour les variables et les colonnes pour les objets.
+
+## Analyse multidimensionnelle
+
+- Sélection de variables 
+- Analyse en composantes principales
+- Clustering (classification non-supervisée, découverte de classes)
+- Classification supervisée
+
+Nous aborderons l'analyse multidimensionnelle sur base de données de biopuces transcriptomiques, qui se prêtent bien à ce type d'analyses. Nous étendrons ensuite l'analyse au traitement de données de RNA-seq. 
+
+## RNA-seq: détection de gènes différentiellement exprimés
+
+La détection de gènes différentiellement exprimés à partir de données RNA-seq requiert des modèles statistiques particuliers du fait de la nature des données: 
+
+- les mesures d'expression sont en comptages de reads par gène, il s'agit donc de variables discrètes;
+- les valeurs de ces mesures varient considérablement d'un gène à l'autre (quelques unités par échantillon pour certains gènes, des centaines de milliers pour d'autres).
+
+Les tests paramétriques ne s'appliquent absolument pas à ce type de données. 
+
+## Analyse d'enrichissement fonctionnel
+
+But: interprétattion de groupes de gènes fonctionnellement associés, par exemple des groupes de gènes différentiellement exprimés entre deux conditions, ou des clusters de gènes co-exprimés dans une série de conditions. 
+
+## Autres applications à traiter (en fonction du temps)
+
+- Détection de pics de ChIP-seq
+- Analyse de variants (études d'association à échelle génomique, GWAS)
+
+
+
