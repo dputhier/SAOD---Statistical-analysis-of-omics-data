@@ -55,6 +55,7 @@ output:
 ---
 
 ```{r include=FALSE, echo=FALSE, eval=TRUE}
+library(knitr)
 options(width=300)
 knitr::opts_chunk$set(
   fig.width = 7, fig.height = 5, 
