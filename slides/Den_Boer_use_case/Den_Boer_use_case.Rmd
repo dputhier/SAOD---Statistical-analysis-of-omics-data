@@ -3,6 +3,24 @@ title: 'Use case: leukemia signatures (Den Boer, 2009)'
 author: "Jacques van Helden"
 date: '`r Sys.Date()`'
 output:
+  slidy_presentation:
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    highlight: tango
+    incremental: yes
+    keep_md: yes
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
   ioslides_presentation:
     colortheme: dolphin
     fig_caption: yes
@@ -13,13 +31,11 @@ output:
     smaller: yes
     toc: yes
     widescreen: yes
-  html_document:
+  pdf_document:
     fig_caption: yes
     highlight: zenburn
-    theme: cerulean
     toc: yes
     toc_depth: 3
-    toc_float: yes
   beamer_presentation:
     colortheme: dolphin
     fig_caption: yes
@@ -32,22 +48,6 @@ output:
     slide_level: 2
     theme: Montpellier
     toc: yes
-  pdf_document:
-    fig_caption: yes
-    highlight: zenburn
-    toc: yes
-    toc_depth: 3
-  slidy_presentation:
-    fig_caption: yes
-    fig_height: 6
-    fig_width: 7
-    highlight: tango
-    incremental: yes
-    keep_md: yes
-    smaller: yes
-    theme: cerulean
-    toc: yes
-    widescreen: yes
 font-import: http://fonts.googleapis.com/css?family=Risque
 subtitle: Analyse Statistique des données Génomiques (ASG)
 font-family: Garamond
@@ -77,10 +77,15 @@ include_graphics("images/Den_Boer_2009_Fig1_signature_identification.png")
 
 ## Hierarchical clustering of genes and samples
 
-```{r denboer_hclust, out.height="60%", out.width="60%", fig.cap="Figure 1 from Den Boer et al. (2009). "}
+```{r denboer_hclust, out.height="70%", out.width="70%", fig.cap="Figure 2 from Den Boer et al. (2009). "}
 include_graphics("images/Den_Boer_2009_Fig2_hierarchical_clustering.png") 
 ```
 
+## Survival curves
 
+
+```{r denboer_survival, out.height="80%", out.width="80%", fig.cap="Figure 3 from Den Boer et al. (2009). "}
+include_graphics("images/Den_Boer_2009_Fig3_survival.png") 
+```
 
 
