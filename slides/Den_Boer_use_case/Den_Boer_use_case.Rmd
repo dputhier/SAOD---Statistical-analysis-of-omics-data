@@ -1,0 +1,86 @@
+---
+title: 'Use case: leukemia signatures (Den Boer, 2009)'
+author: "Jacques van Helden"
+date: '`r Sys.Date()`'
+output:
+  ioslides_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    fonttheme: structurebold
+    highlight: tango
+    smaller: yes
+    toc: yes
+    widescreen: yes
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  beamer_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_tex: no
+    slide_level: 2
+    theme: Montpellier
+    toc: yes
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+  slidy_presentation:
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    highlight: tango
+    incremental: yes
+    keep_md: yes
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+font-import: http://fonts.googleapis.com/css?family=Risque
+subtitle: Analyse Statistique des données Génomiques (ASG)
+font-family: Garamond
+transition: linear
+---
+
+```{r include=FALSE, echo=FALSE, eval=TRUE}
+library(knitr)
+options(width=300)
+knitr::opts_chunk$set(
+  fig.width = 7, fig.height = 5, 
+  fig.path='figures',
+  fig.align = "center", 
+  size = "tiny", 
+  echo = FALSE, eval=TRUE, 
+  warning = FALSE, message = FALSE, 
+  results = TRUE, comment = "")
+# knitr::asis_output("\\footnotesize")
+
+```
+
+## Identification of signatures for subtypes of leukemia
+
+```{r denboer_procedure, out.height="40%", out.width="40%", fig.cap="Figure 1 from Den Boer et al. (2009). "}
+include_graphics("images/Den_Boer_2009_Fig1_signature_identification.png") 
+```
+
+## Hierarchical clustering of genes and samples
+
+```{r denboer_hclust, out.height="60%", out.width="60%", fig.cap="Figure 1 from Den Boer et al. (2009). "}
+include_graphics("images/Den_Boer_2009_Fig2_hierarchical_clustering.png") 
+```
+
+
+
+
