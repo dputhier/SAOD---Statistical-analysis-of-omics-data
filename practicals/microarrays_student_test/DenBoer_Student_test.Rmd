@@ -4,6 +4,7 @@ author: "Jacques van Helden"
 date: '`r Sys.Date()`'
 output:
   html_document:
+    code_folding: hide
     fig_caption: no
     highlight: zenburn
     theme: cerulean
@@ -25,10 +26,20 @@ bibliography: ../../bibliography/ASG1_references.bib
 
 
 ```{r knitr setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=FALSE, message=FALSE, warning=FALSE, comment="")
+# knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=FALSE, message=FALSE, warning=FALSE, comment="")
 
 library(knitr)
-
+options(width=300)
+knitr::opts_chunk$set(
+  fig.width = 7, 
+  fig.height = 5, 
+  fig.path='figures',
+  fig.align = "center", 
+  size = "tiny", 
+  echo = TRUE, eval=TRUE, 
+  warning = FALSE, message = FALSE, 
+  results = TRUE, comment = "")
+# knitr::asis_output("\\footnotesize")
 
 ```
 
@@ -47,13 +58,13 @@ library(knitr)
 
 ## Goal of this practical
 
-The goal of this practical is to understand the principles of **Student t-test** by exploring step-by-step the different components of the $t_obs$ statistics. To this purpose, we will apply a test to detect genes differentially expressed in between two cancer types in microarray transcriptomic profiles. 
+The goal of this practical is to understand the principles of **Student t-test** by exploring step-by-step the different components of the $t_{obs}$ statistics. To this purpose, we will apply a test to detect **differentially expressed genes** (**DEG**) between two cancer types in microarray transcriptomic profiles. 
 
 * * * * * * 
 
 ## Study case
 
-As study case, we will analyse microarray transcriptomic profiles from @DenBoer:2009ik.
+As study case, we will analyse microarray transcriptomic profiles from [@DenBoer:2009ik].
 
 In this experiment, the authors characterized the transcriptome of 190 patients suffering from Acute Lymphoblastic Leukaemia (ALL). Lymphoblastic leukaemia is characterized by the abnormal clonal proliferation, within the bone marrow, of lymphoid progenitors blocked at a precise stage of their differentiation. The abnormal proliferation can result from various mutations, some of which are recurring in various patients. The DenBoer dataset includes information about the genetic problem associated with each leukaemia. 
 
@@ -105,6 +116,28 @@ Data were produced using Affymetrix geneChips (Affymetrix Human Genome U133A Arr
     - Phenotypic data (GSE13425_phenoData.txt)
         - The GSE13425_phenoData.txt file contains phenotypic information about samples.
 
+* * * * * * *
+
+### Creating an output directory on your own computer
+
+We will define and create a directory to store the results on our computer. 
+
+```{r create_output_dir}
+## Define the output directory. You can adapt this to your local configuration.
+dir.output <- "~/STAT2_practicals/GSE13425"
+
+## Create the output directory (if it does not exist yet)
+dir.create(dir.output, showWarnings=FALSE, recurs=TRUE)
+
+## Change directory to dir.output
+setwd(dir.output)
+
+## Print a message with output directory
+message("Output directory for this practical: ", dir.output)
+
+## Check it this directory already contains some files.
+list.files(dir.output)
+```
 
 ### Definition of the course URL and data path
 
@@ -114,10 +147,13 @@ For this we need to define two variables.
 1. The general URL of this course, which we store in a variable *url.course*.
 2. The path to the microarray datasets, which is defined by appending the folder (*data/marrays*) to the URL of the course. For this, we use the *R* function **file.path()**, which automatically concatenates the pieces of a file or folder path. 
 
-```{r}
-
-## Define the URL of the example data sets
+<!--
 ## url.course <- "http://localhost/courses/ASG1" ## TEMPORARY, for JvH only (comment this line and uncomment the next one)
+
+-->
+
+```{r}
+## Define the URL of the example data sets
 url.course <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1"
 microarray.data.url <- file.path(url.course, "data", "marrays")
 
@@ -134,16 +170,35 @@ We will now load the expression matrix, which is stored in a file named *GSE1342
 We will once use the following functions: 
 
 - *file.path()* to build the full URL to the expression table
+- *download.file()* to download the file from the URL and obtain a local copy. This will avoid us to download the whole file each time we restart the analysis. 
 - *read.table()* to read the table from this URL. Note that this functions allows you to load a table either from a local folder (on your computer), or from any Web site.
 
 ```{r load_expression_matrix}
 
 ## Get some help about the read.table fonction
 # help(read.table)
+## Create a local
+
+## Download expression values if it has not been done before
+
+## URL of the expression table on the course server
+expr.url <- file.path(microarray.data.url, "GSE13425_Norm_Whole.txt") ## Build the full URL of the matrix
 
 ## Load expression values
-expr.file <- file.path(microarray.data.url, "GSE13425_Norm_Whole.txt") ## Build the full URL of the matrix
-message("Downloading matrix table from ", expr.file)
+dir.data <- file.path(dir.output, "data")
+dir.create(dir.data, recursive = TRUE, showWarnings = FALSE)
+expr.file <- file.path(dir.data, "DenBoer_2009_GSE13425_Norm_Whole.txt")
+
+if (file.exists(expr.file)) {
+  message("Expression file already downloaded: ", expr.file)
+} else {
+  message("Downloading matrix table from ", expr.url)
+  download.file(url = expr.url, destfile = expr.file)
+  message("Local expression file: ", expr.file)
+}
+
+## Load the expression table in memory
+message("Loading expression table from ", expr.file)
 expr.matrix <-  read.table(expr.file,sep="\t", head=T, row=1)
 
 ```
@@ -253,12 +308,22 @@ In the rest of this tutorial, all the analyses will be led on the RMA-normalized
 
 ### Loading phenotypic data
 
-We will not load the **phenotypic data**, which is crucial to any analysis since this data type contains the information on all the samples found in a microarray expression matrix. 
+We will now load the **phenotypic data**, which is crucial to any analysis since this data type contains the information on all the samples found in a microarray expression matrix. 
 
 ```{r load_pheno_and_amp}
 ## Load phenotypic data
-pheno.file <- file.path(microarray.data.url, 'phenoData_GSE13425.tab')
-message("Loading pheno data from ", pheno.file)
+pheno.url <- file.path(microarray.data.url, 'phenoData_GSE13425.tab')
+pheno.file <- file.path(dir.data, 'phenoData_GSE13425.tab')
+
+if (file.exists(pheno.file)) {
+  message("Pheno file already downloaded: ", pheno.file)
+} else {
+  message("Downloading pheno table from ", pheno.url)
+  download.file(url = pheno.url, destfile = pheno.file)
+  message("Local pheno file: ", expr.file)
+}
+
+message("Loading pheno table from ", pheno.file)
 pheno <- read.table(pheno.file, sep='\t', head=TRUE, row=1)
 
 ## Check the size of the pheno table 
@@ -352,25 +417,6 @@ Note that the interpretation of "absent" labels is not obvious. Genes declared "
 
 Note that we will still be able to revise this decision at the very end of the analysis pipeline, by computing the number of genes declared differentially expressed yet absent from most samples. 
 
-* * * * * * *
-
-### Creating an output directory on your own computer
-
-We will now define and create a directory to store the results on our computer. 
-
-```{r create_output_dir}
-## Define the output directory. You can adapt this to your local configuration.
-dir.output <- "~/STAT2_practicals/GSE13425"
-
-## Create the output directory (if it does not exist yet)
-dir.create(dir.output, showWarnings=FALSE, recurs=TRUE)
-
-## Change directory to dir.output
-setwd(dir.output)
-
-## Check it this directory already contains some files.
-list.files(dir.output)
-```
 
 * * * * * * *
 
