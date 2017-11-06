@@ -78,13 +78,12 @@ We will need to use some [Bioconductor](https://bioconductor.org/) libraries in 
 
 
 ```{r eval=FALSE}
-## Install base libraries for Bioconductor
-## If you are asked to create a personnal library answer "YES".
-source("https://bioconductor.org/biocLite.R")
-biocLite()
-
 ## Install specifically the qvalue library
 if (!require("qvalue")) {
+  ## Install base libraries for Bioconductor
+  ## If you are asked to create a personnal library answer "YES".
+  source("https://bioconductor.org/biocLite.R")
+  biocLite()
   biocLite("qvalue")
 }
 ```
@@ -366,8 +365,10 @@ print(cancer.type.counts)
 We can also nicely format the result table using the knitr *kable()* function. However, this require to convert the table object into a data frame. For this, we can use the *R* function *as.data.frame()*.
 
 ```{r count_cancer_types_kable}
-## We can also the number of samples per subtype of leukemia in a well-formated table 
-kable(as.data.frame(cancer.type.counts),
+## We can also the number of samples per subtype of leukemia in a
+## well-formated table. For this we convert the table in a data.frame
+## object, which can be treated by the kable() function. 
+kable(as.data.frame.table(cancer.type.counts),
       caption = "Number of biological samples per subtype of acute lymphoblastic leukemia in Den Boer dataset. ")
 
 ```
@@ -442,7 +443,9 @@ During this practical, you will be led to draw a succession of plots (scatter pl
 
 ### Choice of towo groups of interest
 
-#### Q1. Count the number of samples per subtype of ALL, choose two groups (g1, g2) with at least 30 individuals, and build two vectors (g1.columns, g2.columns) indicating which columns of the matrix correspond to these respective groups.
+#### Q1. Choose two groups containing at least 30 individuals each
+
+Count the number of samples per subtype of ALL, choose two groups (g1, g2) with at least 30 individuals, and build two vectors (g1.columns, g2.columns) indicating which columns of the matrix correspond to these respective groups.
 
 
 
