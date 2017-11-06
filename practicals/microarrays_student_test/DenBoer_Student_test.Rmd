@@ -26,14 +26,14 @@ bibliography: ../../bibliography/ASG1_references.bib
 
 
 ```{r knitr setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE}
-# knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=FALSE, message=FALSE, warning=FALSE, comment="")
+# knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=TRUE, message=FALSE, warning=FALSE, comment="")
 
 library(knitr)
 options(width=300)
 knitr::opts_chunk$set(
   fig.width = 7, 
   fig.height = 5, 
-  fig.path='figures',
+  fig.path='figures/',
   fig.align = "center", 
   size = "tiny", 
   echo = TRUE, eval=TRUE, 
@@ -158,7 +158,7 @@ microarray.data.url <- file.path(url.course, "data", "marrays")
 
 ## Check the results
 print(paste("Course URL: ", url.course))
-print(paste("Microarray data folder: ", microarray.data.url))
+print(paste("URL for the microarray data: ", microarray.data.url))
 
 ```
 
@@ -176,9 +176,6 @@ We will once use the following functions:
 
 ## Get some help about the read.table fonction
 # help(read.table)
-## Create a local
-
-## Download expression values if it has not been done before
 
 ## URL of the expression table on the course server
 expr.url <- file.path(microarray.data.url, "GSE13425_Norm_Whole.txt") ## Build the full URL of the matrix
@@ -309,11 +306,13 @@ In the rest of this tutorial, all the analyses will be led on the RMA-normalized
 
 We will now load the **phenotypic data**, which is crucial to any analysis since this data type contains the information on all the samples found in a microarray expression matrix. 
 
+
 ```{r load_pheno_and_amp}
 ## Load phenotypic data
 pheno.url <- file.path(microarray.data.url, 'phenoData_GSE13425.tab')
 pheno.file <- file.path(dir.data, 'phenoData_GSE13425.tab')
 
+## Download pheno table if not yet present in data dir
 if (file.exists(pheno.file)) {
   message("Pheno file already downloaded: ", pheno.file)
 } else {
@@ -322,6 +321,7 @@ if (file.exists(pheno.file)) {
   message("Local pheno file: ", expr.file)
 }
 
+## Load pheno table in memory
 message("Loading pheno table from ", pheno.file)
 pheno <- read.table(pheno.file, sep='\t', head=TRUE, row=1)
 
@@ -384,8 +384,19 @@ In Affymetrix, each probeset is labelled with a tag which can take three values:
 
 ```{r fig.width=7, fig.height=5}
 ## Load Absent/Marginal/Present (AMP) calls
-amp <- read.table(file.path(microarray.data.url, "GSE13425_AMP_Whole.txt"),
-                  sep="\t", head=T, row=1)
+amp.url <- file.path(microarray.data.url, "GSE13425_AMP_Whole.txt")
+amp.file <- file.path(dir.data, "GSE13425_AMP_Whole.txt")
+
+if (file.exists(amp.file)) {
+  message("Absent/Marginal/Presnt file already downloaded: ", amp.file)
+} else {
+  message("Downloading AMP table from ", amp.url)
+  download.file(url = amp.url, destfile = amp.file)
+  message("Local AMP file: ", amp.file)
+}
+
+## Load AMP table in memory
+amp <- read.table(amp.file, sep="\t", head=T, row=1)
 
 ## Count the total number of calls of each type (A/M/P)
 table(unlist(amp))
@@ -954,7 +965,7 @@ par(mfrow=c(1,1))
 
 ```{r pvalue_distribution}
 ## Histogram of the p-value distribution
-hist(result.table$p.value, breaks=20, main="P-value histogram", xlab="Pvalue", ylab="Number of probesets")
+hist(result.table$p.value, breaks=20, main="P-value histogram", xlab="Pvalue", ylab="Number of probesets", col="grey")
 ```
 
 ```{r check_validity}
@@ -1094,6 +1105,135 @@ legend("topleft",
               col="red",
               lwd=2)
 
+```
+## Negative control set
+
+In order to get a feeling of the expected behaviour of the test under null hypothesis (in absence of differences between the two groups), we will generate a **negative control set**, i.e. an artificial dataset compliant with the assumptions of the Welch test (normal populatins with different variances), and measure the same statistics as with the expression matrix. 
+
+In addition, we will calibrate our random dataset in order to simulate the actual expression matrix in the following way.
+
+1. The artificial data will be drawn in random **normal populations** of **equal means** ($H_0= \mu_1 = \mu2$) but where the variances ($\sigma1$, $\sigma2$) may differ between groups (**heteroscedasticity**). 
+
+2. For each row of the random dataset, the population means will be set equal to the mean expression value of the corresponding row (gene) of the expression table. 
+
+We will then generate the same plots as above, but systematically compare the results obtained with the expression matrix and with the random data, respectively.
+
+```{r}
+
+g <- nrow(expr.matrix)
+
+## First group
+n1 <- length(g1.columns)
+mu1 <- apply(expr.matrix[, c(g1.columns, g2.columns)], 1, mean, na.rm=TRUE)
+sigma1 <- apply(expr.matrix[, g1.columns], 1, sd, na.rm=TRUE)
+
+## Second group
+n2 <- length(g2.columns)
+mu2 <- apply(expr.matrix[, c(g1.columns, g2.columns)], 1, mean, na.rm=TRUE)
+sigma2 <- apply(expr.matrix[, g2.columns], 1, sd, na.rm=TRUE)
+
+group1 <- matrix(nrow=g, rnorm(n = g * n1, mean = mu1, sd = sigma1))
+# View(group1)
+
+group2 <- matrix(nrow=g, rnorm(n = g * n2, mean = mu2, sd = sigma2))
+dim(group2)
+
+## Merge the two datasets in a single matrix
+rnorm.data <- cbind(group1, group2)
+class(rnorm.data)
+dim(rnorm.data)
+
+```
+
+
+```{r mean_comparison2, fig.cap="Comparison of sample means between the two groups. "}
+rand.result.table <- data.frame(
+  m1 = apply(group1, 1, mean),
+  m2 = apply(group2, 1, mean))
+
+par(mfrow=c(1,2))
+## Compute the axis range: we want to go from 0 (the minimal possible
+## expression value) to the first integer that exceeds (ceiling) all 
+## expression values from group 1 and group 2.
+axis.range <- c(0, ceiling(max(result.table[,c("m1","m2")])))
+plot(result.table$m1, 
+     result.table$m2,
+     main="Comparison between group means\nDen Boer, 2009",
+     xlab=paste(g1, "mean (RMA-norm log2 values)"),
+     ylab=paste(g2, "mean (RMA-norm log2 values)"),
+     xlim=axis.range, ylim=axis.range,
+     pch=20,
+     col = densCols(x=result.table$m1,
+                    y=result.table$m2)
+)
+grid(lty="solid", col="darkgray")
+abline(a=0, b=1)
+abline(a=1, b=1, col="red")
+abline(a=-1, b=1, col="red")
+
+plot(rand.result.table$m1, 
+     rand.result.table$m2,
+     main="Random dataset under H0",
+     xlab=paste("Group 1 mean"),
+     ylab=paste(g2, "Group 2 mean"),
+     xlim=axis.range, ylim=axis.range,
+     pch=20,
+     col = densCols(x=rand.result.table$m1,
+                    y=rand.result.table$m2)
+)
+grid(lty="solid", col="darkgray")
+# plot(rand.mean1, rand.mean2,
+#      col="grey", main="Negative control\n(random normal under H0)", xlab="m1", ylab="m2"
+#      )
+# grid()
+abline(a=0, b=1)
+abline(a=1, b=1, col="red")
+abline(a=-1, b=1, col="red")
+par(mfrow=c(1,1))
+
+```
+
+```{r}
+## The effect size is the difference between group means.
+## Since the RMA-normalized data is log2-transformed, this effect size 
+## is equivalent to the "M" variable of the MA plots. 
+rand.result.table$d <- rand.result.table$m1 - rand.result.table$m2
+
+## Mean of the two group means.
+## Since the RMA-normalized data is log2-transformed, this effect size 
+## is equivalent to the "A" variable of the MA plots.  
+rand.result.table$A <- (rand.result.table$m1 + rand.result.table$m2)/2
+
+par(mfrow=c(1,2))
+xrange <- range(result.table$A)
+yrange <- range(result.table$d)
+plot(result.table$A,
+     result.table$d,
+     main="MA plot\nDen Boer, 2009",
+     xlab= "Average expression: A = (m1 + m2)/2",
+     ylab = "Effect size: d = m2 - m1",
+     xlim=xrange,
+     ylim=yrange,
+     col=densCols(result.table$d, result.table$A)
+     )
+grid(lty="solid", col="grey")
+abline(col="black", h=0)
+abline(col="red", h=c(1, -1))
+
+plot(rand.result.table$A,
+     rand.result.table$d,
+     main="MA plot\nRandom dataset under H0",
+     xlab= "Average expression: A = (m1 + m2)/2",
+     ylab = "Effect size: d = m2 - m1",
+     xlim=xrange,
+     ylim=yrange,
+     col=densCols(rand.result.table$d, rand.result.table$A)
+     )
+grid(lty="solid", col="grey")
+abline(col="black", h=0)
+abline(col="red", h=c(1, -1))
+
+par(mfrow=c(1,1))
 ```
 
 
