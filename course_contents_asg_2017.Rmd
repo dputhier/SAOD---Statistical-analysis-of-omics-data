@@ -93,10 +93,10 @@ During the first practical we will briefly revise these concepts and practical s
 ## Schedule and contents
 
 | Date   | From | To   | Subject         | Teacher | Concepts   | Material            |
-|-------|-----|-----|----------------|-----|----------------|---------------------------|
+|-------|-----|-----|----------------|-----|----------------|-------------------------------------|
 | 
 | 3/11 | 14:00 | 18:00 | Introduction au cours | JvH | | Diapos [html](slides/01_introduction.html) [Rmd](slides/01_introduction.Rmd) |
-| 3/11 | 14:00 | 18:00 | Detecting differentially expressed genes (DEG) with microrarrays | DP |- Hypothesis testing<br>- Student $t$ statistics<br>- Unbiased estimation of variance<br>- MA plot<br>- Volcano plots<br> -P-value distribution <br>- E-value| - Slides [html](slides/Den_Boer_use_case/Den_Boer_use_case.html) [Rmd](slides/Den_Boer_use_case/Den_Boer_use_case.Rmd) <br> - Basics about Student and Welch’s t test [html](practicals/microarrays_student_test/Student_test_info.html) [Rmd](practicals/microarrays_student_test/Student_test_info.Rmd) <br> -  Practical: detecting differentially expressed genes in microarray data [html](practicals/microarrays_student_test/DenBoer_Student_test.html) [Rmd](practicals/microarrays_student_test/DenBoer_Student_test.Rmd)|
+| 3/11<br>6/11 | 14:00 | 18:00 | Detecting differentially expressed genes (DEG) with microrarrays | DP |- Hypothesis testing<br>- Student $t$ statistics<br>- Unbiased estimation of variance<br>- MA plot<br>- Volcano plots<br> -P-value distribution <br>- E-value| - **Slides:** [html](slides/Den_Boer_use_case/Den_Boer_use_case.html) [Rmd](slides/Den_Boer_use_case/Den_Boer_use_case.Rmd) <br> - **Basics about Student and Welch’s t test** [html](practicals/microarrays_student_test/Student_test_info.html) [Rmd](practicals/microarrays_student_test/Student_test_info.Rmd) <br> -  **Practical:** detecting differentially expressed genes in microarray data [html](practicals/microarrays_student_test/DenBoer_Student_test.html) [Rmd](practicals/microarrays_student_test/DenBoer_Student_test.Rmd) <br>  -  **Practical:** generating random control sets following a Normal distribution (incomplete) [html](practicals/microarrays_student_test/negative_control_Welch-test.Rmd) [Rmd](practicals/microarrays_student_test/negative_control_Welch-test.Rmd)|
 |  |  |  | Functional enrichment of DEG | DP | - Functional enrichment statistics <br> - The hypergeometric distribution <br> | - Theory : on white board <br> - [Hypergeometric distribution and enrichment statistics. An example application: DAVID (practical)](practicals/go_statistics_td/go_statistics_td_2015.html)<br>|
 |  |  |  | The multiple ways to correct for multiple testing | JvH | - False positive risk (FPR) <br> - Expected number of false positives (E-value) <br> - Family-Wise Error Rate (FWER) <br> - False Discovery Rate (FDR) | - [Multiple testing corrections  (slides)](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/pdf_files/06.04.multitesting_corrections.pdf) <br> - [Multiple testing corrections (practical)](practicals/multiple_testing_td/multiple_testing_corrections.html) |
 |  |  |  | Supervised classification  | JvH | - Discriminant analysis <br>- Cross-validation (k-fold, LOO) <br>- Data dimensionality and overfitting <br>- Variable selection | - [Introduction to multivariate analysis](pdf_files/07.00.multiv_intro.pdf) <br> - [Discriminant analysis (slides)](pdf_files/11.discriminant_analysis.pdf)<br>- [Dimension reduction and PCA](pdf_files/10.visualization.pdf)<br>- [Practical: supervised classification](practicals/supervised_classification_td/supervised_classification_td.html)  |
@@ -107,7 +107,7 @@ During the first practical we will briefly revise these concepts and practical s
 
 
 
-## Site content
+## Additional support
 
 | Concept | Description |
 |----------------|------------------------------------------------|
