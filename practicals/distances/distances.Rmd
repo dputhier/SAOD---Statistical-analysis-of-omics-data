@@ -1,5 +1,5 @@
 ---
-title: "About some distances used in clustering"
+title: "Distance metrics and clustering"
 author: "Denis Puthier"
 date: '`r Sys.Date()`'
 output:
@@ -7,8 +7,9 @@ output:
     fig_caption: yes
     highlight: zenburn
     theme: cerulean
-    toc: no
+    toc: yes
     toc_depth: 3
+    toc_float: yes
   pdf_document:
     fig_caption: yes
     highlight: zenburn
@@ -43,16 +44,16 @@ hr {
 </style>
 
 
-### Introduction
+## Introduction
 
 Unsupervised classification methods aim at classifying objects without any prior knowledge of the class they belong to. This is a very common task that can be used to discover new structures or classes inside a given set of objects. Indeed, arranging objects based on a given criteria (that one needs to define) may lead to partitions that highlights the presence of objects of various classes. These unsupervized methods are widely used in genomics where objects (expression profiles, biological samples with various descriptor, sequences, motifs, genomic features,...)  need to be classified in order to mine large dataset in search for similar objects related to known or novel classes and displaying jointly particular properties. These approaches have been  applied in several reference papers in the context of biological sample classification leading to the discovery of novel tumor classes. 
 
-The expected results of the classification is a partition. A partition can be define as the division of a collection of objects into subsets or clusters. In clustering approaches, each cluster is expected to contain very similar object (low within-group variance) while object from different clusters are expected to differ (high inter-group variance).  These clusters can correspond to a simple division of the object collection but also to a  set of hierarchically nested subsets. In the most popular approaches the clusters produced are non overlapping, meaning that each object is assign to only one cluster. These approaches are called *hard* (or *crisp*) *clustering* methods in contrast to *fuzzy clustering* (or soft clustering) in which one object can fall into several clusters. Although rather complexe approaches have been proposed, the most popular methods for unsupervised clustering are based on rather simple algorithms that rely on simple mathematical basis. 
-Whatever the method used, one important aspect is to choose a reasonable metric to assess the resemblance between object. Although other parameters may strongly influence the partitioning result, the choice of the metric will have a major influence on clustering. They are lots of existing metrics that can be applied to a set of objects. In the next section, we will focus on some of them that are frequently encountered in the context of genomic data analysis. 
+The expected results of the classification is a partition. A partition can be defined as the division of a collection of objects into subsets or clusters. In clustering approaches, each cluster is expected to contain very similar object (low within-group variance) while object from different clusters are expected to differ (high inter-group variance).  These clusters can correspond to a simple division of the object collection but also to a  set of hierarchically nested subsets. In the most popular approaches the clusters produced are non overlapping, meaning that each object is assign to only one cluster. These approaches are called *hard* (or *crisp*) *clustering* methods in contrast to *fuzzy clustering* (or soft clustering) in which one object can fall into several clusters. Although rather complexe approaches have been proposed, the most popular methods for unsupervised clustering are based on rather simple algorithms that rely on simple mathematical basis. 
+Whatever the method used, one important aspect is to choose a reasonable metric to assess the similarity between object. Although other parameters may strongly influence the partitioning result, the choice of the metric will have a major influence on clustering. They are lots of existing metrics that can be applied to a set of objects. In the next section, we will focus on some of them that are frequently encountered in the context of genomic data analysis. 
 
-### Choosing a metric
+## Choosing a metric
 
-#### The euclidean distance.
+### The euclidean distance.
 
 One of the most classical metric is the well-known *euclidean distance*. Let's imagine two genes in a two dimensional space that could represent two biological samples. Thus these two genes could be represented as two points $a$ and $b$. The euclidean distance between these two genes can be represented in the sample space and corresponds to the physical distance between two points computed using pythagora's formula with $i=1,..,p$ corresponding to the samples:
 
@@ -65,7 +66,7 @@ In this particular case, the two points, $a$ and $b$ for which the distance is t
 # Preparation x window
 col.vec <- c("black","red")
 op <- par(no.readonly = TRUE)
-par(mfrow=c(2,2), cex.main=0.7, mgp=c(2,1,0), mai=c(0.3,0.3,0.3,0.3))
+par(mfrow=c(2,2), cex.main=0.7, mgp=c(2,1,0), mai=c(0.5,0.5,0.5,0.5))
 
 # Genes as points and samples as dimensions
 a <- c(1, 4)
@@ -97,7 +98,7 @@ text(t(m), lab=colnames(m), pos = 2, offset = 1)
 matplot(t(m) , 
        ylim=c(0,5), xlim=c(0,3), 
        main="x axis for samples (n=2) and y axis for intensities", 
-       ylab=c("Intensities"),
+       ylab="Intensities",
        xlab="samples",
        xaxt = "n",
        type="n")
@@ -117,15 +118,17 @@ b <- c(8, 2, 5,  6, 1, 6, 1, 4)
 m <- rbind(a, b)
 matplot(t(m),
         xlim=c(0,10), ylim=c(0,12),
-       main="x axis for samples (n=8) and y axis for intensities",
+        main="x axis for samples (n=8) and y axis for intensities",
         pch=16,
         col="black",
+        ylab="Intensities",
+        xlab="samples",
         lty=1,
         type="n")
 grid(lty=1)
 
 for(i in 1:length(a)){
-  suppressWarnings(arrows(i, a[i] , i, b[i], angle=0, lty=3))
+  suppressWarnings(arrows(i, a[i] , i, b[i], angle=0, col=col.vec[i], lty=3))
 }
 
 matpoints(t(m),
@@ -214,7 +217,7 @@ legend(x="topleft",
 ```
 </div>
 
-#### Pearson's correlation coefficient
+### Pearson's correlation coefficient
 
 The Pearson's correlation coefficient is a widely used statistical score to measure the co-variance of two variables. It is particularly used in the case of hierarchical clustering applied to microarray or RNA-Seq data. The Pearson's correlation coefficient can be computed by dividing the covariance of the two variables by the product of their standard deviations. 
 
@@ -301,7 +304,7 @@ $$d(x,y) = 1/2(1-r_{x,y})$$
 
 For any gene pair with a Pearson's correlation coefficient of 1 the corresponding distance will be 0 while those displaying value of -1 will have an associated distance of 1. It should be noted that in contrast to euclidean distance, this distance does not follow the rule of  triangle inequality that states that for any triangle the sum of the length of two given sides  must be greater than the length of the third side. This type of distance can thus not be used to represent gene distances in a euclidean space. 
 
-#### Spearman's correlation coefficient $\rho$
+### Spearman's correlation coefficient $\rho$
 
 Spearman's correlation coefficient can be also particularly useful to assess the similarity of two given expression profile. While this rank-based measure is more robust to outliers than Pearson's correlation coefficient, it is also less sensitive. While Pearson's correlation coefficient is constructed based on raw values, Spearman's correlation coefficient will assess the concordance between the ranks of these values. The formula of the Speaman 's correlation coefficient is provided below. In this formula $d$ is the difference between ranks.
 
@@ -311,9 +314,9 @@ As for the Pearson's correlation coefficient, $\rho$ can be transformed to a dis
 
 $$d(x,y) = 1/2(1-\rho_{x,y})$$
 
-#### Comparing Spearman and Pearson correlation coefficient results
+### Comparing Spearman and Pearson correlation coefficient results
 
-Also lot of other metric exist, Spearman and Pearson correlation coefficient (or their associated distance) are frequently a good choice when working with expression data. However, depending on the contex, it is advisable to use the appropriate coefficient since their results may greatly differ. One can keep in mind that Pearson will capture linear relationships while Spearman will capture monotonic relationships. Let's take some example and compute the results of both coefficient.
+Also lot of other metric exist, Spearman and Pearson correlation coefficient (or their associated distance) are frequently a good choice when working with expression data. However, depending on the context, it is advisable to use the appropriate coefficient since their results may greatly differ. One can keep in mind that Pearson will capture linear relationships while Spearman will capture monotonic relationships. Let's take some example and compute the results of both coefficient.
 
 ```{r}
 op <- par(no.readonly = TRUE)
@@ -340,7 +343,7 @@ cor.a.b.spear <- paste("\u03C1=", cor.a.b.spear, sep="")
 legend("topright", leg=c(cor.a.b.spear, 
                            cor.a.b.pear ))
 
-## An example with non linear relatioship
+## An example with non linear relationship
 a <- 1:50
 b <- exp(a)
 plot(a,b, pch=16, las=1, panel.first=grid(lty=1))
@@ -366,5 +369,244 @@ legend("topleft", leg=c(cor.a.b.spear,
                            cor.a.b.pear ))
 
 ```
+
+
+## Unsupervized clustering of microarray data
+
+
+
+Here we will use the GSE13425 experiment which which was retrieved from the Gene Expression Omnibus ([GEO](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE13425)) public database. In this experiment, the authors were interested in the molecular classification of acute lymphoblastic leukemia (ALL) that are characterized by the abnormal clonal proliferation, within the bone marrow, of lymphoid progenitors blocked at a precise stage of their differentiation.
+
+Data were produced using Affymetrix geneChips (Affymetrix Human Genome U133A Array, HGU133A). Informations related to this platform are available on GEO website under identifier GPL96.
+
+### Loading data into R
+
+Start R. Have a look at the description of the *read.table* function. Load the expression matrix (GSE13425_Norm_Whole.txt), the A/P/M matrix (GSE13425_AMP_Whole.txt) and phenotypic data into R using the *read.table* function (assign the results to objects named data, amp, and pheno respectively).
+
+| Name and URL |  Description |
+|-----------------|-----------------------------------------------|
+| [Normalized data](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/GSE13425_Norm_Whole.txt) | The file GSE13425_Norm_Whole.txt contains genes as rows and samples as columns. Data were previously normalized using rma algorithm (they are thus transformed in logarithm base 2). |
+| [AMP calls](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/GSE13425_AMP_Whole.txt) | The GSE13425_APM_Whole.txt file contains information about A/P/M calls (genes as rows and samples as columns). |
+| [Phenotypic data](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/phenoData_GSE13425.tab) | The phenoData_GSE13425.txt file contains phenotypic data about samples. |
+
+
+
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo">
+```{r}
+#?read.table
+data.url <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/GSE13425_Norm_Whole.txt"
+amp.url <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/GSE13425_AMP_Whole.txt"
+pheno.url <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/phenoData_GSE13425.tab"
+data <-  read.table(data.url,sep="\t", head=T, row=1)
+amp <- read.table(amp.url,sep="\t", head=T, row=1)
+pheno <- read.table(pheno.url,sep="\t", head=T, row=1)
+```
+</div>
+
+
+
+ 
+
+### Selecting a subset of genes
+
+#### Selecting using the A/P/M criteria
+
+First, we will select genes giving a significant signal in a given number of samples.
+
+Select genes which are call present in at least 10% of the samples (n= 10724 genes).
+
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo">
+```{r}
+isPresent <- amp == "P"
+ind <- rowSums(isPresent) >= 19  
+data <- data[ind, ]
+```
+</div>
+
+
+#### Selecting using standard deviation. 
+
+As the classification of the whole gene matrix is rather computer intensive we will select 30% of the genes based on standard deviation.
+
+ - Select these genes.
+ - Change column names so that the new matrix will contains information about sample types.
+ - Write data onto disk (file GSE13425_sub_1.txt).
+
+
+
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo">
+```{r}
+sd <- apply(data,1,sd)
+summary(sd)
+quantile(sd,0.7)
+data <- data[sd > quantile(sd,0.7),]
+colnames(data) <- paste(pheno$Sample_title, colnames(data), sep="| |")
+dir.create("~/distance_and_clustering",showWarnings = FALSE)
+setwd("~/distance_and_clustering")
+write.table(data, "GSE13425_sub_1.txt", sep="\t", quote=F, col.names=NA)
+```
+</div>
+
+### About phenotypic information
+
+Here are the available phenotypic information. 
+
+```{r}
+colnames(pheno)
+```
+
+We will store some of these information in two vectors:
+
+- One contain phenotype title and the GEO IDs as labels.
+- One contain a set of colors related to the phenotypes and the GEO IDs as labels.
+
+```{r}
+pheno.vec <- as.character(pheno$Sample.title)
+names(pheno.vec) <- as.character(rownames(pheno))
+pheno.vec.col <- as.character(pheno$sample.colors)
+names(pheno.vec.col) <- as.character(rownames(pheno))
+```
+
+### Hierarchical clustering with hclust
+
+Euclidean distance is rarely used in the context of microarray analysis. A distance based on Pearson's correlation coefficient is most generally preferred (Spearman's rank correlation coefficient may also be used). Let's visualize the sample-sample correlation matrix using a heatmap.
+
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo">
+```{r}
+pear <- cor(data, method="pearson")
+palette <-colorRampPalette(c("yellow", "black","blueviolet"))
+library(lattice)
+levelplot(pear,col.regions=palette, scales=list(cex=0.2))
+
+# we can also store the result as a high quality pdf file
+pdf("coor.pdf"); levelplot(pear,col.regions=palette, scales=list(cex=0.2)); dev.off()
+
+```
+</div>
+
+
+
+The Pearson's correlation coefficient is bounded between -1 and 1. We can transform it into a distance using the following command:
+
+
+```{r}
+pear.dist <- as.dist((1-pear)/2)
+```
+
+Using this distance matrix use the hclust function to perform hierarchical clustering of samples.
+
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo">
+
+```{r}
+hp <- hclust(pear.dist, method="average")
+plot(hp, hang=-1, labels=as.character(pheno$Sample.title), cex=0.2)
+
+# we can also store the result as a high quality pdf file
+pdf("hp.pdf")
+plot(hp, hang=-1, labels=as.character(pheno$Sample.title), cex=0.2)
+dev.off()
+#system("evince hp.pdf&")
+```
+
+</div>
+
+The objects resulting from *hclust* calls can also be used to construct a heatmap. This can be done for instance using the *heatmap.3* function. Again, take care to the arguments used to construct the tree.  
+
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo">
+
+```{r}
+
+library("GMD")
+library("RColorBrewer")
+
+# Median center rows
+data.med.center <- sweep(data, MARGIN=1, STATS=apply(data,1,median), FUN = "-",) 
+# floor and ceil
+
+data.med.center[ data.med.center > 5 ] <- 5
+data.med.center[ data.med.center < -5 ] <- -5
+
+# Compute hierarchical clustering trees for rows and columns
+pear.cols <- cor(t(data.med.center), method="pearson")
+pear.dist <- as.dist((1-pear.cols)/2)
+hc.cols <- hclust(pear.dist, method="average")
+pear.rows <- cor(data.med.center, method="pearson")
+pear.dist <- as.dist((1-pear.rows)/2)
+hc.rows <- hclust(pear.dist, method="average")
+
+# Prepare a function that returns interpolated color sets
+col.fun = colorRampPalette(c("green", "black", "red"))
+
+
+
+library("GMD")
+library("RColorBrewer")
+
+x11(height=14, width=14)
+heatmap.3(t(data.med.center), 
+          scale="none", 
+          RowIndividualColors = pheno.vec.col, 
+          cluster.by.col=TRUE, 
+          cluster.by.row=TRUE, 
+          Rowv=TRUE,
+          Colv=TRUE,
+          hclust.col = hc.cols, 
+          hclust.row = hc.rows, 
+          labRow=pheno.vec,
+          labCol=NULL,
+          cexRow = 0.5,
+          color.FUN = col.fun)
+
+dev.off()
+```
+
+</div>
+
+However, one can see the limits of using R in this context...
+
+### Hierarchical clustering with the cluster and treeview software
+
+R is not particularly well-suited to visualize classification results for very large datasets. We will thus install the cluster and treeview software that are very handy to browse the results of a hierarchical clustering.
+
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo">
+```{r engine='bash', highlight=TRUE, eval=FALSE}
+# These are shell/bash commands !
+mkdir -p ~/bin
+cd ~/bin
+wget http://bonsai.hgc.jp/~mdehoon/software/cluster/cluster-1.50.tar.gz
+tar xvfz cluster-1.50.tar.gz
+cd cluster-1.50
+./configure --without-x
+make
+echo -e "\nalias cluster=$PWD/src/cluster" >> ~/.bashrc
+cd ..
+wget http://sourceforge.net/projects/jtreeview/files/jtreeview/1.1.6r2/TreeView-1.1.6r2-bin.tar.gz
+tar xvfz TreeView-1.1.6r2-bin.tar.gz
+echo "alias javatreeview='java -jar  $PWD/TreeView-1.1.6r2-bin/TreeView.jar'" >> ~/.bashrc
+source  ~/.bashrc
+cd -
+```
+</div>
+
+Using the cluster software, compute hierarchical clustering both on genes and samples.
+
+
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo">
+```{r engine='bash', highlight=TRUE, eval=FALSE}
+cluster -f GSE13425_sub_1.txt -g 2 -e 2 -m a  -cg m
+javatreeview
+```
+</div>
+
+
+Now you can open the .cdt file, that was produced by cluster using javatreeview. How are the samples classified ? What can you say about gene classification ?
 
 

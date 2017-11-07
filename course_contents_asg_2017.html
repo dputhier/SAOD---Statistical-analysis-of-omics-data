@@ -11,7 +11,7 @@
 
 <meta name="author" content="Denis Puthier andJacques van Helden" />
 
-<meta name="date" content="2017-11-06" />
+<meta name="date" content="2017-11-07" />
 
 <title>Analyse statistique des données génomiques</title>
 
@@ -202,7 +202,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Analyse statistique des données génomiques</h1>
 <h4 class="author"><em>Denis Puthier andJacques van Helden</em></h4>
-<h4 class="date"><em>2017-11-06</em></h4>
+<h4 class="date"><em>2017-11-07</em></h4>
 
 </div>
 
@@ -366,6 +366,15 @@ The instructions for the 2016 personal work can be found here
 <td>- <strong>Slides:</strong> <a href="slides/Den_Boer_use_case/Den_Boer_use_case.html">html</a> <a href="slides/Den_Boer_use_case/Den_Boer_use_case.Rmd">Rmd</a> <br> - <strong>Basics about Student and Welch’s t test</strong> <a href="practicals/microarrays_student_test/Student_test_info.html">html</a> <a href="practicals/microarrays_student_test/Student_test_info.Rmd">Rmd</a> <br> - <strong>Practical:</strong> detecting differentially expressed genes in microarray data <a href="practicals/microarrays_student_test/DenBoer_Student_test.html">html</a> <a href="practicals/microarrays_student_test/DenBoer_Student_test.Rmd">Rmd</a> <br> - <strong>Practical:</strong> generating random control sets following a Normal distribution (incomplete) <a href="practicals/microarrays_student_test/negative_control_Welch-test.Rmd">html</a> <a href="practicals/microarrays_student_test/negative_control_Welch-test.Rmd">Rmd</a></td>
 </tr>
 <tr class="even">
+<td>7/11</td>
+<td>14:00</td>
+<td>18:00</td>
+<td>About distances and clustering</td>
+<td>DP</td>
+<td>- Distance metrics <br> - Hierarchical clustering <br></td>
+<td>- Theory : <a href="practicals/unsup_classif_slides/unsup_classification.pdf">Clustering (slides DP)</a> - <a href="practicals/distances/distances.html">Distance metrics and clustering (practical)</a><br></td>
+</tr>
+<tr class="odd">
 <td></td>
 <td></td>
 <td></td>
@@ -374,7 +383,7 @@ The instructions for the 2016 personal work can be found here
 <td>- Functional enrichment statistics <br> - The hypergeometric distribution <br></td>
 <td>- Theory : on white board <br> - <a href="practicals/go_statistics_td/go_statistics_td_2015.html">Hypergeometric distribution and enrichment statistics. An example application: DAVID (practical)</a><br></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td></td>
 <td></td>
 <td></td>
@@ -383,7 +392,7 @@ The instructions for the 2016 personal work can be found here
 <td>- False positive risk (FPR) <br> - Expected number of false positives (E-value) <br> - Family-Wise Error Rate (FWER) <br> - False Discovery Rate (FDR)</td>
 <td>- <a href="http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/pdf_files/06.04.multitesting_corrections.pdf">Multiple testing corrections (slides)</a> <br> - <a href="practicals/multiple_testing_td/multiple_testing_corrections.html">Multiple testing corrections (practical)</a></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td></td>
 <td></td>
 <td></td>
@@ -392,7 +401,7 @@ The instructions for the 2016 personal work can be found here
 <td>- Discriminant analysis <br>- Cross-validation (k-fold, LOO) <br>- Data dimensionality and overfitting <br>- Variable selection</td>
 <td>- <a href="pdf_files/07.00.multiv_intro.pdf">Introduction to multivariate analysis</a> <br> - <a href="pdf_files/11.discriminant_analysis.pdf">Discriminant analysis (slides)</a><br>- <a href="pdf_files/10.visualization.pdf">Dimension reduction and PCA</a><br>- <a href="practicals/supervised_classification_td/supervised_classification_td.html">Practical: supervised classification</a></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td></td>
 <td></td>
 <td></td>
@@ -401,7 +410,7 @@ The instructions for the 2016 personal work can be found here
 <td>- Geometric<br>- Binomial<br>- Poisson<br>-Hypergeometric<br>- Negative binomial</td>
 <td>Tutorial [<a href="practicals/discrete_distributions_overview/discrete_distributions.html">html</a>][<a href="practicals/discrete_distributions_overview/discrete_distributions.pdf">pdf</a>][<a href="practicals/discrete_distributions_overview/discrete_distributions.Rmd">Rmd</a>]</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td></td>
 <td></td>
 <td></td>
@@ -410,7 +419,7 @@ The instructions for the 2016 personal work can be found here
 <td>- RNA-Seq principles <br>- Normalizing RNA-seq counts <br>-Detecting differentially expressed genes (DEG)</td>
 <td>- RNA-Seq DEG with DESeq2 <a href="practicals/rnaseq_diff_Snf2/rnaseq_diff_Snf2.html">[html]</a> <a href="practicals/rnaseq_diff_Snf2/rnaseq_diff_Snf2.pdf">[pdf]</a> <a href="practicals/rnaseq_diff_Snf2/rnaseq_diff_Snf2.Rmd">[Rmd]</a></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td></td>
 <td></td>
 <td></td>
@@ -419,7 +428,7 @@ The instructions for the 2016 personal work can be found here
 <td></td>
 <td><a href>[]</a><br><a href>[]</a></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td></td>
 <td></td>
 <td></td>
@@ -510,7 +519,7 @@ $(document).ready(function () {
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>
