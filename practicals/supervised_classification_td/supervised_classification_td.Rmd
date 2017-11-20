@@ -4,7 +4,8 @@ author: "Jacques van Helden and Denis Puthier"
 date: '`r Sys.Date()`'
 output:
   html_document:
-    fig_caption: yes
+    code_folding: hide
+    fig_caption: no
     highlight: zenburn
     theme: cerulean
     toc: yes
@@ -27,24 +28,36 @@ bibliography: ../../bibliography/ASG1_references.bib
 
 # Abbreviations
 
-Abbrev   Meaning
-------   ----------------------------
-   ALL   acute lymphoblastic leukemia 
-   AML   acute myeloblastic leukemia 
-   DEG   differentiall expressed genes 
-   GEO   Gene Expression Omnibus database 
-   KNN   K-nearest neighbours 
-   LDA   linear discriminant analysis 
-   QDA   quadratic discriminant analysis 
-   PCA   principal component anlaysis 
-   LOO   leave-one-out
-   CV    cross-validation
+| Abbrev |   Meaning |
+|--------|----------------------------|
+| ALL |  acute lymphoblastic leukemia |
+| AML | acute myeloblastic leukemia |
+| DEG | differentiall expressed genes |
+| GEO | Gene Expression Omnibus database |
+| KNN | K-nearest neighbours |
+| LDA | linear discriminant analysis |
+| QDA | quadratic discriminant analysis |
+| PCA | principal component anlaysis |
+| LOO | leave-one-out |
+| CV| | cross-validation |
 
 
-* * * * * * * *
 
 ```{r knitr setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=TRUE, message=FALSE, warning=FALSE, comment="")
+# knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=TRUE, message=FALSE, warning=FALSE, comment="")
+
+library(knitr)
+options(width=300)
+knitr::opts_chunk$set(
+  fig.width = 7, 
+  fig.height = 5, 
+  fig.path='figures/',
+  fig.align = "center", 
+  size = "tiny", 
+  echo = TRUE, eval=TRUE, 
+  warning = FALSE, message = FALSE, 
+  results = TRUE, comment = "")
+# knitr::asis_output("\\footnotesize")
 
 ```
 
@@ -59,9 +72,8 @@ for (pkg in packages) {
   if (!suppressPackageStartupMessages(require(pkg, quietly=TRUE, character.only = TRUE))) {
     install.packages(pkg)
   }
+  library(pkg, character.only = TRUE)
 }
-
-library(knitr)
 
 ## Install some bioconductor packages
 pkg <- "qvalue"
@@ -70,6 +82,8 @@ if (!suppressPackageStartupMessages(require(pkg, quietly=TRUE, character.only = 
   biocLite();
   biocLite(pkg)
 }
+library(pkg, character.only = TRUE)
+
 
 ## Load the curstom function t.test.multi() - see protocol on differential expression
 ## Load a custom the library for multiple t tests
@@ -78,23 +92,11 @@ source(file.path(url.stats4bioinfo, 'R-files/config.R'))
 
 source(file.path(url.stats4bioinfo, 'R-files/util/util_student_test_multi.R'))
 
-# ## Install some specific packages for this course
-# library(devtools)
-# dev_mode(on=T)
-# install_github("jvanheld/statistics_for_bioinformatics/R-packages/denboer2009")
-# install_github("jvanheld/statistics_for_bioinformatics/R-packages/stats4bioinfo")
-# # when finished do:
-# dev_mode(on=F)  #
-# 
-# library(denboer2009)
-# library(stats4bioinfo)
-
-
-
 ```
 
 
 
+****************************************************************
 
 # Goal of this tutorial
 
@@ -131,9 +133,9 @@ dir.base.ASG1 <- 'http://pedagogix-tagc.univ-mrs.fr/courses/ASG1'
 ```
 
 The following command loads a general configuration file, specifying
-the input directories (data, <span class="program">R</span> utilities) and creating output
-directories on your computer (<tt>dir.results</tt>,
-<tt>dir.figures</tt>)..
+the input directories (data, **R*</span>** utilities) and creating output
+directories on your computer (the corresponding paths are stored in the variables `dir.results` and 
+`dir.figures`).
 
 ``` {r label="Loading configuration file"}
 ## Load the general configuration file
@@ -144,23 +146,32 @@ print(paste("Result directory", dir.results))
 ```
 
 
-
-
-* * * * * * *
+****************************************************************
 
 
 # Data loading
 
-We can now load the profile table and check its dimensions. Beware: this expression matrix weights 20Mb. The download can thus take time, depending on your internet connection.
+We can now load the expression matrix, and check its dimensions. 
+
+**Beware:** this expression matrix weights 20Mb. The download can thus take time, depending on your internet connection. To avoid downloading it repeadedly, we will stored it in our local directory. 
 
 ``` {r}
 # ## Define the location of data directory and file containing expression profiles
 # denboer.url <- file.path(dir.base, 'data', 'gene_expression','denboer_2009')
 denboer.url <- file.path(dir.base.ASG1, "data", "marrays")
-file.expr.table <- file.path(denboer.url, 'GSE13425_Norm_Whole.tab')
+url.expr.matrix <- file.path(denboer.url, 'GSE13425_Norm_Whole.tab')
+
+## Download and store a local copy of the expression matrix if not yet there.
+file.expr.matrix <- file.path(dir.results, "GSE13425_Norm_Whole.tab")
+if (!file.exists(file.expr.matrix)) {
+  message("Downloading expression matrix from URL: ", url.expr.matrix)
+  download.file(url = url.expr.matrix, destfile = file.expr.matrix)
+  message("Local copy of expression matrix stored in file: ", file.expr.matrix)
+}
 
 ## Load the dataset from denboer2009
-denboer2009.expr <- read.table(file.expr.table, sep = "\t", head = T, row = 1)
+message("Loading expression matrix from file ", file.expr.matrix)
+denboer2009.expr <- read.table(file.expr.matrix, sep = "\t", head = T, row = 1)
 print(dim(denboer2009.expr))
 
 ## Should give this: 22283   190
@@ -168,12 +179,24 @@ print(dim(denboer2009.expr))
 
 ## Load the pheno table, which provides information about all the samples
 ## Load phenotypic data
-pheno.file <- file.path(denboer.url, 'phenoData_GSE13425.tab')
+pheno.url <- file.path(denboer.url, 'phenoData_GSE13425.tab')
+pheno.file <- file.path(dir.results, 'phenoData_GSE13425.tab')
+if (!file.exists(pheno.file)) {
+  message("Downloading pheno table from URL: ", pheno.url)
+  download.file(url = pheno.url, destfile = pheno.file)  
+  message("Storing local copy of pheno table in file: ", pheno.file)
+}
 message("Loading pheno data from ", pheno.file)
 denboer2009.pheno <- read.table(pheno.file, sep='\t', head=TRUE, row=1, comment.char="")
 
 ## Load a file with group descriptions (short label, color)
-group.descr.file <- file.path(denboer.url, 'GSE13425_group_descriptions.tab')
+group.descr.url <- file.path(denboer.url, 'GSE13425_group_descriptions.tab')
+group.descr.file <- file.path(dir.results, 'GSE13425_group_descriptions.tab')
+if (!file.exists(group.descr.file)) {
+  message("Downloading group descriptions from URL: ", group.descr.url)
+  download.file(url = group.descr.url, destfile = group.descr.file)  
+  message("Storing local copy of group descriptions in file: ", group.descr.file)
+}
 message("Loading group descriptions from ", group.descr.file)
 group.descriptions <- read.table(group.descr.file, sep='\t', head=TRUE, row=1)
 
@@ -192,19 +215,17 @@ group.descriptions <- read.table(group.descr.file, sep='\t', head=TRUE, row=1)
 
 ```
 
-Once the whole data set has been loaded, the data frame "denboer2009.expr"
-should contain 22,283 rows (genes) and 190 columns (samples).
+Once the whole data set has been loaded, the data frame `denboer2009.expr` should contain 22,283 rows (genes) and 190 columns (samples).
 
 
 We can now inspect the "phenotypic" data. 
 
-<font size=-1>Remark: the table named "denboer2009.pheno"  contains the information defined as "phenotypic" for general analysis of microarrays. However, in the case of DenBoer data set, the different classes of ALL are characterized by genotypic characteristics (the mutation that caused the leukemia) rather than by phenotypic traits.</font>
+**Remark:** the data frame named `denboer2009.pheno`  contains the information defined as "phenotypic" for general analysis of microarrays. However, in the case of DenBoer data set, the different classes of ALL are characterized by genotypic characteristics (the mutation that caused the leukemia) rather than by phenotypic traits.
 
 
 ```{r}
 ## Get the list of column names in the pheno table.
 names(denboer2009.pheno)
-
 ```
 
 The column *Sample.title* indicates the cancer subtype corresponding to each sample.  We can count the number of samples per subtype, and display them by decreasing group size.
@@ -266,7 +287,7 @@ It is thus essential, for both unsupervised and unsupervised classification, to 
     
 To get some feeling about the data, we will compare the expression levels of two genes selected in an arbitrary way (resp. $236^{th}$ and $1213^{th}$ rows of the profile table).
 
-``` {r fig.width=7, fig.height=7, fig.cap="**Comparison of expression values per sample for two arbitrary genes**. Each dot corresponds to one sample, showe color and label denotes the ALL group of the patient. "}
+``` {r two_arbitrary_genes_plot, fig.width=7, fig.height=7, fig.cap="**Comparison of expression values per sample for two arbitrary genes**. Each dot corresponds to one sample, showe color and label denotes the ALL group of the patient. "}
 ## Plot the expression profiles of two arbitrarily selected genes
 g1 <- 236
 g2 <- 1213
@@ -281,7 +302,7 @@ plot(x,y,
 text(x, y,labels=sample.labels,col=sample.colors,pch=0.5)
 legend("topright",col=group.colors, 
          legend=group.legend,pch=1,cex=0.6,bg="white",bty="o")
-silence <- dev.copy2pdf(file="two_arbitrary_genes_plot.pdf", width=8, height=8)
+# silence <- dev.copy2pdf(file="two_arbitrary_genes_plot.pdf", width=8, height=8)
 ```
 
 Each dot corresponds to one sample. Since the genes were initially selected at random, we don't expect them to be particularly good at discriminating the different subtypes of ALL. However, we can already see some emerging patterns: the T-ALL (labelled "T") show a trends to strongly express the $236^{th}$ gene, and, to a lesser extent, several hyperdiploid B-cells (label "Bh") show a high expression of the $1213^{th}$ gene. Nevertheless, it would be impossible to draw a boundary that would perfectly separate two subtypes in this plot.
@@ -294,15 +315,15 @@ The <span class="program">R</span> function <tt>apply()</tt> can be used to appl
 
 ### Variance per gene
 
-``` {r fig.width=10, fig.height=5, fig.cap="**Gene-wise distributions of expression variance and standard deviation**. "}
+``` {r denboer2009_variance_per_gene, fig.width=10, fig.height=5, fig.cap="**Gene-wise distributions of expression variance and standard deviation**. "}
 ## Compute gene-wise variance
 var.per.gene <- apply(denboer2009.expr, 1, var)
 sd.per.gene <- apply(denboer2009.expr, 1, sd)
 
 ## Inspect the distribution of gene-wise variance and standard deviation (more readable)
 par(mfrow=c(1,2))
-hist(var.per.gene, breaks=100, col="#BBFFDD", main="Gene-wise distribution of variance", xlab="Variance", ylab="Number of genes")
-hist(sd.per.gene, breaks=100, col="#BBFFDD", main="Gene-wise distribution of standard deviation", xlab="Standard deviation", ylab="Number of genes")
+hist(var.per.gene, breaks=100, col="#BBFFDD", main="Variance per gene", xlab="Variance", ylab="Number of genes")
+hist(sd.per.gene, breaks=100, col="#BBFFDD", main="Standard dev. per gene", xlab="Standard deviation", ylab="Number of genes")
 silence <- dev.copy2pdf(file=file.path(dir.figures, "denboer2009_variance_per_gene.pdf"), width=10,height=5)
 par(mfrow=c(1,1))
 
@@ -369,9 +390,9 @@ kable(gene.ranks[names(tail(genes.by.decr.var)),], caption = "Five genes with th
 
 ```
 
-We have no specific reason to think that genes having a high variance will be specially good at discriminating ALL subtypes. Indeed, a high variance might *a priori* either reflect cell-type specificities, or unrelated differences between samples resulting from various effects (individual patient genomes, transcriptome, condition, ...). For the sake of curiosity, let us plot samples on a XY plot where the abcsissa represents the top-raking, and the ordinate the second top-ranking gene in the variance-ordered list.
+Actually, we have no specific reason to think that genes having a high variance will be specially good at discriminating ALL subtypes. Indeed, a high variance might *a priori* either reflect cell-type specificities, or unrelated differences between samples resulting from various effects (individual patient genomes, transcriptome, condition, ...). For the sake of curiosity, let us plot samples on a XY plot where the abcsissa represents the top-raking, and the ordinate the second top-ranking gene in the variance-ordered list.
 
-``` {r fig.width=8, fig.height=8, fig.cap="**Expression values for the two genes with the highest variance**. Labels and colors indicate the ALL group of each patient. Note that some groups appear more or less separated (T, Bt, Bo). "}
+``` {r denboer2009_2_maxvar_genes, fig.width=8, fig.height=8, fig.cap="**Expression values for the two genes with the highest variance**. Labels and colors indicate the ALL group of each patient. Note that some groups appear more or less separated (T, Bt, Bo). "}
 ## Select the gene with the highest variance
 maxvar.g1 <- names(genes.by.decr.var[1])
 print(maxvar.g1)
@@ -393,7 +414,7 @@ plot(x,y,
 text(x, y,labels=sample.labels,col=sample.colors,pch=0.5)
 legend('topright',col=group.colors, 
          legend=group.legend,pch=1,cex=0.6,bg='white',bty='o')
-silence <- dev.copy2pdf(file="denboer2009_2_maxvar_genes.pdf", width=8, height=8)
+# silence <- dev.copy2pdf(file="denboer2009_2_maxvar_genes.pdf", width=8, height=8)
 
 ```
 
@@ -403,10 +424,11 @@ We can draw boxplots per subtype of ALL to highlight the inter-group differences
 ```{r fig.width=12, fig.height=6, fig.cap="**Expression per ALL classes for the two genes with the highest variance.** "}
 par(mfrow=c(1,2))
 boxplot(x ~ sample.labels, las=1,
-#       col=group.colors,
+        #       col=group.colors,
         horizontal=TRUE,
-        main=maxvar.g1, col="#BBBBBB")
-
+        main=maxvar.g1, 
+        col="#BBBBBB")
+data.frame(group.colors)
 
 boxplot(y ~ sample.labels, las=1,
         horizontal=TRUE,
@@ -414,7 +436,6 @@ boxplot(y ~ sample.labels, las=1,
 par(mfrow=c(1,1))
 
 ```
-
 
 Somewhat surprizingly, the plot shows that, despite the roughness of our ranking criterion (variance across all cancer types), the two top-ranking genes already discriminate several sample types.
 
@@ -457,7 +478,7 @@ print(table(one.vs.others))
 
 To apply Welch test to each gene of the table, we will use our custom function *t.test.multi()* (see the previous practical on selection of differentialy expressed genes, <span class="concept">DEG</span>).
 
-``` {r}
+``` {r denboer_welch}
 ## Test the mean equality between Bo subtype 
 ## and all other subtypes 
 welch.one.vs.others <- t.test.multi(denboer2009.expr, 
@@ -519,14 +540,14 @@ write.table(gene.ranks, file=file.path(dir.results, 'DenBoer_gene_ranks.tab'),
             sep='\t', quote=F, col.names=NA)
 ```
 
-``` {r fig.width=12, fig.height=12, fig.cap="**Comparison between global variance and Welch test significance**. The plots highlight the strong difference between the global sorting criterion (variance computed across all samples) and a subtype-specific criterion (Welch test significance for one ALL subtype versus all others). The ranking . "}
+``` {r denboer2009_var_vs_welch_Bh_rank_plot, fig.width=12, fig.height=12, fig.cap="**Comparison between global variance and Welch test significance**. The plots highlight the strong difference between the global sorting criterion (variance computed across all samples) and a subtype-specific criterion (Welch test significance for one ALL subtype versus all others). The ranking . "}
 par(mfrow=c(1,2))
 ## Plot variance against significance of the Welch test 
 ## for the Bh versus other groups
 plot(gene.ranks[,c("var", "Bh.vs.others.sig")], col="grey",
      xlab="Global variance", ylab="Significance of Welch t-test Bh versus others",
      main="Global versus group-specific scores")
-silence <- dev.copy2pdf(file="denboer2009_var_vs_welch_Bh_plot.pdf", width=12, height=12)
+# silence <- dev.copy2pdf(file="denboer2009_var_vs_welch_Bh_plot.pdf", width=12, height=12)
 
 
 ## Plot ranks of variance against significance of the Welch test 
@@ -535,7 +556,7 @@ plot(gene.ranks[,c("var.rank", "Bh.vs.others.sig.rank")],
      xlab="Rank by global variance", ylab="Rank by t-test Bh versus others",
      main="Global versus group-specific ranks",
      col="grey")
-silence <- dev.copy2pdf(file="denboer2009_var_vs_welch_Bh_rank_plot.pdf", width=12, height=12)
+# silence <- dev.copy2pdf(file="denboer2009_var_vs_welch_Bh_rank_plot.pdf", width=12, height=12)
 par(mfrow=c(1,1))
 ```
 
@@ -550,28 +571,35 @@ In summary, so far we defined 5 different gene sorting criteria that could be us
 
 ## ANOVA-based variable ordering (multiple subtypes)
 
-The <span class="concept">ANOVA</span> test allows to select genes whose inter-group variation is significantly higher than te intra-group variation. ANOVA can be thought of as generalization of the Welch test. Welch test (and Student test) are used to test the equality of the mean between two groups (for example one subtype of interest and all the other subtypes), whereas ANOVA simultaneously tests the equality of the mean for multiple groups. We could thus use ANOVA to establish a general ranking criterion that would select the genes showing higest differences between ALL subtypes, without specifying a priori which particular subtypes have to be different. 
+The **ANOVA** test allows to select genes whose inter-group variance is significantly higher than the so-called **residual variance**, i.e. the variance remaining after removing the inter-group variance from the todal variance.  
+
+In the context of detection of differentially expressed genes, ANOVA can be thought of as generalization of the Welch test. Indeed, Welch and Student tests were conceived to test the equality of the mean between two groups (for example one subtype of interest and all the other subtypes), whereas ANOVA simultaneously tests the equality of the mean for multiple groups. 
+
+
+$$H_0= \mu_1 = \mu_2= \cdots = \mu_g$$
+
+We could thus use ANOVA to establish a general ranking criterion that would select the genes showing higest differences between ALL subtypes, without specifying a priori which particular subtypes have to be different. 
 
 In a first time, we will apply the ANOVA test to one arbitrarily selected gene. We will then see how to run this test on each row of the expression matrix.
 
 
 Some remarks about the implementation.
 
-1. In contrast with the Welch test, which was a 2-groups test, ANOVA can be used to compare multiple groups in a single analysis. For ANOVA, we will use the original sample labels (with all the ALL subtypes explicitly named), rather than the *one.vs.other* vector that we created for 2-groups analysis.
+1. In contrast with the Welch test, which was a 2-groups test, ANOVA can be used to compare multiple groups in a single analysis. For ANOVA, we will use the original sample labels (with all the ALL subtypes explicitly named), rather than the `one.vs.other` vector that we created for 2-groups analysis.
 
 2. We will run a  single-factor ANOVA, with gene expression as values, and sample labels as grouping.
 
-3. The R methods *aov()* and *anova()* take as input a data frame with the values (gene expression values) in the first column, and the groupings (sample labels) in the second one.
+3. The R methods `aov()` and `anova()` take as input a data frame with the values (gene expression values) in the first column, and the groupings (sample labels) in the second one.
 
-4. *R* proposes two methods for the ANOVA test. The *aov()* function automatically fits the linear model and runs the anova test. However it is conceived for balanced groups, which is not our case (some of the ALL subtypes have very few samples). With our data, it returns a warning *"Estimated effects must be unbalanced"*. Hereafter we will run both approaches to illustrate their implementation., but the second one (*anova()*) is the most flexible.
+4. **R** proposes two methods for the ANOVA test. The `aov()` function automatically fits a linear model and runs the anova test. However it is conceived for balanced groups (all groups should have smiliar effectives), which is not our case (some of the ALL subtypes have very few samples). With our data, it returns a warning *"Estimated effects must be unbalanced"*. Hereafter we will run both approaches to illustrate their implementation., but the second one (`anova()`) is the most flexible.
 
-5. Even though *anova()* can handle unbalanced groups, we should keep in mind that the power of the test depends on the fact that we dispose of a sufficient number of samples per group. It might thus be wise to restrict the analysis to the groups containing a minimum number of samples (for example at least 4, or 8). 
+5. Even though `anova()` can handle unbalanced groups, we should keep in mind that the power of the test depends on the fact that we dispose of a sufficient number of samples per group. It might thus be wise to restrict the analysis to the groups containing a minimum number of samples (for example at least 8). 
 
 ```{r}
+g <- 1234 ## Select an arbitrary gene
+
 ## Build a data frame with gene expression values in the first column, 
 ## and sample labels in the second column.
-
-g <- 1234 ## Select an arbitrary gene
 g.expr <- unlist(denboer2009.expr[g,]) ## Select the expression profile for this gene
 g.for.anova <- data.frame("expr"=g.expr, "group"=sample.labels)
 
@@ -594,26 +622,26 @@ eval <- pval * nrow(denboer2009.expr)
 print(eval)
 
 ## Summarise the result in a vector
-g.anova.summary <- c("g"=g, 
+g.anova.summary <- data.frame("g"=g, 
                      "name"=row.names(denboer2009.expr[g,]),
                      "pval"=pval,
                      "eval"=eval,
                      "sig"=-log(eval, base=10))
-print(as.data.frame(g.anova.summary))
+kable(g.anova.summary, caption = "Anova result for an aribtrary gene. ")
 ```
 
 ### How to interpret the ANOVA result?
 
 TO BE COMPLETED
 
-### Running ANOVA on each gene of the expression table
+### Exercise: running ANOVA on each gene of the expression table
 
-<span class="exo">We currently leave this as an exercise.</span>
+**Exercise: ** Write a function that applies `anova()` on each row of a data.frame and returns the relevant statistics. 
 
 
 ## Reducing data dimensionality by Principal Component Analysis (PCA)
 
-Before starting the proper process of supervised classification, we can apply a method called Principal Component Analysis (<span class="concept">PCA</span>) to evaluate the repartition of the information between the mutiple variables, and to inspect the "intrinsic" structure of the data, i.e. the structure inherent to the numbers in the data table, irrespective of the labels (cancer subtypes) attached to the various samples.
+Before starting the proper process of supervised classification, we can apply a method called **Principal Component Analysis** (**PCA**) to evaluate the repartition of the information between the mutiple variables, and to inspect the "intrinsic" structure of the data, i.e. the structure inherent to the numbers in the data table, irrespective of the labels (cancer subtypes) attached to the various samples.
 
 ### Purpose of PCA
 
