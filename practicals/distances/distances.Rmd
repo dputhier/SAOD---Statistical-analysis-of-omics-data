@@ -609,4 +609,45 @@ javatreeview
 
 Now you can open the .cdt file, that was produced by cluster using javatreeview. How are the samples classified ? What can you say about gene classification ?
 
+### Kmeans clustering with R
+
+Look at the tree produced by Treeview. How many classes would you guess from this tree. Use the *Kmeans()* function from the amap package to perform a kmeans with the number of classes you guessed from the hierachical clustering. Look carefully at the parameters. What is the default distance used here ? Is that the right distance to use in this context ? Use the *matplot()* function to draw the profiles of each classes. Compare you results with other students (that may have choosen a different number of classes).
+
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo">
+
+```{r}
+## Reading the file (if required)
+data <- read.table("GSE13425_sub_with_pheno.txt", sep="\t", head=T, row.names = 1)
+
+## Performing Kmeans
+library(amap)
+k <- 9
+km <- Kmeans(data, centers=k, method="pearson", iter.max = 100)
+
+par(mfrow=c(3,3))
+for(i in 1:k){
+
+  cluster_k <- data[names(km$cluster[km$cluster==i]),]
+  cluster_k <- sweep(cluster_k, 
+                     MARGIN = 1, 
+                     FUN = "-", 
+                     STATS = apply(cluster_k, 1, median))
+  matplot(t(cluster_k), 
+          type="l", 
+          col="gray", 
+          ylab="Intensity",
+          ylim=c(-8,8),
+          main=paste("Cluster ", i, " #gene = ", nrow(cluster_k)))
+  matpoints(colMeans(cluster_k), type="l", col="blue")
+}
+
+```
+</div>
+
+
+
+Perform the same clustering using the kmeans version implemented in cluster 3.0. Load the results in Java Treeview.
+
+**NB**: if required, the filtered dataset can be obtained [here](GSE13425_sub_with_pheno.txt).
 
