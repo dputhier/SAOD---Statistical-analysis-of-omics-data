@@ -253,9 +253,8 @@ Since the expression matrix is stored in and *R* object of class *data.frame*, w
 hist(unlist(expr.matrix), breaks=100, 
      main="Den Boer expression values",
      xlab="RMA-normalized expression value (log2-transformed)",
-     ylab="Number of measures",
+     ylab="Number of measures"
      )
-
 ```
 
 The global distribution of RMA-normalized expression values across for all samples and all genes ranges from `r min(unlist(expr.matrix))` to `r max(unlist(expr.matrix))`. We should be aware that RMA normalization includes a log2 transformation. 
