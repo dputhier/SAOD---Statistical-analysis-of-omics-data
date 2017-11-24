@@ -140,7 +140,7 @@ points(a, type="p", col=col.vec[1],  pch=16)
 points(b, type="p", col=col.vec[2],  pch=16)
 ```
 
-**Exercice:** 
+**Exercise:** 
 
 > - Compute the euclidean distance between a and b. 
 > - Check that the same result is obtained with the **dist()** function used with default arguments.
@@ -269,7 +269,7 @@ matpoints(t(m),
 
 ```
 
-**Exercice:** 
+**Exercise:** 
 
 > - Compute the Pearson's correlation coefficient between $a$ and $c$ using the formula.
 >   - Is that results expected.
@@ -576,7 +576,7 @@ R is not particularly well-suited to visualize classification results for very l
 
 <div class="hideshow"> << Hide | Show >> </div>
 <div class="exo">
-```{r engine='bash', highlight=TRUE, eval=FALSE}
+```{bash highlight=TRUE, eval=FALSE}
 # These are shell/bash commands !
 mkdir -p ~/bin
 cd ~/bin
@@ -595,7 +595,7 @@ cd -
 ```
 </div>
 
-Using the cluster software, compute hierarchical clustering both on genes and samples.
+Using the cluster software, run hierarchical clustering on both genes and samples.
 
 
 <div class="hideshow"> << Hide | Show >> </div>
