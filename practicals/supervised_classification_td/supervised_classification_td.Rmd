@@ -43,7 +43,7 @@ bibliography: ../../bibliography/ASG1_references.bib
 
 
 
-```{r knitr setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE}
+```{r knitr_setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE}
 # knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=TRUE, message=FALSE, warning=FALSE, comment="")
 
 library(knitr)
@@ -125,7 +125,7 @@ For the practical, we will use a cohort comprized of 190 samples from patients s
 
 We first need to define the URL of the course (<tt>dir.base</tt>), from which we will download some pieces of <span class="program">R</span> code and the data sets to analyze.
 
-``` {r label="Defining base URLs"}
+``` {r defining_base_URLs}
 ## Specify the URL of the base for the course
 dir.base <- 'http://pedagogix-tagc.univ-mrs.fr/courses/statistics_bioinformatics'
 dir.base.ASG1 <- 'http://pedagogix-tagc.univ-mrs.fr/courses/ASG1'
@@ -137,7 +137,7 @@ the input directories (data, **R*</span>** utilities) and creating output
 directories on your computer (the corresponding paths are stored in the variables `dir.results` and 
 `dir.figures`).
 
-``` {r label="Loading configuration file"}
+``` {r loading_configuration_file}
 ## Load the general configuration file
 source(file.path(dir.base, 'R-files', 'config.R'))
 
@@ -203,7 +203,7 @@ group.descriptions <- read.table(group.descr.file, sep='\t', head=TRUE, row=1)
 ```
 
  
-```{r eval=FALSE, echo=FALSE}
+```{r libraries, eval=FALSE, echo=FALSE}
 ## Load Den Boer dataset from the R package denboer2009
 ## TEMPORARILY INACTIVATED: I still need to see how to make the packages accessible
 # library(denboer2009)
@@ -421,7 +421,7 @@ legend('topright',col=group.colors,
 
 We can draw boxplots per subtype of ALL to highlight the inter-group differences between expression measurements.
 
-```{r fig.width=12, fig.height=6, fig.cap="**Expression per ALL classes for the two genes with the highest variance.** "}
+```{r expression_per_group_boxplots, fig.width=12, fig.height=6, fig.cap="**Expression per ALL classes for the two genes with the highest variance.** "}
 par(mfrow=c(1,2))
 boxplot(x ~ sample.labels, las=1,
         #       col=group.colors,
@@ -680,7 +680,7 @@ attributes(expr.prcomp)
 
 A first information is the repartition of the variance (or its squared root, the standard deviation) between the components, which can be displayed on a plot.
 
-``` {r fig.width=7, fig.height=5}
+``` {r prcomp_variance, fig.width=7, fig.height=5}
 plot(expr.prcomp, main='Den Boer (2009), 
      Variance  per component', xlab='Component', col="#BBDDFF")
 ```
@@ -704,7 +704,7 @@ silence <- dev.copy2pdf(file="pca_variances.pdf", width=7, height=5)
     
 We can generate a <span class="concept">biplot</span>, where each sample appears as a dot, and the X and Y axes respectively represent the first and second components of the PCA-transformed data. The R function *stats::biplot()* automatically generates the biplot, but the result is somewhat confusing, because the biplot displays the whole sample labels.
 
-``` {r fig.width=8, fig.height=8, eval=FALSE}
+``` {r prcomp_biplot, fig.width=8, fig.height=8, eval=FALSE}
 ## We do not run this, but we provide the instructions just for information
 biplot(expr.prcomp,var.axes=FALSE,
        panel.first=grid(col='black'), 
