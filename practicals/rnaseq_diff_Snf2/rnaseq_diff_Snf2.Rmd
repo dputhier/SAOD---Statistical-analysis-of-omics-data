@@ -3,11 +3,6 @@ title: "RNA-Seq - differential expression using DESeq2"
 author: 'D. Puthier (adapted From Hugo Varet, Julie Auberta and J. van Helden) '
 date: 'First version: 2016-12-10; Last update: `r Sys.Date()`'
 output:
-  pdf_document:
-    fig_caption: yes
-    highlight: zenburn
-    toc: yes
-    toc_depth: 3
   html_document:
     fig_caption: yes
     highlight: zenburn
@@ -16,6 +11,18 @@ output:
     toc: yes
     toc_depth: 3
     toc_float: yes
+  beamer_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_tex: no
+    slide_level: 2
+    theme: Montpellier
+    toc: yes
   ioslides_presentation:
     colortheme: dolphin
     fig_caption: yes
@@ -30,18 +37,11 @@ output:
     theme: cerulean
     toc: yes
     widescreen: yes
-  beamer_presentation:
-    colortheme: dolphin
+  pdf_document:
     fig_caption: yes
-    fig_height: 4
-    fig_width: 6
-    fonttheme: structurebold
-    highlight: tango
-    incremental: no
-    keep_tex: no
-    slide_level: 2
-    theme: Montpellier
+    highlight: zenburn
     toc: yes
+    toc_depth: 3
   slidy_presentation:
     fig_caption: yes
     fig_height: 4
@@ -107,7 +107,7 @@ The RNA-Seq dataset we will use in this practical has been produced by Gierlińs
 
 ```{r}
 # Download data files from the Web site (only if not done yet)
-url.counts <- "http://jvanheld.github.io/stats_avec_RStudio_EBA/practicals/yeast_2x48_replicates/data/counts.txt"
+url.counts <- "http://jvanheld.github.io/stats_avec_RStudio_EBA/practicals/yeast_2x48_replicates/data/"
 
 ## Local paths: create a directory to store the results
 dir.snf2 <- ("~/ASG/practicals/rnaseq_snf2_Schurch_2015")
@@ -239,15 +239,15 @@ The summary only displays a few milestone values (mean, median, quartiles). In o
 
 par(mfrow=c(3,1))
 
-hist(as.matrix(countTable), col="blue", border="white", breaks=100)
+hist(as.matrix(count.table), col="blue", border="white", breaks=100)
 
-hist(as.matrix(countTable), col="blue", border="white",
+hist(as.matrix(count.table), col="blue", border="white",
      breaks=20000, xlim=c(0,2000), main="Counts per gene",
      xlab="Counts (truncated axis)", ylab="Number of genes", 
      las=1, cex.axis=0.7)
 
 epsilon <- 1 # pseudo-count to avoid problems with log(0)
-hist(as.matrix(log2(countTable + epsilon)), breaks=100, col="blue", border="white",
+hist(as.matrix(log2(count.table + epsilon)), breaks=100, col="blue", border="white",
      main="Log2-transformed counts per gene", xlab="log2(counts+1)", ylab="Number of genes", 
      las=1, cex.axis=0.7)
 
