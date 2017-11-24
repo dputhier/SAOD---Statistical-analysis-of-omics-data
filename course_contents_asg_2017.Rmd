@@ -132,4 +132,11 @@ During the first practical we will briefly revise these concepts and practical s
 |Visualization| - [Dimension reduction and PCA](pdf_files/10.visualization.pdf)|
 | Overview | - [Discrete distributions for NGS data analysis](practicals/discrete_distributions_overview/discrete_distributions.html)
 
+## Personal work
+
+The instructions for the 2017 personal work can be found here
+
+-  [html document (human-readable)](practicals/recount/RNA-seq_recount_analysis_exercises.html)
+
+- [Rmd](practicals/recount/RNA-seq_recount_analysis_exercises.Rmd)
 
