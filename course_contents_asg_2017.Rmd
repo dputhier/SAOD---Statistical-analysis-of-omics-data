@@ -106,7 +106,7 @@ During the first practical we will briefly revise these concepts and practical s
 | 22/11  | 14:00 | 18:00 | Detecting differentially expressed genes (DEG) with RNA-seq | DP/JvH | - RNA-Seq principles <br>- Normalizing RNA-seq counts <br>-Detecting differentially expressed genes (DEG)| - RNA-Seq DEG with DESeq2 [[html]](practicals/rnaseq_diff_Snf2/rnaseq_diff_Snf2.html) [[pdf]](practicals/rnaseq_diff_Snf2/rnaseq_diff_Snf2.pdf) [[Rmd]](practicals/rnaseq_diff_Snf2/rnaseq_diff_Snf2.Rmd) |
 | 22/11  | 14:00 | 18:00 | Descriptive statistics with ggplot2 | DP | - ggplot2 principles <br>- Layout, creating diagrams | - Introduction to ggplot2 [[html]](practicals/intro_ggplot/intro_ggplot.html) |
 |  |  |  | RNA-seq analysis (pursued) | JvH | | [[]]()<br>[[]]() |
-|  |  |  | Preparation of the personal work | DP | **Homework: analysis of psoriasis data** [[html]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_exercises.html) [[Rmd]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_exercises.Rmd) [[bib]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_biblio.bib)|
+
 
 ## Screen pictures
 
