@@ -10,6 +10,7 @@ output:
     toc: yes
     toc_depth: 3
     toc_float: yes
+    fig_captions: yes
   md_document:
     variant: markdown_github
   pdf_document:
@@ -106,6 +107,16 @@ During the first practical we will briefly revise these concepts and practical s
 | 22/11  | 14:00 | 18:00 | Descriptive statistics with ggplot2 | DP | - ggplot2 principles <br>- Layout, creating diagrams | - Introduction to ggplot2 [[html]](practicals/intro_ggplot/intro_ggplot.html) |
 |  |  |  | RNA-seq analysis (pursued) | JvH | | [[]]()<br>[[]]() |
 |  |  |  | Preparation of the personal work | DP | **Homework: analysis of psoriasis data** [[html]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_exercises.html) [[Rmd]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_exercises.Rmd) [[bib]](practicals/rnaseq_psoriasis_Li2014/RNA-seq_psoriasis_analysis_biblio.bib)|
+
+## Screen pictures
+
+[![Multivariate data](screen_pictures_2017/00_multivariate_data.jpg)](screen_pictures_2017/00_multivariate_data.jpg)
+
+[![Approches de classification (supervisée ou non). ](screen_pictures_2017/01-02_classification.jpg)](screen_pictures_2017/01-02_classification.jpg)
+
+[![3. Réduction de dimensionnalité. 4. Evaluation des résultats de classification supervisée ](screen_pictures_2017/03-04_dimensionalite-evaluation.jpg)](screen_pictures_2017/03-04_dimensionalite-evaluation.jpg)
+
+[![5. Quelques méthodes de classification supervisée. ](screen_pictures_2017/05_illlus-classifieurs.jpg)](screen_pictures_2017/05_illlus-classifieurs.jpg)
 
 ## Additional support
 
