@@ -190,32 +190,176 @@ if (file.exists(expr.file)) {
 
 ## Load the expression table in memory
 message("Loading expression table from ", expr.file)
-expr.matrix <-  read.table(expr.file,sep="\t", head=T, row=1)
+expr.matrix <-  read.table(expr.file,sep="\t", header = T, row.names = 1)
 
 ```
+
+
+
 
 #### Exercices
 
 1. Adaptez le code ci-dessus pour télécharger une copie locale du fichier pheno. 
 
-2. Chargez les fichiers d'expression et de description des échantillons dans des objets de tyep `data.frame()`, et récupérez dans un vecteur les sous-types de cancer associés à chaque échantillon. 
+```{r load_pheno}
+
+## Get some help about the read.table fonction
+# help(read.table)
+
+## URL of the pheno table on the course server
+pheno.url <- file.path(microarray.data.url, "phenoData_GSE13425.tab") ## Build the full URL of the matrix
+
+## Load pheno values
+pheno.file <- file.path(dir.data, "phenoData_GSE13425.tab")
+
+if (file.exists(pheno.file)) {
+  message("pheno file already downloaded: ", pheno.file)
+} else {
+  message("Downloading matrix table from ", pheno.url)
+  download.file(url = pheno.url, destfile = pheno.file)
+  message("Local pheno file: ", pheno.file)
+}
+
+## Load the pheno table in memory
+message("Loading pheno table from ", pheno.file)
+pheno.matrix <-  read.table(pheno.file,sep="\t", header = T, row.names = 1)
+
+View(pheno.matrix)
+
+
+## Check that the order ofthe pheno table rows is identifcal to the order of the columns in the expression table. For this, we count the number of differences
+sum(colnames(expr.matrix) != rownames(pheno.matrix))
+
+```
+
+
+2. Chargez les fichiers d'expression et de description des échantillons dans des objets de type `data.frame()`, et récupérez dans un vecteur les sous-types de cancer associés à chaque échantillon. 
 
 3. Comptez le nombre d'échantillons par sous-classe de cancer.
 
+
+```{r samples_per_class}
+
+View(pheno.matrix)
+sample.labels <- as.vector(pheno.matrix$sample.labels)
+
+class.sizes <- sort(table(sample.labels), decreasing = TRUE)
+
+```
+
+
 4. Sélectionnez deux groupes comportant au moins 30 échantillons chacun, et créez une table d'expression et une table pheno limitées à ces deux groupes. A partir de ce moment vous travaillerez systématiquement avec ces deux tables. 
+
+```{r group_selection}
+##  Select the  labels of the two most populated classes
+group1 <- names(class.sizes[1])
+group2 <- names(class.sizes[2])
+
+## Select the columns of the expression matrix for each group
+group1.expr <- expr.matrix[, sample.labels == group1]
+dim(group1.expr)
+group2.expr <- expr.matrix[, sample.labels == group2]
+dim(group2.expr)
+
+
+```
+
 
 5. En utilisant la fonction `apply()`, calculez pour chaque gène les paramètres suivants, et stockez-les dans une `data.frame()`.  
 
     - $m_1, m_2$ moyennes d'échantillons des deux groupes;
-    - $s_2, s_2$ écarts-types des échantillons;
-    - $\hat{\sigma}_1, \hat{\sigma}_2$ estimations des écarts-types des populations dont sont extraits les échantillons du 1er et 2d groupe, respectivement;
+    - $s_2.est, s_2.est$ estimations des écarts-types des populations dont sont extraits les échantillons du 1er et 2d groupe, respectivement;
     - $d$ différence entre les moyennes des deux groupes.
+
+
+```{r stats_per_gene}
+
+gene.stats <- data.frame(
+  m1 = apply(group1.expr, 1, mean),
+  m2 = apply(group2.expr, 1, mean),
+  s1.pop = apply(group1.expr, 1, sd),
+  s2.pop = apply(group2.expr, 1, sd)
+)
+gene.stats$d <- gene.stats$m2 - gene.stats$m1
+
+
+View(gene.stats)
+
+hist(gene.stats$d, breaks=100)
+
+```
 
 6. Sélectionnez un gène au hasard, récupérez dans un vecteur la ligne correspondante dans la table d'expression, et effectuez un test de comparaison de moyennes entre les deux groupes.
 
-7. Ecrivez une boucle `for`qui applique ce même test à chaque ligne de la table d'expression, et récupère dans un tableau les résultats du test, avec une ligne par gène, une colonne par statistique pertinente produite par t.test(). Mesurez le temps d'exécution des 22.000 tests de Student avec cette boucle. 
+```{r t_test_one_gene}
+## Number of genes
+my.gene <- sample(x = row.names(expr.matrix), size = 1)
 
-8. Ecrivez une fonction R dénommée `t.test.wrapper` qui prend en entrée 2 vecteurs (expression et classes de cancer, respectivement), effectue un tst de Student, et retourene un vecteur avec les statistiques pertinentes. 
+welch.result <- t.test(x = group1.expr[my.gene, ], y = group2.expr[my.gene,], alternative = "two.sided", var.equal = FALSE)
+
+## Get all the attributes of the t.test() result
+attributes(welch.result)
+
+result <- c(welch.result$statistic, 
+            p = welch.result$p.value, 
+            welch.result$parameter,
+            welch.result$estimate)
+names(result) <- c("t", "p", "df", "m1", "m2")
+result["d"]  <- result["m2"] - result["m1"] 
+
+```
+
+
+7. Ecrivez une fonction R dénommée `t.test.wrapper` qui prend en entrée 2 vecteurs (expression et classes de cancer, respectivement), effectue un tst de Student, et retourene un vecteur avec les statistiques pertinentes. 
+
+```{r t_test_vector}
+TTestVector <- function(x, y, ...) {
+  t.result <- t.test(x,  y, ...)
+  
+  ## Collect the relevant statistics in the t.test result
+  result <- c(t.result$statistic, 
+              p = t.result$p.value, 
+              t.result$parameter,
+              t.result$estimate)
+  names(result) <- c("t", "p", "df", "m1", "m2")
+  result["d"]  <- result["m2"] - result["m1"] 
+  return(result)
+}
+
+## Run Welch test with my nice function
+my.gene <- sample(x = row.names(expr.matrix), size = 1)
+welch.result <- TTestVector(x = group1.expr[my.gene, ], y = group2.expr[my.gene,], alternative = "two.sided", var.equal = FALSE)
+
+
+## Just for fun, run a Student test with the same gene
+student.result <- TTestVector(x = group1.expr[my.gene, ], y = group2.expr[my.gene,], alternative = "two.sided", var.equal = TRUE)
+
+print(welch.result)
+print(student.result)
+
+```
+
+
+8. Ecrivez une boucle `for`qui applique ce même test à chaque ligne de la table d'expression, et récupère dans un tableau les résultats du test, avec une ligne par gène, une colonne par statistique pertinente produite par t.test(). Mesurez le temps d'exécution des 22.000 tests de Student avec cette boucle. 
+
+```{r}
+welch.table <- data.frame(matrix(nrow = nrow(expr.matrix), ncol=6))
+names(welch.table) <- names(welch.result)
+row.names(welch.table) <- row.names(expr.matrix)
+head(welch.table)
+
+
+loop.time <- system.time(
+  for (my.gene in rownames(group1.expr)) {
+    welch.table[my.gene,]  <- TTestVector(x = group1.expr[my.gene, ], y = group2.expr[my.gene,], alternative = "two.sided", var.equal = FALSE)
+  }
+)
+
+message("Time spent for ", nrow(group1.expr), " Welch tests with a loop: ", loop.time)
+
+```
+
+
 
 9. Utilisez cette fonction et la fonction `apply` pour appliquer le test de Student à chaque gène, et mesurz le temps d'exécution. 
 
