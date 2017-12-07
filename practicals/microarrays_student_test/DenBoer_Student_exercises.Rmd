@@ -1,0 +1,216 @@
+---
+title: "Exercices en R - Analyse des données de biopuces de Den Boer et al. (2009)"
+author: "Jacques van Helden & Annie Broglio"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    code_folding: show
+    fig_caption: no
+    highlight: zenburn
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  md_document:
+    variant: markdown_github
+  pdf_document:
+    fig_caption: no
+    highlight: zenburn
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: no
+    toc_depth: 2
+---
+
+<!-- bibliography: ../../bibliography/ASG1_references.bib--->
+
+
+```{r knitr setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE}
+# knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=TRUE, message=FALSE, warning=FALSE, comment="")
+
+library(knitr)
+options(width=300)
+knitr::opts_chunk$set(
+  fig.width = 7, 
+  fig.height = 5, 
+  fig.path='figures/',
+  fig.align = "center", 
+  size = "tiny", 
+  echo = TRUE, eval=TRUE, 
+  warning = FALSE, message = FALSE, 
+  results = TRUE, comment = "")
+# knitr::asis_output("\\footnotesize")
+
+```
+
+* * * * * * 
+
+
+## Introduction: le jeu de Den Boer 2009
+
+
+Comme cas d'étude, nous analyserons un jeu de données de Den Boer et collègues [@DenBoer:2009ik].
+
+Les auteurs ont caractérisé le transcriptome de 190 patients souffrand de leucémie lymphoblastique aigue (*Acute Lymphoblastic Leukaemia*, *ALL*).
+
+Cette leucémie est caractérisée par une prolifération clonale anormale, dans la moëlle osseuse, de progéniteurs de lymphocytes qui restent bloqués dans  une phase précise de leur différenciation. La prolifération  peut résulter de différentes mutations, dont certaines sont récurrentes chez différents patients.  Le jeu de données de Den Boer inclut l'information concernant les problèmes génétiques particuliers associés à chaque échantillon d'un patient atteint de leucémie. 
+
+Dans leur article original, Den Boer et collègues ont défini une ***signature transcriptomique***, c'est-à-dire une sélection de gènes dont les profils de transcription sont spécifiquement affectés dans une ou plusieurs sous-classes des leucémies. Les profils d'expression de ces gènes-signature peuvent ensuite être utilisés pour classer de nouveaux échantillons de patients atteints de leucémie, et prédire le type de perturbation génétique associée à leur cas. 
+
+Un avantage de ce jeu de données est qu'il inclut des groupes d'effectifs relativement élevés (4 groupes avec >30 patients), par rapport à d'autres publications dans le domaine de l'analyse transcriptomique. 
+
+Le tableau de donnée sur lequel nous travaillerons comporte 190 colonnes (une par patient) et ~22.000 lignes (une par gène) et les valeurs indiquent le niveau d'expression du gène chez le patient considéré. 
+
+On dispose également d'une table "pheno" qui fournit des informations sur chaque échantillon, et en particulier la classe de leucémie dont souffre ce patien (en fait cette classe est déterminée par son génotype plutôt que son phénotype, mais pour des raisons historiques les tableaux annotations des échantillons sont communément dénommés "pheno" dans le domaine des biopuces). 
+
+
+## But du TP
+
+Le but de ce TP sera de mettre en place une procédure qui combinera les tâches suivants: 
+
+1. Télécharger les fichiers de données à partir d'un site Web.
+2. Mesurer une série de paramètres statistiques sur les gènes (lignes) et échantillons (colonnes). 
+3. Détecter les gènes différentiellement exprimés entre deux groupes d'échantillons (correspondant à deux classes de leucémie). 
+
+
+Nous essaierons pour chaque étape 
+- de modulariser le code en écrivant des fonctions ré-utilisables
+- d'utiliser des techniques efficaces en évitant les boucles, et en utilisant plutôt la fonction `apply()`
+
+
+## Exercices
+
+### Créaction d'un dossier local pour les données et résultats
+
+1. Ecrivez un bloc de code **R** qui définit (dans une variable dénommé `dir.output`) le chemin d'un dossier où vous sauvegarderez les données et les résultats de ce TP. Ce dossier sera défini comme un sous-dossier `STAT/TP/DenBoer2009` à partir de la racine de votre compte. Créez ce dossier (sauf s'il existe déjà) et vérifiez son contenu en fichiers.  
+
+    Fonctions utiles: 
+    
+    - `Sys.getenv("HOME")` indiquera la racine de votre compte (Unix et Mac OS X)
+    - `file.path()` permet de construire un chemin en concaténant des chaînes de caractères
+    - `dir.create()` pour créer un dossier. Lisez l'aide pour choisir les options appropriées. 
+    - `list.files()` pour obtenir la liste des fichiers dans un dossier donné
+
+```{r denboer_directory, echo=TRUE, results=FALSE}
+## Define the directory for the practical
+dir.home <- Sys.getenv("HOME")
+dir.output <- file.path(dir.home, "STAT", "TP", "DenBOer2009")
+message(dir.output)
+
+## Create the directory
+dir.create(dir.output, recursive = TRUE, showWarnings = FALSE)
+
+## Change directory to dir.output
+setwd(dir.output)
+
+## Print a message with output directory
+message("Output directory for this practical: ", dir.output)
+
+## Check it this directory already contains some files.
+list.files(dir.output)
+```
+
+Si c'est la première fois que vous réalisez ce TP, la réponse devrait être
+
+`character(0)`
+
+Ceci indique que le dossier que vous venez de créer ne contient aucun fichier. Le résultat de `list.files()` est un vecteur contenant 0 chaînes de caractères.
+
+
+### Téléchargement des données
+
+Créez un sous-dossier `data` dans votre dossier TP, et téléchargez-y les deux fichiers de données ci-dessous, sauf si ces fichiers existent déjà à cet endroit. 
+
+URL du dossier des données de Den Boer:
+
+-  <http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/>
+
+
+Dans ce dossier nous utiliserons les deux tables suivantes. 
+
+- Profils transcriptomiques: [GSE13425_Norm_Whole.tab](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/GSE13425_Norm_Whole.tab)
+
+- Description de chaque échantillon: [phenoData_GSE13425.tab](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/phenoData_GSE13425.tab)
+
+
+Vous pouvez éventuellement utiliser le fichier de  Description des sous-types de cancers (abréviation, couleurs d'affichage): 
+
+- [GSE13425_group_descriptions.tab	1](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/GSE13425_group_descriptions.tab	1)
+
+
+Le dossier contient également un fichier de qualité des mesures (absent / marginal / présent), que nous ignorerons pour ce TP-ci: 
+
+- [GSE13425_AMP_Whole.tab](http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/GSE13425_AMP_Whole.tab)
+
+Vous trouverez ci-dessous le code pour télécharger une copie des fichiers utiles dans votre dossier personnel. 
+
+
+Le bloc de code ci-dessous définit l'URL du dossier de données, à partir duquel nous allons télécharger la table de transcriptome + la description des échantillons (pheno). 
+
+```{r data_url}
+## Define the URL of the example data sets
+url.course <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1"
+microarray.data.url <- file.path(url.course, "data", "marrays")
+
+## Check the results
+print(paste("Course URL: ", url.course))
+print(paste("URL for the microarray data folder: ", microarray.data.url))
+
+```
+
+We will now load the expression matrix, which is stored in the file named *GSE13425_Norm_Whole.txt* in  the microarray data folder of the server.  This file contains a table with one row per probeset (~gene) and one column per sample. Each sample was taken from a patient suffering from a particular type of **Acute Lymphoblastic Leukemia** (**ALL**). 
+
+We will once use the following functions: 
+
+- *file.path()* to build the full URL to the expression table
+- *download.file()* to download the file from the URL and obtain a local copy. This will avoid us to download the whole file each time we restart the analysis. 
+- *read.table()* to read the table from this URL. Note that this functions allows you to load a table either from a local folder (on your computer), or from any Web site.
+
+```{r load_expression_matrix}
+
+## Get some help about the read.table fonction
+# help(read.table)
+
+## URL of the expression table on the course server
+expr.url <- file.path(microarray.data.url, "GSE13425_Norm_Whole.txt") ## Build the full URL of the matrix
+
+## Load expression values
+dir.data <- file.path(dir.output, "data")
+dir.create(dir.data, recursive = TRUE, showWarnings = FALSE)
+expr.file <- file.path(dir.data, "DenBoer_2009_GSE13425_Norm_Whole.txt")
+
+if (file.exists(expr.file)) {
+  message("Expression file already downloaded: ", expr.file)
+} else {
+  message("Downloading matrix table from ", expr.url)
+  download.file(url = expr.url, destfile = expr.file)
+  message("Local expression file: ", expr.file)
+}
+
+## Load the expression table in memory
+message("Loading expression table from ", expr.file)
+expr.matrix <-  read.table(expr.file,sep="\t", head=T, row=1)
+
+```
+
+#### Exercices
+
+1. Adaptez le code ci-dessus pour télécharger une copie locale du fichier pheno. 
+2. Chargez les fichiers d'expression et de description des échantillons dans des objets de tyep `data.frame()`, et récupérez dans un vecteur les sous-types de cancer associés à chaque échantillon. 
+3. Comptez le nombre d'échantillons par sous-classe de cancer.
+4. Sélectionnez deux groupes comportant au moins 30 échantillons chacun, et créez une table d'expression et une table pheno limitées à ces deux groupes. A partir de ce moment vous travaillerez systématiquement avec ces deux tables. 
+
+5. Sélectionnez un gène au hasard, récupérez dans un vecteur la ligne correspondante dans la table d'expression, et effectuez un test de comparaison de moyennes entre les deux groupes.
+
+6. Ecrivez une boucle `for`qui applique ce même test à chaque ligne de la table d'expression, et récupère dans un tableau les résultats du test, avec une ligne par gène, une colonne par statistique pertinente produite par t.test(). Mesurez le temps d'exécution des 22.000 tests de Student avec cette boucle. 
+
+6. Ecrivez une fonction R dénommée `t.test.wrapper` qui prend en entrée 2 vecteurs (expression et classes de cancer, respectivement), effectue un tst de Student, et retourene un vecteur avec les statistiques pertinentes. 
+
+7. Utilisez cette fonction et la fonction `apply` pour appliquer le test de Student à chaque gène, et mesurz le temps d'exécution. 
+
+8. Dessinez un volcano plot avec les résultats. 
+
+## References
+
+
