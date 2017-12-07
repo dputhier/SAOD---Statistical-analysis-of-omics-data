@@ -197,19 +197,35 @@ expr.matrix <-  read.table(expr.file,sep="\t", head=T, row=1)
 #### Exercices
 
 1. Adaptez le code ci-dessus pour télécharger une copie locale du fichier pheno. 
+
 2. Chargez les fichiers d'expression et de description des échantillons dans des objets de tyep `data.frame()`, et récupérez dans un vecteur les sous-types de cancer associés à chaque échantillon. 
+
 3. Comptez le nombre d'échantillons par sous-classe de cancer.
+
 4. Sélectionnez deux groupes comportant au moins 30 échantillons chacun, et créez une table d'expression et une table pheno limitées à ces deux groupes. A partir de ce moment vous travaillerez systématiquement avec ces deux tables. 
 
-5. Sélectionnez un gène au hasard, récupérez dans un vecteur la ligne correspondante dans la table d'expression, et effectuez un test de comparaison de moyennes entre les deux groupes.
+5. En utilisant la fonction `apply()`, calculez pour chaque gène les paramètres suivants, et stockez-les dans une `data.frame()`.  
 
-6. Ecrivez une boucle `for`qui applique ce même test à chaque ligne de la table d'expression, et récupère dans un tableau les résultats du test, avec une ligne par gène, une colonne par statistique pertinente produite par t.test(). Mesurez le temps d'exécution des 22.000 tests de Student avec cette boucle. 
+    - $m_1, m_2$ moyennes d'échantillons des deux groupes;
+    - $s_2, s_2$ écarts-types des échantillons;
+    - $\hat{\sigma}_1, \hat{\sigma}_2$ estimations des écarts-types des populations dont sont extraits les échantillons du 1er et 2d groupe, respectivement;
+    - $d$ différence entre les moyennes des deux groupes.
 
-6. Ecrivez une fonction R dénommée `t.test.wrapper` qui prend en entrée 2 vecteurs (expression et classes de cancer, respectivement), effectue un tst de Student, et retourene un vecteur avec les statistiques pertinentes. 
+6. Sélectionnez un gène au hasard, récupérez dans un vecteur la ligne correspondante dans la table d'expression, et effectuez un test de comparaison de moyennes entre les deux groupes.
 
-7. Utilisez cette fonction et la fonction `apply` pour appliquer le test de Student à chaque gène, et mesurz le temps d'exécution. 
+7. Ecrivez une boucle `for`qui applique ce même test à chaque ligne de la table d'expression, et récupère dans un tableau les résultats du test, avec une ligne par gène, une colonne par statistique pertinente produite par t.test(). Mesurez le temps d'exécution des 22.000 tests de Student avec cette boucle. 
 
-8. Dessinez un volcano plot avec les résultats. 
+8. Ecrivez une fonction R dénommée `t.test.wrapper` qui prend en entrée 2 vecteurs (expression et classes de cancer, respectivement), effectue un tst de Student, et retourene un vecteur avec les statistiques pertinentes. 
+
+9. Utilisez cette fonction et la fonction `apply` pour appliquer le test de Student à chaque gène, et mesurz le temps d'exécution. 
+
+10. Dessinez un volcano plot avec les résultats. 
+
+    Le volcano plot indique en abscisse la "taille d'effet" (dans notre cas, la différence de moyennes), et l'ordonnée  $-log_{10}(p)$, où $p$ est la p-valeur.
+    
+11. Dessinez un histogramme des p-valeurs. 
+
+12. Dessinez un histogramme densités avec les valeurs de la statistique du test ($t$) et superposez-y la fonction de densité de la distribution de Student ($dt$). 
 
 ## References
 
