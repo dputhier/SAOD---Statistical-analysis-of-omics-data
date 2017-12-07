@@ -1,0 +1,195 @@
+---
+title: 'Analysis of a reCount dataset'
+author: "Denis Puthier and Jacques van Helden"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    self_contained: yes
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  slidy_presentation:
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    highlight: tango
+    incremental: no
+    keep_md: no
+    self_contained: yes
+    slide_level: 2
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+  ioslides_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_md: no
+    slide_level: 2
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+  beamer_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_tex: no
+    slide_level: 2
+    theme: Montpellier
+    toc: yes
+font-import: http://fonts.googleapis.com/css?family=Risque
+font-family: Garamond
+transition: linear
+bibliography: "RNA-seq_recount_analysis_biblio.bib"
+#css: ../../html/course.css
+---
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, cache = TRUE, message = FALSE, warning = FALSE,
+                      comment = "")
+
+## Options to display pretty numbers
+library(knitr)
+knit_hooks$set(inline = function(x) {
+  prettyNum(x, big.mark=" ")
+})
+options(scipen = 6, digits = 3)
+
+```
+
+# Exercise
+
+The recount2 database is an online resource consisting of RNA-seq gene and exon counts as well as coverage bigWig files for 2041 different studies. It is the second generation of the ReCount project [-@pmid29043067; -@pmid28398307] and at Nellore et al, Genome Biology, 2016 which created the coverage bigWig files. The raw sequencing data were processed with Rail-RNA as described in the recount2 paper. For ease of statistical analysis, for each study we created count tables at the gene and exon levels and extracted phenotype data, which we provide in their raw formats as well as in RangedSummarizedExperiment R objects (described in the SummarizedExperiment Bioconductor package).
+
+
+  
+## Goals of this practical
+
+This works aims at comparing at least two methods of supervised classification (LDA, QDA, SVM, KNN, ...) using a dataset of your choice obtained from the reCount database. Below is a more detailled list of what is expected.
+
+For each approch you will measure some indicators of accuracy (rate of correct classification, error rate, false positive, false negative,...) as a function of the number of selected variables comparing this rate to what could be obtained by chance.
+
+1. **Selection of a dataset of interest in the reCount database:** Install the recount R package and use it to select a dataset that *(i)* is of interest for you  (it can be related to something you have been working on during another course or an intership), *(ii)* contains at least two classes of interest with at least 30 samples in each classe (this value is indicative and may be sligthly).
+
+**Note:**  you may also add a random variable selection step to compare observed hit rate with those observed when variable are randomly selected.
+
+2. **Detection and interpretation of differentially expressed genes:** run a statistical analysis of the read counts, in order to detect differentially expressed genes (**DEG**) between the two selected classes. This analysis should include the following steps.
+
+    a. Log2-transformation of the counts (with an epsilon). 
+    b. Graphical description of the data (historgrams, barplots, boxplots, ...).
+    c. Computation of summary statistics per sample (min, max, mean, median, quartiles, number of zeros, ...) for raw counts and log2-transformed counts.
+    d. Detection of differentially expressed genes (including graphical representations: volcano plot, p-value histogram, ...). 
+    e. Functional enrichment of the differentially expressed genes. 
+    f. ... any other type of analysis, figure, table that you might find useful to intepret the data.
+
+3. **Functional annotation**
+
+Use the *gProfiler* R package to study the functional associations of these genes, and provide a biological interpretation of these results.
+
+4. **Supervised learning:** During the practical, we have used the linear discriminant analysis method (fonction *lda()* en R). Here you will have two compare two methods of supervized classification.  You can use any relevant method (including LDA) for classification. However for ease of use we suggest to use a method whose interface is close to *lda()*.
+
+5. **Impact of the number of selected variable:** Your work will include an evaluation of the impact of the number of selected variables on classification accuracy. The general indicator of classification accuracy will be the rate of correct classification. You may also use some particular indicators including false positive rate, false negative rate, sensitivity or sensibility. The performance will be presented through a table and/or through a curve indicating the progression of the rate of good classification as a fonction of the number of selected variables. 
+
+**Warning:** The evaluations should be done in the *cross validation* mode using using different samples for training and test. We recommend to use classification that automatically deal with cross-validation. This can be for instance the *lda()* or qda() that include a "CV" argument indicating they are performing automatically a "Leave-one-out" cross validation (LOO).
+
+
+
+## Usage of the good practices
+
+An important goal of this course -- and the report -- is to learn how to use good practices for the analysis of NGS data. This includes
+
+    a. **Tractability:** you and other people should be able to track the origin of all your results. For this, you need to keep a trace of each step of each analysis. 
+    
+    b. **Reproducibility:** other people should be able not only to trace the origin of your results, but also to reproduce them by themselves. NGS data anlaysis lends itself particularly well to reproducibility, since everything is done on computers and managed via software (tools and scripts). 
+    
+    c. **Portability:** the analysis done on your computer should be reproducible on other computers as well. For this you need to ensure for isntance that all paths are defined relative rather than absolute, and that the path definitions rely on platform-independent methods. 
+
+
+## Analyses
+
+1. **Differential analysis**. Analyse the full dataset to detect differentially expressed genes. This analysis should include the following steps.
+
+    a. Log2-transformation of the counts (with an epsilon). 
+    b. Graphical description of the data (historgrams, barplots, boxplots, ...).
+    c. Computation of summary statistics per sample (min, max, mean, median, quartiles, number of zeros, ...) for raw counts and log2-transformed counts.
+    d. Detection of differentially expressed genes (including graphical representations: volcano plot, p-value histogram, ...). 
+    e. Functional enrichment of the differentially expressed genes. 
+    f. ... any other type of analysis, figure, table that you might find useful to intepret the data.
+
+2. **Sub-sampling**. Run the same analysis on randomly selected subsets of the samples, with various subset sizes (n=2,3,4,5,10,20,40). 
+
+3. **Negative control. ** Run the same analysis with two subsets of samples belonging to the same group (psoriasis versus psoriasis, control versus control).
+
+
+****************************************************************
+# Report
+
+Les rapports peuvent être rédigés en français ou en anglais / reports can be written in either English or French. 
+
+## Format of the report
+
+1. **Source document in Rmd**. The primary report is an R markdown document (.Rmd extension) which **must** contain all the code used to run the anlayses, as well as the main tables and figures produced by the analysis, and a text structured according to the common practice for scientific articles. 
+
+    - The R code should be compliant with the following guidelines: <https://google.github.io/styleguide/Rguide.xml>
+    - The R code should be properly documented. 
+    - This document should enable us to reproduce your analysis on our own computer (avoid absolute paths).
+
+2. **Compiled report (html or pdf)**. This report should look like a small scientific article (see structure hereafter) with Figures, Tables, and interpretation of the results.  The **R** code should not be displayed in the compiled report (set the knitr option `echo=FALSE` when generating the last version). Think of your report as a document written for a biologists who want to understand the approach and the results, but is not interested by the technical details of the R programming. 
+
+## Structure of the report
+
+In total, the report should not exceed 5-6 pages, including figures, but without counting the bibliographic references and appendices (for which there is no limit). 
+
+1. **Introduction:** a brief summary (5-10 lines) of the biological context (the disease, the transcriptome), the biological question addressed in the report, and the general approach envisaged to answer these questions. 
+
+2. **Material and Methods:** a summary of the bioinformatics / statistical methods and libraries used for the analysis (1/2 to 1 page), with a brief explanation about which tool was used to do what, and links to the official web page or publication about the tool. If required, additional details about the methods and parameters can be provided in appendix. 
+
+3. **Data description:** a brief description of the data source (with link to the GEO record), its content (how many samples, how many groups, ...) and the data type (paired-ends or single-end, ...).
+
+4. **Results and discussion:** the results should be presented and discussed together in this section. This section contains the main figures and tables that are used to interpret the results. Additional figures and tables can be provided as appendices, or as separate files (for example full result tables with all the genes, ...).
+
+5. **Conclusion and perspective** (~1/2 page): summarize the results, show in what they did -- or did not -- enable you to answer the initial questions of the introduction, and add some perspectives about possible future extensions of the work presented here. 
+
+6. **Appendices:* any additional information or result that might be helpful to consult in order to get a deeper understanding of your results. 
+
+
+**Format:** the report can be submitted in either html or pdf format. The original Rmd file that was used to generate the report must be submitted together with the report. This file should allow the teachers to reprodue the analysis on their computers. 
+
+
+## Evaluation criteria
+
+The evaluation of your report will be based on multiple criteria.
+
+1. Can we reproduce your results using your Rmd file?
+2. Did you clearly formulate the biological question, and the relationship between these questions and the bioinformatics approaches used to answer them?
+3. Relevance of the results and your interpretation. 
+4. Clarity of the text.
+5. Clarity of the code. 
+
+
+****************************************************************
+# References
+
+
+
