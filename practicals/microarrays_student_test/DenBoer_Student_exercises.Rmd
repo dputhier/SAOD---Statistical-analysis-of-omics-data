@@ -256,11 +256,14 @@ group1 <- names(class.sizes[1])
 group2 <- names(class.sizes[2])
 
 ## Select the columns of the expression matrix for each group
+
 group1.expr <- expr.matrix[, sample.labels == group1]
 dim(group1.expr)
 group2.expr <- expr.matrix[, sample.labels == group2]
 dim(group2.expr)
 
+selected.samples <- (sample.labels == group1) | (sample.labels == group2)
+group.labels <- sample.labels[selected.samples]
 
 ```
 
@@ -336,11 +339,15 @@ TTestVector <- function(values, group.labels, group1 = group.labels[1], ...) {
 
 ## Run Welch test with my nice function
 my.gene <- sample(x = row.names(expr.matrix), size = 1)
-welch.result <- TTestVector(values = expr.matrix[my.gene,], group.labels = sample.labels, alternative = "two.sided", var.equal = FALSE)
+welch.result <- TTestVector(values = expr.matrix[my.gene,selected.samples], 
+                            group.labels = sample.labels[selected.samples], 
+                            alternative = "two.sided", var.equal = FALSE)
 
 
 ## Just for fun, run a Student test with the same gene
-student.result <- TTestVector(values = expr.matrix[my.gene,], group.labels = sample.labels, alternative = "two.sided", var.equal = TRUE)
+student.result <- TTestVector(values = expr.matrix[my.gene,selected.samples], 
+                            group.labels = sample.labels[selected.samples], 
+                            alternative = "two.sided", var.equal = TRUE)
 
 
 ## Compare the results obtained with Student and Welch t.test()
@@ -366,18 +373,13 @@ head(welch.loop) ## Check that the data frame has the right shape and contains N
 loop.time <- system.time(
   for (my.gene in rownames(group1.expr)) {
     welch.loop[my.gene,]  <- TTestVector(
-      values=expr.matrix[my.gene, ], 
-      group.labels = sample.labels, 
+      values=expr.matrix[my.gene, selected.samples], 
+      group.labels = sample.labels[selected.samples], 
       alternative = "two.sided", var.equal = FALSE)
   }
 )
 
 print(loop.time)
-
-# ## Nice formatting for the knit report
-# time.frame <- as.data.frame(as.table(loop.time))
-# names(time.frame) <- c("type", "seconds")
-# kable(time.frame, caption = paste("Time spent for", nrow(group1.expr), "Welch tests with a loop:", loop.time))
 
 ```
 
@@ -388,20 +390,15 @@ print(loop.time)
 
 
 ```{r welch_per_gene_apply}
-## Prepare a data frame to host all the results, with one row per gene 
-## and one column per field in the result of TTestVector 
-## (we use the previous result to adapt the number of columns.
-welch.apply <- data.frame(matrix(nrow = nrow(expr.matrix), ncol=length(welch.result)))
-names(welch.apply) <- names(welch.result) ## Set column names from previous result
-row.names(welch.apply) <- row.names(expr.matrix) ## Set row names as gene names
-head(welch.apply) ## Check that the data frame has the right shape and contains NA values
-
 ## Run all the t tests with the apply function
 apply.time <- system.time(
-  apply(X = expr.matrix, 1, TTestVector, group.labels = sample.labels, group1 = group1, alternative = "two.sided", var.equal = FALSE)
+  welch.apply <- as.data.frame(t(apply(X = expr.matrix[, selected.samples], 1, TTestVector, group.labels = sample.labels[selected.samples], group1 = group1, alternative = "two.sided", var.equal = FALSE)))
 )
 
 print(apply.time)
+
+kable(head(welch.apply), caption = "First rows of the table resulting from the application of Welch test to each gene. ")
+
 
 ## Nice formatting for the knit report (a bit tricky, because proc_time)
 time.frame <- data.frame(
@@ -417,13 +414,49 @@ kable(time.frame, caption = paste("Time spent for", nrow(group1.expr), "Welch te
 
 **Exercice supplémentaire optionnel:** à titre de curiosité, nous pouvons également appliquer le test de Student au même jeu de données (en combinant `apply()` et `TTestVector()`) et comparer (sur un graphe aux axes logarithmiques) les p-valeurs obtenues par Welch et Student, respectivement. 
 
+
+
+```{r student_per_gene_apply}
+## Run all the t tests with the apply function
+student.apply.time <- system.time(
+  student.apply <- as.data.frame(t(apply(X = expr.matrix[, selected.samples], 1, TTestVector, group.labels = sample.labels[selected.samples], group1 = group1, alternative = "two.sided", var.equal = TRUE)))
+)
+
+kable(head(student.apply), caption = "First rows of the table resulting from the application of Student test to each gene. ")
+
+print(apply.time)
+
+
+plot(welch.apply[, "p"], student.apply[, "p"], log="xy")
+
+
+```
 10. Dessinez un volcano plot avec les résultats. 
 
     Le volcano plot indique en abscisse la "taille d'effet" (dans notre cas, la différence de moyennes), et l'ordonnée  $-log_{10}(p)$, où $p$ est la p-valeur.
     
+```{r volcano_plot}
+## Define the threshold on p-value
+alpha <- 0.05 ## Adopté à l'unanimité par les étudiants
+
+## Draw a XY plot with the difference between means (X) versus the p-value
+plot(welch.apply$d, welch.apply$p, xlab="m2 - m1", ylab="p", col="grey")
+abline(v=0)
+abline(h=alpha, col="red")
+
+## Draw a volcano plot with Welch results
+plot(welch.apply$d, -log10(welch.apply$p), xlab="m2 - m1", ylab="-log10(p)", col="grey", main="Volcano plot of the nominal p-values")
+abline(v=0)
+abline(h=-log10(alpha), col="red")
+
+```
+
+    
 11. Dessinez un histogramme des p-valeurs. 
 
-12. Dessinez un histogramme densités avec les valeurs de la statistique du test ($t$). 
+
+
+12. Dessinez un histogramme (en densités) avec les valeurs de la statistique du test ($t$). 
 
 13. Ajoutez au tableau de résultats les colonnes suivantes.
 
