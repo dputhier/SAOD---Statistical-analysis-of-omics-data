@@ -1,0 +1,106 @@
+---
+title: "Rapport ASG --  VOTRE TITRE"
+author: "[NOMS DES AUTEURS]"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    code_folding: hide
+    fig_caption: no
+    highlight: zenburn
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  md_document:
+    variant: markdown_github
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: no
+    toc_depth: 2
+bibliography: biblio_rapport_ASG.bib
+---
+
+
+
+```{r knitr_setup, include=FALSE,  eval=TRUE, echo=FALSE, warning=FALSE}
+
+## Parameters for the generation of the report with knitr
+# knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=TRUE, message=FALSE, warning=FALSE, comment="")
+library(knitr)
+options(width=300)
+knitr::opts_chunk$set(
+  fig.width = 7, 
+  fig.height = 5, 
+  fig.path='figures/',
+  fig.align = "center", 
+  size = "tiny", 
+  echo = TRUE, eval=TRUE, 
+  warning = FALSE, message = FALSE, 
+  results = TRUE, comment = "")
+# knitr::asis_output("\\footnotesize")
+
+```
+
+
+
+
+```{r eval=FALSE}
+## Check the requirement for RCRAN packages
+packages <- c("knitr")
+for (pkg in packages) {
+  message("Checking installation of the package ", pkg)
+  if (!suppressPackageStartupMessages(require(pkg, quietly=TRUE, character.only = TRUE))) {
+    message("Installing package ", pkg)
+    install.packages(pkg)
+  }
+  library(pkg, character.only = TRUE)
+}
+
+## Install some bioconductor packages
+pkg <- c("qvalue", "recount", "DESeq2")
+if (!suppressPackageStartupMessages(require(pkg, quietly=TRUE, character.only = TRUE))) {
+  source("http://bioconductor.org/biocLite.R")
+  biocLite();
+  biocLite(pkg)
+}
+library(pkg, character.only = TRUE)
+
+
+```
+
+## Recommandations
+
+- inclure dans le Rmd le code permettant d'installer les librairies requises (fait dans le modèle)
+- adapter la liste des librairies à installer depuis RCRAN
+- adapter la liste des librairies à installer depuis BioConductor
+- nommer les chunks R
+- commenter votre code
+- traiter la bibliographie avec bibtex
+
+
+## Resources
+
+| Resource | URL |
+|------------------|-------------------------------------|
+| Pubmed to bibtex conversion | <http://www.bioinformatics.org/texmed/> |
+| Recount R package | <https://jhubiostatistics.shinyapps.io/recount/> |
+| SRA, Short Read Archive | <> | 
+
+## Data source
+
+
+
+
+Data were downladed from the Recount2 repository [@pmid28398307]. 
+
+
+```{r }
+
+```
+
+
+## References
