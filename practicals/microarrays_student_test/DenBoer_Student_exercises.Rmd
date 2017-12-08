@@ -310,11 +310,15 @@ result["d"]  <- result["m2"] - result["m1"]
 ```
 
 
-7. Ecrivez une fonction R dénommée `t.test.wrapper` qui prend en entrée 2 vecteurs (expression et classes de cancer, respectivement), effectue un tst de Student, et retourene un vecteur avec les statistiques pertinentes. 
+7. Ecrivez une fonction R dénommée `t.test.wrapper` qui prend en entrée 2 vecteurs (expression et classes de cancer, respectivement), effectue un test de Student, et retourene un vecteur avec les statistiques pertinentes. 
 
 ```{r t_test_vector}
-TTestVector <- function(x, y, ...) {
-  t.result <- t.test(x,  y, ...)
+TTestVector <- function(values, group.labels, group1 = group.labels[1], ...) {
+  
+  ## Select samples of the first and second group, respectively
+  group1.values <- values[group.labels == group1]
+  group2.values <- values[group.labels != group1]
+  t.result <- t.test(x = group1.values,  y = group2.values, ...)
   
   ## Collect the relevant statistics in the t.test result
   result <- c(t.result$statistic, 
@@ -323,19 +327,26 @@ TTestVector <- function(x, y, ...) {
               t.result$estimate)
   names(result) <- c("t", "p", "df", "m1", "m2")
   result["d"]  <- result["m2"] - result["m1"] 
+  result["s1.est"] <- sd(group1.values)
+  result["s2.est"] <- sd(group2.values)
+  result["s.diff"] <- result["s2.est"] - result["s1.est"]
+  result["s.diff.percent"] <- 100*result["s.diff"] /max(result["s2.est"], result["s1.est"])
   return(result)
 }
 
 ## Run Welch test with my nice function
 my.gene <- sample(x = row.names(expr.matrix), size = 1)
-welch.result <- TTestVector(x = group1.expr[my.gene, ], y = group2.expr[my.gene,], alternative = "two.sided", var.equal = FALSE)
+welch.result <- TTestVector(values = expr.matrix[my.gene,], group.labels = sample.labels, alternative = "two.sided", var.equal = FALSE)
 
 
 ## Just for fun, run a Student test with the same gene
-student.result <- TTestVector(x = group1.expr[my.gene, ], y = group2.expr[my.gene,], alternative = "two.sided", var.equal = TRUE)
+student.result <- TTestVector(values = expr.matrix[my.gene,], group.labels = sample.labels, alternative = "two.sided", var.equal = TRUE)
 
-print(welch.result)
-print(student.result)
+
+## Compare the results obtained with Student and Welch t.test()
+kable(data.frame(
+  Welch= welch.result,
+  Student = student.result), caption="Comparison between the results of a Welch and Student test on a randomly picked up gene. ")
 
 ```
 
@@ -343,25 +354,67 @@ print(student.result)
 8. Ecrivez une boucle `for`qui applique ce même test à chaque ligne de la table d'expression, et récupère dans un tableau les résultats du test, avec une ligne par gène, une colonne par statistique pertinente produite par t.test(). Mesurez le temps d'exécution des 22.000 tests de Student avec cette boucle. 
 
 ```{r welch_per_gene_loop}
-welch.table <- data.frame(matrix(nrow = nrow(expr.matrix), ncol=6))
-names(welch.table) <- names(welch.result)
-row.names(welch.table) <- row.names(expr.matrix)
-head(welch.table)
+## Prepare a data frame to host all the results, with one row per gene 
+## and one column per field in the result of TTestVector 
+## (we use the previous result to adapt the number of columns.
+welch.loop <- data.frame(matrix(nrow = nrow(expr.matrix), ncol=length(welch.result)))
+names(welch.loop) <- names(welch.result) ## Set column names from previous result
+row.names(welch.loop) <- row.names(expr.matrix) ## Set row names as gene names
+head(welch.loop) ## Check that the data frame has the right shape and contains NA values
 
-
+## Run a
 loop.time <- system.time(
   for (my.gene in rownames(group1.expr)) {
-    welch.table[my.gene,]  <- TTestVector(x = group1.expr[my.gene, ], y = group2.expr[my.gene,], alternative = "two.sided", var.equal = FALSE)
+    welch.loop[my.gene,]  <- TTestVector(
+      values=expr.matrix[my.gene, ], 
+      group.labels = sample.labels, 
+      alternative = "two.sided", var.equal = FALSE)
   }
 )
 
-message("Time spent for ", nrow(group1.expr), " Welch tests with a loop: ", loop.time)
+print(loop.time)
+
+# ## Nice formatting for the knit report
+# time.frame <- as.data.frame(as.table(loop.time))
+# names(time.frame) <- c("type", "seconds")
+# kable(time.frame, caption = paste("Time spent for", nrow(group1.expr), "Welch tests with a loop:", loop.time))
 
 ```
 
 
 
 9. Utilisez cette fonction et la fonction `apply` pour appliquer le test de Student à chaque gène, et mesurz le temps d'exécution. 
+
+
+
+```{r welch_per_gene_apply}
+## Prepare a data frame to host all the results, with one row per gene 
+## and one column per field in the result of TTestVector 
+## (we use the previous result to adapt the number of columns.
+welch.apply <- data.frame(matrix(nrow = nrow(expr.matrix), ncol=length(welch.result)))
+names(welch.apply) <- names(welch.result) ## Set column names from previous result
+row.names(welch.apply) <- row.names(expr.matrix) ## Set row names as gene names
+head(welch.apply) ## Check that the data frame has the right shape and contains NA values
+
+## Run all the t tests with the apply function
+apply.time <- system.time(
+  apply(X = expr.matrix, 1, TTestVector, group.labels = sample.labels, group1 = group1, alternative = "two.sided", var.equal = FALSE)
+)
+
+print(apply.time)
+
+## Nice formatting for the knit report (a bit tricky, because proc_time)
+time.frame <- data.frame(
+  loop = as.factor(loop.time),
+  apply = as.factor(apply.time)
+  )
+time.frame$loop <- as.numeric(as.vector(as.factor(loop.time)))
+time.frame$apply <- as.numeric(as.vector(as.factor(apply.time)))
+
+kable(time.frame, caption = paste("Time spent for", nrow(group1.expr), "Welch tests with apply:", apply.time), digits=3)
+
+```
+
 
 10. Dessinez un volcano plot avec les résultats. 
 
@@ -370,6 +423,31 @@ message("Time spent for ", nrow(group1.expr), " Welch tests with a loop: ", loop
 11. Dessinez un histogramme des p-valeurs. 
 
 12. Dessinez un histogramme densités avec les valeurs de la statistique du test ($t$) et superposez-y la fonction de densité de la distribution de Student ($dt$). 
+
+13. Ajoutez au tableau de résultats les colonnes suivantes.
+
+    - **e-valeur** ($E = p \cdot N$, où $N$ est le nombre de test)
+    - **p-valeur corrigée par la méthode de Bonferonni**, calculé avec la fonction `p.adjust()` (tond vous lirez préalablement l'aide).
+    - **taux de de fausse découverte**  (***False Discovery Rate***, ***FDR***), calculé avec la fonction `p.adjust()`.
+
+14. Dessinez un graphe qui compare la p-valeur nominale (en abscisse) et les différentes corrections (en ordonnée). Utilisez les axes logarithmiques pour faire apparaître les valeurs pertinentes (très petites). 
+
+15. Sélectionez les gènes significatifs avec un seuil $\alpha=0.05$ **sur le taux de fausse découverte**. 
+
+16. Sélectionnez une matrice restreinte aux profils d'expression des gènes différentiellement exprimés pour les deux groupes d'intérêt (les deux groupes dans la même matrice). 
+
+17. Calculez -- avec la fonction `cor()` -- une matrice de corrélation entre échantillons de cette matrice. 
+
+18. Utilisez la fonction `hclust()` pour effectuer un clustering des échantillons, sur base de cette matrice de corrélation. 
+
+19. Avec la fonction `heatmap()`, dessinez une carte thermique (***heat map***) des gènes différentiellement exprimés, en activant le clustering sur les colonnes (samples) et lignes (gènes). Raffinez ensuite le graphique avec la fonction `heatmap2()` de la librairie `gplots` (installez cette librairie si nécessaire).
+
+20. Au moyen de la fonction `strsplit()`, extrayez les noms des gènes significatifs à partir des étiquettes de lignes de la matrice d'expression. Ces étiquettes contiennent 2 identifiants séparés par un caractère $|$ (tube): nom de gène et identifiant de la sonde sur la biopuce. 
+
+21. Analysez l'enrichissement fonctionnel de ces gènes avec les deux outils suivants: 
+
+    - gProfiler: <http://biit.cs.ut.ee/gprofiler/>
+    - DAVID: <https://david.ncifcrf.gov/>
 
 ## References
 
