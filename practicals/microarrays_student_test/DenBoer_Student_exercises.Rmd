@@ -415,6 +415,7 @@ kable(time.frame, caption = paste("Time spent for", nrow(group1.expr), "Welch te
 
 ```
 
+**Exercice supplémentaire optionnel:** à titre de curiosité, nous pouvons également appliquer le test de Student au même jeu de données (en combinant `apply()` et `TTestVector()`) et comparer (sur un graphe aux axes logarithmiques) les p-valeurs obtenues par Welch et Student, respectivement. 
 
 10. Dessinez un volcano plot avec les résultats. 
 
@@ -422,7 +423,7 @@ kable(time.frame, caption = paste("Time spent for", nrow(group1.expr), "Welch te
     
 11. Dessinez un histogramme des p-valeurs. 
 
-12. Dessinez un histogramme densités avec les valeurs de la statistique du test ($t$) et superposez-y la fonction de densité de la distribution de Student ($dt$). 
+12. Dessinez un histogramme densités avec les valeurs de la statistique du test ($t$). 
 
 13. Ajoutez au tableau de résultats les colonnes suivantes.
 
@@ -436,7 +437,7 @@ kable(time.frame, caption = paste("Time spent for", nrow(group1.expr), "Welch te
 
 16. Sélectionnez une matrice restreinte aux profils d'expression des gènes différentiellement exprimés pour les deux groupes d'intérêt (les deux groupes dans la même matrice). 
 
-17. Calculez -- avec la fonction `cor()` -- une matrice de corrélation entre échantillons de cette matrice. 
+17. Calculez -- avec la fonction `cor()` -- une matrice de corrélation entre échantillons de cette matrice. Générez un diagramme de cette matrice avec le package `corplot()`. 
 
 18. Utilisez la fonction `hclust()` pour effectuer un clustering des échantillons, sur base de cette matrice de corrélation. 
 
@@ -448,6 +449,8 @@ kable(time.frame, caption = paste("Time spent for", nrow(group1.expr), "Welch te
 
     - gProfiler: <http://biit.cs.ut.ee/gprofiler/>
     - DAVID: <https://david.ncifcrf.gov/>
+    
+22. ACP (PCA), sparse PCA
 
 ## References
 

@@ -1843,53 +1843,53 @@ $class
 <tbody>
 <tr class="odd">
 <td>t</td>
-<td style="text-align: right;">-1.2988487</td>
-<td style="text-align: right;">-1.2211660</td>
+<td style="text-align: right;">1.0110302</td>
+<td style="text-align: right;">1.1110516</td>
 </tr>
 <tr class="even">
 <td>p</td>
-<td style="text-align: right;">0.1992500</td>
-<td style="text-align: right;">0.2235524</td>
+<td style="text-align: right;">0.3170929</td>
+<td style="text-align: right;">0.2679651</td>
 </tr>
 <tr class="odd">
 <td>df</td>
-<td style="text-align: right;">56.7350512</td>
+<td style="text-align: right;">47.7974609</td>
 <td style="text-align: right;">188.0000000</td>
 </tr>
 <tr class="even">
 <td>m1</td>
-<td style="text-align: right;">3.3369444</td>
-<td style="text-align: right;">3.3369444</td>
+<td style="text-align: right;">2.2647222</td>
+<td style="text-align: right;">2.2647222</td>
 </tr>
 <tr class="odd">
 <td>m2</td>
-<td style="text-align: right;">3.3807143</td>
-<td style="text-align: right;">3.3807143</td>
+<td style="text-align: right;">2.2448701</td>
+<td style="text-align: right;">2.2448701</td>
 </tr>
 <tr class="even">
 <td>d</td>
-<td style="text-align: right;">0.0437698</td>
-<td style="text-align: right;">0.0437698</td>
+<td style="text-align: right;">-0.0198521</td>
+<td style="text-align: right;">-0.0198521</td>
 </tr>
 <tr class="odd">
 <td>s1.est</td>
-<td style="text-align: right;">0.1783707</td>
-<td style="text-align: right;">0.1783707</td>
+<td style="text-align: right;">0.1087983</td>
+<td style="text-align: right;">0.1087983</td>
 </tr>
 <tr class="even">
 <td>s2.est</td>
-<td style="text-align: right;">0.1969344</td>
-<td style="text-align: right;">0.1969344</td>
+<td style="text-align: right;">0.0934819</td>
+<td style="text-align: right;">0.0934819</td>
 </tr>
 <tr class="odd">
 <td>s.diff</td>
-<td style="text-align: right;">0.0185637</td>
-<td style="text-align: right;">0.0185637</td>
+<td style="text-align: right;">-0.0153163</td>
+<td style="text-align: right;">-0.0153163</td>
 </tr>
 <tr class="even">
 <td>s.diff.percent</td>
-<td style="text-align: right;">9.4263173</td>
-<td style="text-align: right;">9.4263173</td>
+<td style="text-align: right;">-14.0777387</td>
+<td style="text-align: right;">-14.0777387</td>
 </tr>
 </tbody>
 </table>
@@ -1922,7 +1922,7 @@ UBA7|1294_at     NA NA NA NA NA NA     NA     NA     NA             NA</code></p
 <div class="sourceLine" id="cb21-10" data-line-number="10"></div>
 <div class="sourceLine" id="cb21-11" data-line-number="11"><span class="kw">print</span>(loop.time)</div></code></pre>
 <pre><code>   user  system elapsed 
-105.991  17.225 123.762 </code></pre>
+112.161  17.244 129.628 </code></pre>
 <pre class="sourceCode r" id="cb23"><code class="sourceCode r"><div class="sourceLine" id="cb23-1" data-line-number="1"><span class="co"># ## Nice formatting for the knit report</span></div>
 <div class="sourceLine" id="cb23-2" data-line-number="2"><span class="co"># time.frame &lt;- as.data.frame(as.table(loop.time))</span></div>
 <div class="sourceLine" id="cb23-3" data-line-number="3"><span class="co"># names(time.frame) &lt;- c(&quot;type&quot;, &quot;seconds&quot;)</span></div>
@@ -1951,7 +1951,7 @@ UBA7|1294_at     NA NA NA NA NA NA     NA     NA     NA             NA</code></p
 <div class="sourceLine" id="cb26-5" data-line-number="5"></div>
 <div class="sourceLine" id="cb26-6" data-line-number="6"><span class="kw">print</span>(apply.time)</div></code></pre>
 <pre><code>   user  system elapsed 
-  6.546   0.101   6.682 </code></pre>
+  6.513   0.064   6.586 </code></pre>
 <pre class="sourceCode r" id="cb28"><code class="sourceCode r"><div class="sourceLine" id="cb28-1" data-line-number="1">## Nice formatting for the knit report (a bit tricky, because proc_time)</div>
 <div class="sourceLine" id="cb28-2" data-line-number="2">time.frame &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</div>
 <div class="sourceLine" id="cb28-3" data-line-number="3">  <span class="dt">loop =</span> <span class="kw">as.factor</span>(loop.time),</div>
@@ -1962,7 +1962,7 @@ UBA7|1294_at     NA NA NA NA NA NA     NA     NA     NA             NA</code></p
 <div class="sourceLine" id="cb28-8" data-line-number="8"></div>
 <div class="sourceLine" id="cb28-9" data-line-number="9"><span class="kw">kable</span>(time.frame, <span class="dt">caption =</span> <span class="kw">paste</span>(<span class="st">&quot;Time spent for&quot;</span>, <span class="kw">nrow</span>(group1.expr), <span class="st">&quot;Welch tests with apply:&quot;</span>, apply.time), <span class="dt">digits=</span><span class="dv">3</span>)</div></code></pre>
 <table>
-<caption>Time spent for 22283 Welch tests with apply: 6.54600000000001 Table: Time spent for 22283 Welch tests with apply: 0.101000000000003 Table: Time spent for 22283 Welch tests with apply: 6.68200000000002 Table: Time spent for 22283 Welch tests with apply: 0 Table: Time spent for 22283 Welch tests with apply: 0</caption>
+<caption>Time spent for 22283 Welch tests with apply: 6.51300000000001 Table: Time spent for 22283 Welch tests with apply: 0.0640000000000001 Table: Time spent for 22283 Welch tests with apply: 6.58600000000001 Table: Time spent for 22283 Welch tests with apply: 0 Table: Time spent for 22283 Welch tests with apply: 0</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -1973,18 +1973,18 @@ UBA7|1294_at     NA NA NA NA NA NA     NA     NA     NA             NA</code></p
 <tbody>
 <tr class="odd">
 <td>user.self</td>
-<td style="text-align: right;">105.991</td>
-<td style="text-align: right;">6.546</td>
+<td style="text-align: right;">112.161</td>
+<td style="text-align: right;">6.513</td>
 </tr>
 <tr class="even">
 <td>sys.self</td>
-<td style="text-align: right;">17.225</td>
-<td style="text-align: right;">0.101</td>
+<td style="text-align: right;">17.244</td>
+<td style="text-align: right;">0.064</td>
 </tr>
 <tr class="odd">
 <td>elapsed</td>
-<td style="text-align: right;">123.762</td>
-<td style="text-align: right;">6.682</td>
+<td style="text-align: right;">129.628</td>
+<td style="text-align: right;">6.586</td>
 </tr>
 <tr class="even">
 <td>user.child</td>
@@ -1998,11 +1998,12 @@ UBA7|1294_at     NA NA NA NA NA NA     NA     NA     NA             NA</code></p
 </tr>
 </tbody>
 </table>
+<p><strong>Exercice supplémentaire optionnel:</strong> à titre de curiosité, nous pouvons également appliquer le test de Student au même jeu de données (en combinant <code>apply()</code> et <code>TTestVector()</code>) et comparer (sur un graphe aux axes logarithmiques) les p-valeurs obtenues par Welch et Student, respectivement.</p>
 <ol start="10" type="1">
 <li><p>Dessinez un volcano plot avec les résultats.</p>
 <p>Le volcano plot indique en abscisse la “taille d’effet” (dans notre cas, la différence de moyennes), et l’ordonnée <span class="math inline">\(-log_{10}(p)\)</span>, où <span class="math inline">\(p\)</span> est la p-valeur.</p></li>
 <li><p>Dessinez un histogramme des p-valeurs.</p></li>
-<li><p>Dessinez un histogramme densités avec les valeurs de la statistique du test (<span class="math inline">\(t\)</span>) et superposez-y la fonction de densité de la distribution de Student (<span class="math inline">\(dt\)</span>).</p></li>
+<li><p>Dessinez un histogramme densités avec les valeurs de la statistique du test (<span class="math inline">\(t\)</span>).</p></li>
 <li><p>Ajoutez au tableau de résultats les colonnes suivantes.</p>
 <ul>
 <li><strong>e-valeur</strong> (<span class="math inline">\(E = p \cdot N\)</span>, où <span class="math inline">\(N\)</span> est le nombre de test)</li>
@@ -2012,7 +2013,7 @@ UBA7|1294_at     NA NA NA NA NA NA     NA     NA     NA             NA</code></p
 <li><p>Dessinez un graphe qui compare la p-valeur nominale (en abscisse) et les différentes corrections (en ordonnée). Utilisez les axes logarithmiques pour faire apparaître les valeurs pertinentes (très petites).</p></li>
 <li><p>Sélectionez les gènes significatifs avec un seuil <span class="math inline">\(\alpha=0.05\)</span> <strong>sur le taux de fausse découverte</strong>.</p></li>
 <li><p>Sélectionnez une matrice restreinte aux profils d’expression des gènes différentiellement exprimés pour les deux groupes d’intérêt (les deux groupes dans la même matrice).</p></li>
-<li><p>Calculez – avec la fonction <code>cor()</code> – une matrice de corrélation entre échantillons de cette matrice.</p></li>
+<li><p>Calculez – avec la fonction <code>cor()</code> – une matrice de corrélation entre échantillons de cette matrice. Générez un diagramme de cette matrice avec le package <code>corplot()</code>.</p></li>
 <li><p>Utilisez la fonction <code>hclust()</code> pour effectuer un clustering des échantillons, sur base de cette matrice de corrélation.</p></li>
 <li><p>Avec la fonction <code>heatmap()</code>, dessinez une carte thermique (<strong><em>heat map</em></strong>) des gènes différentiellement exprimés, en activant le clustering sur les colonnes (samples) et lignes (gènes). Raffinez ensuite le graphique avec la fonction <code>heatmap2()</code> de la librairie <code>gplots</code> (installez cette librairie si nécessaire).</p></li>
 <li><p>Au moyen de la fonction <code>strsplit()</code>, extrayez les noms des gènes significatifs à partir des étiquettes de lignes de la matrice d’expression. Ces étiquettes contiennent 2 identifiants séparés par un caractère <span class="math inline">\(|\)</span> (tube): nom de gène et identifiant de la sonde sur la biopuce.</p></li>
@@ -2021,6 +2022,7 @@ UBA7|1294_at     NA NA NA NA NA NA     NA     NA     NA             NA</code></p
 <li>gProfiler: <a href="http://biit.cs.ut.ee/gprofiler/" class="uri">http://biit.cs.ut.ee/gprofiler/</a></li>
 <li>DAVID: <a href="https://david.ncifcrf.gov/" class="uri">https://david.ncifcrf.gov/</a></li>
 </ul></li>
+<li><p>ACP (PCA), sparse PCA</p></li>
 </ol>
 </section>
 </section>
