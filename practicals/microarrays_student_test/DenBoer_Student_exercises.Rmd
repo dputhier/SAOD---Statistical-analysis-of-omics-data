@@ -454,15 +454,39 @@ abline(h=-log10(alpha), col="red")
     
 11. Dessinez un histogramme des p-valeurs. 
 
+```{r p_value_histogram}
+hist(welch.apply$p, breaks=seq(from=0, to=1, by=0.05))
+```
+
+
+**Exercices supplémentaires**: 
+
+    a. Générez une matrice de données aléatoires de la même taille que la matrice d'expression, où chaque ligne comporte des données normales sous hypothèse nulle ($H_0: \mu_1 = \mu_2$). Effectuez le test de Student et dessinez le volcano plot et l'histogramme des p-valeurs. A titre d'exemple, choisissons $\mu_1 = \mu_2 = 0$, $\sigma_1 = \sigma_2 = 1$. 
+    b. Générez de la même façon une autre matrice de données sous hypothèse alternative, avec $\mu_1 = 0$, $\mu_2 = 2$, $\sigma_1 = \sigma_2 = 1$, effectuez un test de Student et dessinez le volcano plot et l'histogramme des p-valeurs. 
+    c. Sélectionnez 15000 lignes de la première matrice (sous $H_0$), 5000 lignes de la seconde (sous $H_A$), effectuez les tests de Student et dessinez le volcano plot et l'histogramme des p-valeurs.
+    
+```{r random_data}
+n <- nrow(expr.matrix)
+m <- ncol(expr.matrix)
+rand.h0 <- matrix(nrow=n, ncol=m)
+
+```
+
 
 
 12. Dessinez un histogramme (en densités) avec les valeurs de la statistique du test ($t$). 
 
-13. Ajoutez au tableau de résultats les colonnes suivantes.
+```{r t_statistic_histogram}
+hist(welch.apply$t, breaks=100)
+```
+
+13. **Corrections de tests multiples**. Ajoutez au tableau de résultats les colonnes suivantes.
 
     - **e-valeur** ($E = p \cdot N$, où $N$ est le nombre de test)
     - **p-valeur corrigée par la méthode de Bonferonni**, calculé avec la fonction `p.adjust()` (tond vous lirez préalablement l'aide).
     - **taux de de fausse découverte**  (***False Discovery Rate***, ***FDR***), calculé avec la fonction `p.adjust()`.
+
+
 
 14. Dessinez un graphe qui compare la p-valeur nominale (en abscisse) et les différentes corrections (en ordonnée). Utilisez les axes logarithmiques pour faire apparaître les valeurs pertinentes (très petites). 
 
