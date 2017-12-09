@@ -30,6 +30,8 @@ output:
 # knitr::opts_chunk$set(echo=TRUE, eval=TRUE, cache=TRUE, message=FALSE, warning=FALSE, comment="")
 
 library(knitr)
+library(gplots)
+
 options(width=300)
 knitr::opts_chunk$set(
   fig.width = 7, 
@@ -455,7 +457,8 @@ abline(h=-log10(alpha), col="red")
 11. Dessinez un histogramme des p-valeurs. 
 
 ```{r p_value_histogram}
-hist(welch.apply$p, breaks=seq(from=0, to=1, by=0.05))
+## Histogram of p-values for Den Boer 2009 expression matrix
+hist(welch.apply$p, breaks=seq(from=0, to=1, by=0.05), main="P-value histogram", xlab="P-value", ylab="Nb genes", las=1, col="#BBDDFF")
 ```
 
 
@@ -466,9 +469,23 @@ hist(welch.apply$p, breaks=seq(from=0, to=1, by=0.05))
     c. Sélectionnez 15000 lignes de la première matrice (sous $H_0$), 5000 lignes de la seconde (sous $H_A$), effectuez les tests de Student et dessinez le volcano plot et l'histogramme des p-valeurs.
     
 ```{r random_data}
-n <- nrow(expr.matrix)
-m <- ncol(expr.matrix)
-rand.h0 <- matrix(nrow=n, ncol=m)
+## Get the dimensions of the expresion matrix
+g <- nrow(expr.matrix) ## number of genes
+s <- ncol(expr.matrix) ## Number of samples
+
+## Generate a matrix with random data under H0
+rand.h0 <- matrix(nrow=g, ncol=s, data = rnorm(n = g * s))
+
+student.under.h0 <- as.data.frame(t(apply(X = rand.h0[, selected.samples], 1, TTestVector, group.labels = sample.labels[selected.samples], group1 = group1, alternative = "two.sided", var.equal = TRUE)))
+
+## Plot the histogram of p-values for random normal data under H0
+hist(student.under.h0$p, breaks=seq(from=0, to=1, by=0.05), main="Random numbers under H0", xlab="P-value", ylab="Nb genes", las=1, col="#BBDDFF")
+
+
+## Draw a volcano plot with random normal data under H0
+plot(student.under.h0$d, -log10(student.under.h0$p), xlab="m2 - m1", ylab="-log10(p)", col="grey", main="Random normal under H0")
+abline(v=0)
+abline(h=-log10(alpha), col="red")
 
 ```
 
@@ -486,21 +503,150 @@ hist(welch.apply$t, breaks=100)
     - **p-valeur corrigée par la méthode de Bonferonni**, calculé avec la fonction `p.adjust()` (tond vous lirez préalablement l'aide).
     - **taux de de fausse découverte**  (***False Discovery Rate***, ***FDR***), calculé avec la fonction `p.adjust()`.
 
+```{r multiple_test_corrections}
+## E-value
+g <- nrow(expr.matrix)
+welch.apply$E <- welch.apply$p * g
+welch.apply$Bonferroni <- p.adjust(welch.apply$p, method = "bonferroni")
+welch.apply$BH <- p.adjust(welch.apply$p, method = "BH")
+welch.apply$fdr <- p.adjust(welch.apply$p, method = "fdr")
+plot(welch.apply$p, welch.apply$Bonferroni, log="xy", col="red")
+points(welch.apply$p, welch.apply$BH, col="darkgreen")
+points(welch.apply$p, welch.apply$fdr, col="blue", pch=20, cex=0.8)
+grid()
+
+## Negative control: all data under H0
+student.under.h0$E <- student.under.h0$p * g
+student.under.h0$Bonferroni <- p.adjust(student.under.h0$p, method = "bonferroni")
+student.under.h0$BH <- p.adjust(student.under.h0$p, method = "BH")
+student.under.h0$fdr <- p.adjust(student.under.h0$p, method = "fdr")
+
+
+
+## Draw a volcano plot with random normal data under H0
+plot(student.under.h0$d, -log10(student.under.h0$E), xlab="m2 - m1", ylab="-log10(E)", col="grey", main="Random normal under H0")
+abline(v=0)
+abline(h=-log10(alpha), col="red")
+
+## Histogram of E-values for Den Boer
+hist(welch.apply$E, breaks=g *seq(from=0, to=1, by=0.05), main="E-value histogram", xlab="E-value", ylab="Nb genes", las=1, col="#BBDDFF")
+
+## Plot the histogram of E-values for random normal data under H0
+hist(student.under.h0$E, breaks=g*seq(from=0, to=1, by=0.05), main="Random numbers under H0", xlab="E-value", ylab="Nb genes", las=1, col="#BBDDFF")
+par(mfrow=c(1,1))
+
+
+```
 
 
 14. Dessinez un graphe qui compare la p-valeur nominale (en abscisse) et les différentes corrections (en ordonnée). Utilisez les axes logarithmiques pour faire apparaître les valeurs pertinentes (très petites). 
 
+```{r}
+
+## Plot the volcano and p-value histograms of E-values
+par(mfrow=c(2,2))
+## Draw a volcano plot with Welch results
+plot(welch.apply$d, -log10(welch.apply$E), xlab="m2 - m1", ylab="-log10(E)", col="grey", main="Den Boer, E-value volcano")
+abline(v=0)
+abline(h=-log10(alpha), col="red")## Histogram of p-values for Den Boer 2009 expression matrix
+
+```
+
 15. Sélectionez les gènes significatifs avec un seuil $\alpha=0.05$ **sur le taux de fausse découverte**. 
+
+
+```{r}
+selected.genes <- welch.apply$fdr < alpha
+sum(selected.genes)
+```
 
 16. Sélectionnez une matrice restreinte aux profils d'expression des gènes différentiellement exprimés pour les deux groupes d'intérêt (les deux groupes dans la même matrice). 
 
-17. Calculez -- avec la fonction `cor()` -- une matrice de corrélation entre échantillons de cette matrice. Générez un diagramme de cette matrice avec le package `corplot()`. 
+```{r}
+selected.expr.matrix <- expr.matrix[selected.genes, selected.samples]
+dim(selected.expr.matrix)
+```
+
+
+***Ici s'arrête la matière à connaître pour l'examen: le reste du tuto est fourni pour le plaisir. ***
+
+
+17. Calculez -- avec la fonction `cor()` -- une matrice de corrélation entre échantillons de cette matrice de gènes différentiellement exprimés. Générez un diagramme de cette matrice avec `heatmap()`. 
+
+```{r sample_correlations}
+## Compute Pearson correlation between samples
+dim(selected.expr.matrix)
+
+## Compute inter-sample correlation
+sample.cor <- cor(selected.expr.matrix)
+dim(sample.cor)
+heatmap(sample.cor, scale = "none", col=bluered(100), symm=TRUE)
+
+```
+
+
+
 
 18. Utilisez la fonction `hclust()` pour effectuer un clustering des échantillons, sur base de cette matrice de corrélation. 
 
+```{r gene_correlation_tree}
+
+## Compute inter-gene correlation
+gene.cor <- 1 - cor(t(selected.expr.matrix))
+dim(gene.cor)
+
+## Build a gene tree by running hierarchical clustering between genes
+gene.tree <- hclust(d = as.dist(gene.cor), method = "complete", members = NULL)
+plot(gene.tree)
+
+```
+
+
 19. Avec la fonction `heatmap()`, dessinez une carte thermique (***heat map***) des gènes différentiellement exprimés, en activant le clustering sur les colonnes (samples) et lignes (gènes). Raffinez ensuite le graphique avec la fonction `heatmap2()` de la librairie `gplots` (installez cette librairie si nécessaire).
 
+```{r expression_heatmap}
+
+## Gene-wise centering for the heatmap. The gene-wise (row-wise) mean is substracted fromeach expression value
+selected.expr.matrix.gene.centered <- selected.expr.matrix - apply(selected.expr.matrix,1, mean)
+
+
+# library(corrplot)
+# corrplot(sample.cor[1:10, 1:10])
+x <- 
+selected.expr.matrix.gene.centered
+
+## Add class label to each gene name
+colnames(x) <- paste(colnames(x), sample.labels[selected.samples])
+
+## Compute maximal absolute value of x for the range of the heatmap
+absmax <- ceiling(max(abs(range(x))))
+
+## Use 99th percentile as limit for the color scale
+zlim <- quantile(x = abs(unlist(x)), probs = 0.99)
+
+## Draw a heatmap with one row per gene and one column per sample
+heatmap(as.matrix(x), cexCol = 0.5, col=redgreen(100), scale="none", labRow = FALSE, symm=FALSE, margins=c(5,1), zlim=c(-zlim, zlim), Rowv = as.dendrogram(gene.tree))
+
+```
+
+
 20. Au moyen de la fonction `strsplit()`, extrayez les noms des gènes significatifs à partir des étiquettes de lignes de la matrice d'expression. Ces étiquettes contiennent 2 identifiants séparés par un caractère $|$ (tube): nom de gène et identifiant de la sonde sur la biopuce. 
+
+```{r}
+gene.rownames <- rownames(expr.matrix)
+
+gene.desc <- t(data.frame(strsplit(x = gene.rownames, split = '|', fixed=TRUE)))
+rownames(gene.desc) <- rownames(expr.matrix)
+colnames(gene.desc) <- c("gene.name", "affy.ID")
+# dim(gene.desc)
+kable(head(gene.desc))
+
+## Selected gene names
+selected.gene.names <- as.vector(gene.desc[selected.genes, "gene.name"])
+
+selected.affy.IDs <- as.vector(gene.desc[selected.genes, "affy.ID"])
+```
+
 
 21. Analysez l'enrichissement fonctionnel de ces gènes avec les deux outils suivants: 
 
