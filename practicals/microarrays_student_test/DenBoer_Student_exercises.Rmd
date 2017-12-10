@@ -3,6 +3,13 @@ title: "Exercices en R - Analyse des données de biopuces de Den Boer et al. (20
 author: "Jacques van Helden & Annie Broglio"
 date: '`r Sys.Date()`'
 output:
+  pdf_document:
+    fig_caption: no
+    highlight: zenburn
+    toc: yes
+    toc_depth: 2
+  md_document:
+    variant: markdown_github
   html_document:
     code_folding: show
     fig_caption: no
@@ -11,13 +18,6 @@ output:
     toc: yes
     toc_depth: 3
     toc_float: yes
-  md_document:
-    variant: markdown_github
-  pdf_document:
-    fig_caption: no
-    highlight: zenburn
-    toc: yes
-    toc_depth: 2
   word_document:
     toc: no
     toc_depth: 2
@@ -161,7 +161,7 @@ print(paste("URL for the microarray data folder: ", microarray.data.url))
 
 ```
 
-We will now load the expression matrix, which is stored in the file named *GSE13425_Norm_Whole.txt* in  the microarray data folder of the server.  This file contains a table with one row per probeset (~gene) and one column per sample. Each sample was taken from a patient suffering from a particular type of **Acute Lymphoblastic Leukemia** (**ALL**). 
+Nous allons maintenant charger la matrice d'expression, fournie dans le fichier `GSE13425_Norm_Whole.txt` dans le dossier Den Boer du serveu. Ce fichier contient un tableau avec 1 ligne par gène^[Plus précisément, chaque ligne correspond à un "probeset", qui mesure la concentration d'une série d'oligonucléotides représentatifs d'un gène. Certains gènes sont représentés par plusieurs probesets, mais par souci de simplicité nous utiliserons le mot "gène" pour les mesures ci-dessous. ] et 1 colonne par échantillon. Chaque échantillon provient d'un patient souffrant de leucémie lymphoblatique aiguë (ALL). 
 
 We will once use the following functions: 
 
