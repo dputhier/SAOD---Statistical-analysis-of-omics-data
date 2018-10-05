@@ -1,0 +1,224 @@
+---
+title: "The Chi-squared distribution and related tests"
+author: "Denis Puthier"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: no
+    toc_depth: 3
+  word_document: default
+css: course.css
+---
+
+
+<script type="">
+    $(function() {
+        $(".hideshow").click(function() {
+                $(this).parent().find(".exo_code").toggle();
+        });
+            
+    })
+</script>
+
+<style>
+.exo_code {
+  display:none;
+}
+
+pre  {
+  background-color: #2C3539!important;
+  color: white;
+} 
+
+pre.text {
+  background-color: #2C3539 !important;
+}
+
+hr {
+  color: grey !important;
+}
+
+
+hr {
+  color: grey !important;
+}
+</style>
+
+
+
+# The 	$\chi^2$ distribution
+
+## Definition
+
+**from wikipedia**: In probability theory and statistics, the chi-squared distribution (also chi-square or $\chi^2$-distribution) with k degrees of freedom is the distribution of a sum of the squares of k independent standard normal random variables.
+
+In other words, given  $x_1, x_2, ... , x_i$, $k$ independent variables drawn from a normal distribution  with mean 0 and standard deviation1, then the sum of their squares:
+
+$$Q\ = \sum_{i=1}^k x_i^2$$
+
+is distributed according to the chi-squared distribution with $k$ degrees of freedom. It is generally denoted as 
+$$Q\ \sim\ \chi^2(k)\ \ \text{or}\ \ Q\ \sim\ \chi^2_k .$$
+
+
+## Is the $\chi^2$ distribution a good model ?
+
+R contains all the necessary functions to compute random variables following a $\chi^2$ distribution, the density function of the  $\chi^2$ distribution or the associated p-value for any degree of freedom.
+
+
+
+```{r}
+apropos("chisq$")
+```
+
+In the exercice below will compare the $\chi^2$ distribution model to a distribution obtained by randomly computing values for $Q$ with a fixed degree of freedom. 
+
+**NB**: Regarding R code, we will use "_" characters for naming variables instead of classical '.'. This refers to the official [Hadley style of coding](http://stat405.had.co.nz/r-style.html). This is more Pythonic !!
+
+
+
+<div class="exo">
+- create a variable $k\_val$ that will be set to 5.
+- Using the *replicate()* function and the *rnorm()* function, create 100000 samples of size $k\_val$ taken from a normal distribution with population mean 0 and standard deviation 1.
+- Using *colSums()*, compute, for each sample, the sum of the squares.
+- Draw the distribution of the obtained dataset.
+    - Using the *hist()* function.
+    - Using the *density()* and *plot()* function.
+- Using the *dchisq()* function, check that the obtained distribution is well modeled by the $\chi^2$ distribution.
+- Compute the $\chi^2$ distribution using $k\_val$ ranging from 5 to 50 with step by 5. 
+- Conclude.
+</div>
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo_code">
+```{r}
+#-----------------------------------------------------------------------
+# Using the replicate() function and the rnorm() function, create 100000 
+# samples of size k_val taken from a 
+# normal distribution with population mean 0 and standard deviation 1
+#-----------------------------------------------------------------------
+k_val <- 5
+n <- 100000
+x_val <- replicate(n, rnorm(5, mean = 0, sd = 1))
+
+#-----------------------------------------------------------------------
+# Using *colSums()*, compute, for each sample, the sum of the squares.
+#-----------------------------------------------------------------------
+x_srqt_sum <- colSums(x_val^2)
+par(mfrow=c(1,2))
+
+#-----------------------------------------------------------------------
+# Draw the distribution of the obtained dataset.
+#-----------------------------------------------------------------------
+
+hist(x_srqt_sum, 
+     col="blue", 
+     border = "white", 
+     breaks = 100)
+plot(density(x_srqt_sum), 
+     lwd=2, 
+     col="blue", 
+     panel.first=grid(),
+     xlab="x")
+
+#-----------------------------------------------------------------------
+# Using the *dchisq* function, check that the obtained distribution is 
+# well modeled by the $\chi^2$ distribution.
+#-----------------------------------------------------------------------
+par(mfrow=c(1,1))
+plot(density(x_srqt_sum), 
+     lwd=2, 
+     col="blue", 
+     panel.first=grid(),
+     xlab="x")
+points(0:30,
+       dchisq(0:30, df=k_val),
+       col="red",
+       lw=2,
+       pch=16)
+
+```
+
+</div>
+
+## What is the mathematical formula of $\chi^2$ distribution ?
+
+TODO: write formula in latex
+
+<div class="exo">
+- Check, using a diagram and using standard R functions/operators that, for $k_val=5$ the mathematical formula fits with the values returns by *dchisq()* function.
+</div>
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo_code">
+```{r}
+x <- 0:30
+c = 1/(2^(k_val/2)*gamma(k_val/2)) 
+c*x^(k_val/2-1)*exp(-1/2*x)
+plot(0:30, c*x^(k_val/2-1)*exp((-1/2)*x), 
+     type="l",
+     col="blue",
+     panel.first = grid()) 
+points(0:30,
+       dchisq(0:30, df=k_val),
+       col="red",
+       lw=2,
+       pch=16)
+```
+</div>
+
+
+## Computing the $\chi^2$ distribution for various degree of freedom
+
+TODO: intro
+
+<div class="exo">
+- Compute the $\chi^2$ distribution for various degree of freedom (1,5,15...50).
+</div>
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo_code">
+```{r}
+
+## Create a color palette
+if(!require(RColorBrewer)) install.packages('RColorBrewer')
+color_pal <- brewer.pal(11, name = "Paired")
+
+
+## Compute and draw density diagram of Chi-squared Distribution
+# The values taken by k will be successively 1,5,15...50
+k_val <- c(1, seq(5, 50, by=5))
+
+# Draw a Chi-squared Distribution for k = 1
+xlim <- c(0,100)
+i = 1
+plot(seq(xlim[1], xlim[2], length.out = 100), 
+     dchisq(k_val[i], x=seq(xlim[1], xlim[2], length.out = 100)), 
+     type="l", col= color_pal[i], 
+     panel.first = grid(),
+     lwd=2,
+     xlab="x",
+     ylab="P(X)"
+     )
+
+for(i in 2:length(k_val)){
+  points(seq(xlim[1], xlim[2], length.out = 100), 
+         dchisq(k_val[i], x=seq(xlim[1], xlim[2], length.out = 100)), 
+         type="l", 
+         col= color_pal[i],
+         lwd=2)
+}
+
+legend("topright", 
+       legend=k_val, 
+       fill=color_pal)
+```
+</div>
+
+
+
