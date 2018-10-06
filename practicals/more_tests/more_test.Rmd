@@ -68,16 +68,44 @@ $$Q\ = \sum_{i=1}^k x_i^2$$
 is distributed according to the chi-squared distribution with $k$ degrees of freedom. It is generally denoted as 
 $$Q\ \sim\ \chi^2(k)\ \ \text{or}\ \ Q\ \sim\ \chi^2_k .$$
 
+## Probability density function of $\chi^2$ distribution 
 
-## Is the $\chi^2$ distribution a good model ?
+The probability density function (pdf) of the chi-square distribution is:
 
-R contains all the necessary functions to compute random variables following a $\chi^2$ distribution, the density function of the  $\chi^2$ distribution or the associated p-value for any degree of freedom.
+$$f(x;\,k) =
+\begin{cases}
+  \dfrac{x^{\frac k 2 -1} e^{-\frac x 2}}{2^{\frac k 2} \Gamma\left(\frac k 2 \right)},  & x > 0; \\ 0, & \text{otherwise}.
+\end{cases}$$
 
 
-
+<div class="exo">
+- Check, using a diagram and using standard R functions/operators that, for $k_val=5$ the mathematical formula fits with the values returns by *dchisq()* function.
+</div>
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo_code">
 ```{r}
-apropos("chisq$")
+k_val <- 5
+x <- 0:30
+denom = (2^(k_val/2)*gamma(k_val/2)) 
+num = x^(k_val/2-1)*exp(-x/2)
+
+plot(0:30, num/denom, 
+     type="l",
+     col="blue",
+     panel.first = grid(),
+     xlab="x",
+     ylab="f(x;k)")
+points(0:30,
+       dchisq(0:30, df=k_val),
+       col="red",
+       lw=2,
+       pch=16)
 ```
+</div>
+
+
+## Testing the model
+
 
 In the exercice below will compare the $\chi^2$ distribution model to a distribution obtained by randomly computing values for $Q$ with a fixed degree of freedom. 
 
@@ -104,7 +132,6 @@ In the exercice below will compare the $\chi^2$ distribution model to a distribu
 # samples of size k_val taken from a 
 # normal distribution with population mean 0 and standard deviation 1
 #-----------------------------------------------------------------------
-k_val <- 5
 n <- 100000
 x_val <- replicate(n, rnorm(5, mean = 0, sd = 1))
 
@@ -148,30 +175,6 @@ points(0:30,
 
 </div>
 
-## What is the mathematical formula of $\chi^2$ distribution ?
-
-TODO: write formula in latex
-
-<div class="exo">
-- Check, using a diagram and using standard R functions/operators that, for $k_val=5$ the mathematical formula fits with the values returns by *dchisq()* function.
-</div>
-<div class="hideshow"> << Hide | Show >> </div>
-<div class="exo_code">
-```{r}
-x <- 0:30
-c = 1/(2^(k_val/2)*gamma(k_val/2)) 
-c*x^(k_val/2-1)*exp(-1/2*x)
-plot(0:30, c*x^(k_val/2-1)*exp((-1/2)*x), 
-     type="l",
-     col="blue",
-     panel.first = grid()) 
-points(0:30,
-       dchisq(0:30, df=k_val),
-       col="red",
-       lw=2,
-       pch=16)
-```
-</div>
 
 
 ## Computing the $\chi^2$ distribution for various degree of freedom
@@ -203,7 +206,7 @@ plot(seq(xlim[1], xlim[2], length.out = 100),
      panel.first = grid(),
      lwd=2,
      xlab="x",
-     ylab="P(X)"
+     ylab="f(x;k)"
      )
 
 for(i in 2:length(k_val)){
@@ -215,10 +218,18 @@ for(i in 2:length(k_val)){
 }
 
 legend("topright", 
-       legend=k_val, 
+       legend=paste("k=", k_val, sep=""), 
        fill=color_pal)
 ```
 </div>
 
 
+# Chi-squared test
+
+In statistics, a $\chi^2$ test, is a statistical test in which the sampling distribution of the test statistic follows a $\chi^2$ distribution under the null hypothesis. The $\chi^2$ statistics is used in several tests. However, without other qualification, 'chi-squared test' is often used as short for Pearson's chi-squared test. The chi-squared test is used to determine whether there is a significant difference between the expected frequencies and the observed frequencies in one or more categories. In the standard applications of the test, the observations are classified into mutually exclusive classes, and there is some theory, or say null hypothesis, which gives the probability that any observation falls into the corresponding class. The purpose of the test is to evaluate how likely the observations that are made would be, assuming the null hypothesis is true.
+
+
+## 
+
+## 
 
