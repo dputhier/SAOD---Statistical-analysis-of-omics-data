@@ -226,10 +226,63 @@ legend("topright",
 
 # Chi-squared test
 
-In statistics, a $\chi^2$ test, is a statistical test in which the sampling distribution of the test statistic follows a $\chi^2$ distribution under the null hypothesis. The $\chi^2$ statistics is used in several tests. However, without other qualification, 'chi-squared test' is often used as short for Pearson's chi-squared test. The chi-squared test is used to determine whether there is a significant difference between the expected frequencies and the observed frequencies in one or more categories. In the standard applications of the test, the observations are classified into mutually exclusive classes, and there is some theory, or say null hypothesis, which gives the probability that any observation falls into the corresponding class. The purpose of the test is to evaluate how likely the observations that are made would be, assuming the null hypothesis is true.
+In statistics, a $\chi^2$ test, is a statistical test in which the sampling distribution of the test statistic follows a $\chi^2$ distribution under the null hypothesis. The $\chi^2$ statistics is used in several statistical tests. However, without other qualification, 'chi-squared test' is often used as short for Pearson's chi-squared test. The chi-squared test is used to determine whether there is a significant difference between the expected frequencies and the observed frequencies in one or more categories. 
 
 
-## 
+## Pearson's chi-squared test
 
-## 
+Suppose that n observations in a random sample from a population are classified into k mutually exclusive classes with respective observed numbers $x_i$ (for $i=1,2...k$),and a null hypothesis gives the probability $p_i$ that an observation falls into the ith class. So we have the expected numbers $m_i = np_i$ for all $i$, where:
+
+$$\sum^k_{i=1}{p_i} = 1$$
+$$\sum^k_{i=1}{m_i} =n\sum^k_{i=1}{p_i} = \sum_{i=1}^{k}x_i$$
+
+Pearson proposed that, under the circumstance of the null hypothesis being correct, the score below follows $\chi^2$ distribution with $k-1$ degrees of freedom.
+
+
+$$X^2=\sum^k_{i=1}{\frac{(x_i-m_i)^2}{m_i}}$$
+
+This score is frequently viewed as:
+
+$$X^2=\sum^k_{i=1}{\frac{(observed_i-expected_i)^2}{expected_i}}$$
+
+
+### Using chi-squarred to test for goodness of fit
+
+
+The Pearson's chi-squared test is frequently used to test whether a random variable $Y$ has a distribution that is compatible (*i.e* can be well modeled) with a known probability distribution (*e.g* normal, geometric, binomial...). It is thus a measure of, the goodness of fit, that is, how well the  model fits the variable $Y$. When testing for goodness of fit using a $chi^2$ test, the null hypothesis is thus "$Y$ follows a distribution P".
+
+
+#### Example: testing for a Poisson distribution.
+
+
+Let's consider a random variable $Y$ with null or positive discrete values. A sample of 100 values taken from$Y$ is provided below.
+
+
+```{r}
+y <- c(30, 43, 17, 8, 2)
+names(y) <- c("0", "1", "2", "3", "4")
+```
+<div class="exo">
+- Base on the provided sample, compute the expected mean ($\mu$) of the modeled Poisson distribution ($\mu=\sum_{i}^nx_ip_i$).
+- What is the expected the number of events associated to value $0,1...4$ under a Poisson model with $\lambda=\mu$. Use de *dpois()* function. 
+- Compute the $\chi^2$ statistics.
+- Compute the p-value for the associated $\chi^2$ statistics.
+- 
+</div>
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo_code">
+```{r}
+## Compute the expected mean of the modeled Poisson distribution
+mu <- sum(0:4*y/100)
+
+## What is the expected the number of events associated to value $0,1...4$ under a Poisson model with lambda=mu
+expected <- dpois(0:4, lambda = mu) * 100
+
+## Compute the chi-squarred statistics.
+chi_stat <- sum((y-expected)^2/expected)
+
+
+
+```
+</div>
 

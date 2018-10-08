@@ -522,7 +522,7 @@ The objects resulting from *hclust* calls can also be used to construct a heatma
 
 ```{r}
 
-library("GMD")
+#library("GMD")
 library("RColorBrewer")
 
 # Median center rows
@@ -545,7 +545,7 @@ col.fun = colorRampPalette(c("green", "black", "red"))
 
 
 
-library("GMD")
+#library("GMD")
 library("RColorBrewer")
 
 x11(height=14, width=14)
