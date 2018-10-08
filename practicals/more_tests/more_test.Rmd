@@ -10,6 +10,8 @@ output:
     toc: yes
     toc_depth: 3
     toc_float: yes
+    collapsed: false
+    smooth_scroll: false
   pdf_document:
     fig_caption: yes
     highlight: zenburn
@@ -246,11 +248,58 @@ This score is frequently viewed as:
 $$X^2=\sum^k_{i=1}{\frac{(observed_i-expected_i)^2}{expected_i}}$$
 
 
-### Using chi-squarred to test for goodness of fit
+### Using chi-squared to test for goodness of fit
 
 
 The Pearson's chi-squared test is frequently used to test whether a random variable $Y$ has a distribution that is compatible (*i.e* can be well modeled) with a known probability distribution (*e.g* normal, geometric, binomial...). It is thus a measure of, the goodness of fit, that is, how well the  model fits the variable $Y$. When testing for goodness of fit using a $chi^2$ test, the null hypothesis is thus "$Y$ follows a distribution P".
 
+
+#### Example: checking the balance of a gaming dice
+
+A gambler plays a game that involves throwing a dice in a succession of 100 trials. If the die being used is fair, then the chance of any particular number coming up is the same: 1/6. However, if the gambler uses a loaded diethen certain numbers will have a greater likelihood of appearing, while others will have a lower likelihood. The fairness of the dice can be tested using a $\chi^2$ test.
+
+Let's consider a random variable $Y$ that corresponds to the results obtained after throwing a dice 100 times:
+
+```{r}
+y <- c(11, 15, 16, 17, 18, 23)
+names(y) <- 1:6
+```
+
+<div class="exo">
+- Create a vector containing the probability associated with each face of a fair dice. 
+- Create a vector containing the expected number of success for each face with a fair dice.
+- Compute the $\chi^2$ statistics.
+- Compute the p-value for the associated $\chi^2$ statistics (the degree of freedom is $k-1$).   
+- Check that the same p-value is obtained using *chisq.test()*.
+- Conclusion ?
+</div>
+<div class="hideshow"> << Hide | Show >> </div>
+<div class="exo_code">
+```{r}
+## Create a vector containing the probability associated with each face of a fair dice. 
+prob <- rep(1/6, 6)
+
+## Create a vector containing the probability associated with each face of a fair dice. 
+expected <- prob * 100
+
+## Compute the $\chi^2$ statistics
+chi_stat <- sum((y - expected)^2/expected)
+
+## Compute the p-value for the associated $\chi^2$ statistics
+pchisq(q=chi_stat, df=length(y)-1, lower.tail = FALSE)
+
+## Check that the same p-value is obtained using chisq.test()
+chi_test_res <- chisq.test(x=y, p=prob)
+print(chi_test_res)
+is(chi_test_res)
+names(chi_test_res)
+chi_test_res$p.value
+
+## Conclude
+# The observed sample frequencies do not differ significantly 
+# from the expected frequencies of fair dice. 
+```
+</div>
 
 #### Example: testing for a Poisson distribution.
 
@@ -262,12 +311,14 @@ Let's consider a random variable $Y$ with null or positive discrete values. A sa
 y <- c(30, 43, 17, 8, 2)
 names(y) <- c("0", "1", "2", "3", "4")
 ```
+
 <div class="exo">
 - Base on the provided sample, compute the expected mean ($\mu$) of the modeled Poisson distribution ($\mu=\sum_{i}^nx_ip_i$).
-- What is the expected the number of events associated to value $0,1...4$ under a Poisson model with $\lambda=\mu$. Use de *dpois()* function. 
-- Compute the $\chi^2$ statistics.
-- Compute the p-value for the associated $\chi^2$ statistics.
-- 
+- What is the probability of observing $0,1...4,>4$ under a Poisson model with $\lambda=\mu$. Use de *dpois()* function ? 
+- What is the expected number of observation in each class under the same Poisson model ?
+- Compute the $\chi^2$ statistics (for the vector Y the number of observation greater than 4 is 0 !).
+- Compute the p-value for the associated $\chi^2$ statistics. 
+- Conclude.
 </div>
 <div class="hideshow"> << Hide | Show >> </div>
 <div class="exo_code">
@@ -275,14 +326,25 @@ names(y) <- c("0", "1", "2", "3", "4")
 ## Compute the expected mean of the modeled Poisson distribution
 mu <- sum(0:4*y/100)
 
-## What is the expected the number of events associated to value $0,1...4$ under a Poisson model with lambda=mu
-expected <- dpois(0:4, lambda = mu) * 100
+## What is the probability of observing 0,1...4,>4 under a Poisson model with lambda=mu
+prob <- c(dpois(0:4, lambda = mu), 1-sum(dpois(0:4, lambda = mu))) 
+# or
+prob <- c(dpois(0:4, lambda = mu), ppois(q=4, lambda = mu, lower.tail = FALSE)) 
 
-## Compute the chi-squarred statistics.
-chi_stat <- sum((y-expected)^2/expected)
+## What is the expected number of observation in each class under the same Poisson model ?
 
+expected <- prob*100
 
+## Compute the chi-squared statistics.
 
+chi_stat <- sum((c(y,0)-expected)^2/expected)
+
+## Compute the p-value for the associated chi-squared statistics.
+pchisq(q=chi_stat, df=length(c(y,0))-2, lower.tail = FALSE)
+
+## Conclude
+# The observed sample frequencies do not differ significantly 
+# from the expected frequencies of a Poisson model with lambda = mu
 ```
 </div>
 
