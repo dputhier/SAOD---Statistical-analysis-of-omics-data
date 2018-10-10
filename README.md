@@ -1,2 +1,1 @@
-# ASG
-Analyse Statistique des données Génomiques 
+# SAOD---Statistical-analysis-of-omics-data
