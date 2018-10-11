@@ -475,6 +475,7 @@ The question we wish to answer is whether alternative promoter usage correlates 
 
 ```{r altprom}
 altprom = read.csv('https://raw.githubusercontent.com/dputhier/SAOD---Statistical-analysis-of-omics-data/gh-pages/practicals/chi-square/alt_prom_coverage.tsv', sep='\t')
+altprom[2:4] = round(altprom[2:4])
 
 
 for (gene in unique(altprom$gene)){
