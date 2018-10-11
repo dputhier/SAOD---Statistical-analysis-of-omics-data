@@ -477,10 +477,9 @@ The question we wish to answer is whether alternative promoter usage correlates 
 altprom = read.csv('https://raw.githubusercontent.com/dputhier/SAOD---Statistical-analysis-of-omics-data/gh-pages/practicals/chi-square/alt_prom_coverage.tsv', sep='\t')
 
 
-chisq.results = list()
 for (gene in unique(altprom$gene)){
   table =  altprom[altprom$gene == gene,2:4]
-  chisq.results[gene] = chisq.test(table)
+  chisq.test(table)
 }
 ```
 
