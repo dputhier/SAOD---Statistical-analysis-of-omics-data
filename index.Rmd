@@ -1,0 +1,28 @@
+---
+title: "Analyse Statistique des donn??es G??nomiques"
+output:
+  html_document:
+    fig_caption: yes
+    highlight: zenburn
+    theme: cerulean
+    toc: no
+    toc_depth: 3
+    toc_float: no
+#css: ../../html/course.css
+---
+
+
+## Teachers
+
+| Abbrev | Name  |
+|----------|--------------------------------------------------|
+| DP |  Denis Puthier |
+| Quentin | Ferre |
+| | |
+
+## Versions
+
+### Course 2018
+
+[Web site](course_contents_saod_2018.html)
+[Examen](examens/2018_stat3/home_work_stat3_2018.html)
