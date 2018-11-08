@@ -144,7 +144,7 @@ In total, the report should not exceed 7-8 pages, including figures, but without
 
 5. **Conclusion and perspective** (~1/2 page): summarize the results, show in what they did -- or did not -- enable you to answer the initial questions of the introduction, and add some perspectives about possible future extensions of the work presented here. 
 
-6. **Appendices:* any additional information or result that might be helpful to consult in order to get a deeper understanding of your results. 
+
 
 
 **Format:** the report can be submitted in either html or pdf format. The original Rmd file that was used to generate the report must be submitted together with the report. This file should allow the teachers to reprodue the analysis on their computers. 
