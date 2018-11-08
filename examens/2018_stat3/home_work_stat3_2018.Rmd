@@ -90,8 +90,8 @@ This works aims at re-analysing data from Meldi *et al* using classical statisti
 
 The dataset was obtained from recount2 database [-@pmid29043067; -@pmid28398307]. The recount2 database is an online resource consisting of RNA-seq gene and exon counts as well as coverage bigWig files for 2041 different studies. The dataset provided to students contains:
 
-- An expression matrix (genes as rows and samples as columns) availabe.
-- A matrix containing samples as rows and phenotype information as column.
+- An expression matrix (genes as rows and samples as columns) available [here](https://github.com/dputhier/SAOD---Statistical-analysis-of-omics-data/raw/gh-pages/examens/2018_stat3/exp_matrix.txt).
+- A matrix containing samples as rows and phenotype information as column. Avalaible [here](https://raw.githubusercontent.com/dputhier/SAOD---Statistical-analysis-of-omics-data/gh-pages/examens/2018_stat3/pheno_data.txt).
 
 All informations regarding this dataset can be obtained from SRA. The Bioproject ID of this study is (PRJNA260377)[https://www.ncbi.nlm.nih.gov/bioproject/].The Gene Expression Omnibus identifier is [GSE61162](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE61162).
 
