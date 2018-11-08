@@ -1,0 +1,15 @@
+Sample	response
+SRR1566088	response to decitabine: responder
+SRR1566089	response to decitabine: non-responder
+SRR1566090	response to decitabine: responder
+SRR1566091	response to decitabine: non-responder
+SRR1566092	response to decitabine: non-responder
+SRR1566093	response to decitabine: non-responder
+SRR1566094	response to decitabine: non-responder
+SRR1566095	response to decitabine: responder
+SRR1566097	response to decitabine: non-responder
+SRR1566096	response to decitabine: responder
+SRR1566098	response to decitabine: responder
+SRR1566099	response to decitabine: responder
+SRR1566100	response to decitabine: responder
+SRR1566101	response to decitabine: responder
