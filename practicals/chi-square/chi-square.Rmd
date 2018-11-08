@@ -463,10 +463,30 @@ p2 <- res[2,1]/(res[2,1] + res[2,2])
 ```
 
 
+#### Alternative promoters example
+
+We work in lymphoctes here.
+
+Genes can have multiple promoters. In this example, we perform a ChIP-Seq of H3K4me3 marks against several genes. Here, we provide a table of peak coverage (in thousands of reads) for each H3K4me3 peak that intersect a known TSS for the given genes.
+
+This ChIP-Seq is run in three different conditions : healthy thymic cells (normal), leukemic thymic cells (t_all) and immortalized cell lines (cell_line).
+
+The question we wish to answer is whether alternative promoter usage correlates to the cell status (healthy, cancerous).
+
+```{r altprom}
+altprom = read.csv('https://raw.githubusercontent.com/dputhier/SAOD---Statistical-analysis-of-omics-data/gh-pages/practicals/chi-square/alt_prom_coverage.tsv', sep='\t')
+altprom[2:4] = round(altprom[2:4])
 
 
+for (gene in unique(altprom$gene)){
+  table =  altprom[altprom$gene == gene,2:4]
+  chisq.test(table)
+}
+```
 
 
+*Your goal* : run the Chi-Squared test for all conditions, per gene.
 
+You will take notes of any error messages and try to interpret the results.
 
 
