@@ -100,9 +100,11 @@ All informations regarding this dataset can be obtained from SRA. The Bioproject
 
 - **Descriptive statistics :** Using a set of well choosen diagrams and appropriate transformation (*e.g* addition of a pseudo-count and log2 transformation ) describe the basic features of the dataset. Try do highlight some potential biases. This step may be performed or not using ggplot2 library.
 
-- **Unsupervized clustering with hierarchical clustering:** Using the whole dataset as input, compute a dendrogram displaying the hierarchical classification of the samples before feature selection (*i.e* gene selection). 
+- **Unsupervized clustering with hierarchical clustering:** Using the whole dataset as input, compute a dendrogram displaying the hierarchical classification of the samples before feature selection (*i.e* gene selection). Discuss the results.
 
 - **Detection differentially expressed genes:** run a statistical analysis of the read counts, in order to detect differentially expressed genes (**DEG**) between the two selected classes. Discuss the results. You may add a volcano plot to highlight the most differentially expressed genes.
+
+- **Unsupervized clustering with hierarchical clustering after feature selection:** Using the selected genes as input, compute a dendrogram displaying the hierarchical classification of the samples after feature selection (*i.e* gene selection). Discuss the results.
 
 - **Functional annotation:** Use the *gProfiler* R package to study the functional associations of the upregulated and downregulated genes, and provide a biological interpretation of these results.
 
