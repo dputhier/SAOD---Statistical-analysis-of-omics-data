@@ -1,5 +1,5 @@
 ---
-title: "exam_stat3_2018"
+title: "Examen - STAT3-2018"
 author: "Denis Puthier"
 date: "11/8/2018"
 output:
