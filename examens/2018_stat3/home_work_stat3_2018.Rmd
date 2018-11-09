@@ -125,7 +125,7 @@ The report should contain the analysis of the provided data (see the *Questions*
 -  **Spelling and grammar:** The report can be written in French or English. Sentences should be carefully written regarding the scientific meaning (no 'blah, blah, blah' just facts) and spelling and grammar. Manuscript not reaching the standard will be penalized.
         
 
-## Format of the report
+# Format of the report
 
 1. **Source document in Rmd**. The primary report is an R markdown document (.Rmd extension) which **must** contain all the code used to run the anlayses, as well as the main tables and figures produced by the analysis, and a text structured according to the common practice for scientific articles. 
 
@@ -134,7 +134,7 @@ The report should contain the analysis of the provided data (see the *Questions*
 
 2. **Compiled report (html or pdf)**. This report should look like a small scientific article (see structure hereafter) with Figures, Tables, and interpretation of the results.  The **R** code should not be displayed in the compiled report (set the knitr option `r{echo=FALSE}` when generating the last version). Think of your report as a document written for a biologists who wants to understand the approach and the results, but is not interested by the technical details of the R programming. 
 
-## Structure of the report
+# Structure of the report
 
 In total, the report should not exceed 7-8 pages, including figures, but without counting the bibliographic references and appendices (for which there is no limit).
 
@@ -154,7 +154,7 @@ In total, the report should not exceed 7-8 pages, including figures, but without
 **Format:** the report can be submitted in either html or pdf format. The original Rmd file that was used to generate the report must be submitted together with the report. This file should allow the teachers to reprodue the analysis on their computers. 
 
 
-## Evaluation criteria
+# Evaluation criteria
 
 The evaluation of your report will be based on multiple criteria.
 
