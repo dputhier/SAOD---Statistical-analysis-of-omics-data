@@ -92,6 +92,7 @@ The dataset was obtained from recount2 database [-@pmid29043067; -@pmid28398307]
 
 - An expression matrix (genes as rows and samples as columns) available [here](https://github.com/dputhier/SAOD---Statistical-analysis-of-omics-data/raw/gh-pages/examens/2018_stat3/exp_matrix.txt.gz).
 - A matrix containing samples as rows and phenotype information as column. Avalaible [here](https://raw.githubusercontent.com/dputhier/SAOD---Statistical-analysis-of-omics-data/gh-pages/examens/2018_stat3/pheno_data.txt).
+- A two columns matrix containing genesets. To be used for testing drug effects (see Question) section. Available [here]()
 
 All informations regarding this dataset can be obtained from SRA. The Bioproject ID of this study is (PRJNA260377)[https://www.ncbi.nlm.nih.gov/bioproject/].The Gene Expression Omnibus identifier is [GSE61162](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE61162).
 
@@ -105,6 +106,7 @@ All informations regarding this dataset can be obtained from SRA. The Bioproject
 - **Detection differentially expressed genes:** run a statistical analysis of the read counts, in order to detect differentially expressed genes (**DEG**) between the two selected classes. Discuss the results. You may add a volcano plot to highlight the most differentially expressed genes.
 
 - **Unsupervized clustering with hierarchical clustering after feature selection:** Using the selected genes as input, compute a dendrogram displaying the hierarchical classification of the samples after feature selection (*i.e* gene selection). Discuss the results.
+
 
 - **Functional annotation:** Use the *gProfiler* R package to study the functional associations of the upregulated and downregulated genes, and provide a biological interpretation of these results.
 
