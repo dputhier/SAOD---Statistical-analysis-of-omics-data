@@ -84,7 +84,7 @@ In their article entitle "Specific molecular signatures predict decitabine respo
 
 # Objective
 
-This works aims at re-analysing data from Meldi *et al* using classical statistic tools.  
+This works aims to re-analyse data from Meldi *et al.* using classical statistic tools.  
 
 # Dataset
 
@@ -99,7 +99,7 @@ All informations regarding this dataset can be obtained from SRA. The Bioproject
 
 # Questions
 
-- **Descriptive statistics :** Using a set of well choosen diagrams and appropriate transformation (*e.g* addition of a pseudo-count and log2 transformation ) describe the basic features of the dataset. Try do highlight some potential biases. This step may be performed or not using ggplot2 library.
+- **Descriptive statistics :** Using a set of well chosen diagrams and appropriate transformation (*e.g* addition of a pseudo-count and log2 transformation ) describe the basic features of the dataset. Try do highlight some potential biases. This step may be performed with or wihout using the **ggplot2** library.
 
 - **Unsupervized clustering with hierarchical clustering:** Using the whole dataset as input, compute a dendrogram displaying the hierarchical classification of the samples before feature selection (*i.e* gene selection). Discuss the results.
 
@@ -107,16 +107,15 @@ All informations regarding this dataset can be obtained from SRA. The Bioproject
 
 - **Unsupervized clustering with hierarchical clustering after feature selection:** Using the selected genes as input, compute a dendrogram displaying the hierarchical classification of the samples after feature selection (*i.e* gene selection). Discuss the results.
 
-
 - **Functional annotation:** Use the *gProfiler* R package to study the functional associations of the upregulated and downregulated genes, and provide a biological interpretation of these results.
 
-- **Testing drug effects :** The 'drug_gene_sets.txt' contains a set of 38 gene sets (one per line). These gene sets correspond to the target genes that some bioactive molecules (*e.g* N-Benzylnaltrindole hydrochloride, BRD-K66792149, vorinostat...) may negatively regulate. Using a Fisher test whether an association exists between one or more of these lists and the list of genes upregulated in non-responsive patients. Conclude.
+- **Testing drug effects :** The 'drug_gene_sets.txt' contains a set of 38 gene sets (one per line). These gene sets correspond to the target genes that some bioactive molecules (*e.g* N-Benzylnaltrindole hydrochloride, BRD-K66792149, vorinostat...) may negatively regulate. Using a Fisher test, find whether an association exists between one or more of these lists and the list of genes upregulated in non-responsive patients. Explain the mathematical principle behind this test. Conclude.
 
 ## Usage of the good practices
 
 The report should contain the analysis of the provided data (see the *Questions* section). The expected format is a pdf or html file produced from a Rmarkdown file. During all your analysis you should take care to respect the following policies:
 
-- **Tractability:** you and other people should be able to track the origin of all your results. For this, you need to keep a trace of each step of each analysis. 
+- **Traceability:** you and other people should be able to track the origin of all your results. For this, you need to keep a trace of each step of each analysis. 
     
 - **Reproducibility:** other people should be able not only to trace the origin of your results, but also to reproduce them by themselves. NGS data analysis lends itself particularly well to reproducibility, since everything is done on computers and managed via software (tools and scripts). 
     
@@ -147,8 +146,6 @@ In total, the report should not exceed 7-8 pages, including figures, but without
 4. **Results and discussion:** the results should be presented and discussed together in this section. This section contains the main figures and tables that are used to interpret the results. Additional figures and tables can be provided as appendices, or as separate files (for example full result tables with all the genes, ...).
 
 5. **Conclusion and perspective** (~1/2 page): summarize the results, show in what they did -- or did not -- enable you to answer the initial questions of the introduction, and add some perspectives about possible future extensions of the work presented here. 
-
-
 
 
 **Format:** the report can be submitted in either html or pdf format. The original Rmd file that was used to generate the report must be submitted together with the report. This file should allow the teachers to reprodue the analysis on their computers. 
